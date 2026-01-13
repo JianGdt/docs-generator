@@ -3,7 +3,7 @@
 import { FileText } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import LoginForm from "../Login";
+import LoginForm from "../../(auth)/Login";
 
 function LoginContent() {
   const searchParams = useSearchParams();
@@ -12,7 +12,6 @@ function LoginContent() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-slate-900 to-purple-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Logo/Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center space-x-3 mb-4">
             <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-3 rounded-lg">
@@ -25,7 +24,6 @@ function LoginContent() {
           </p>
         </div>
 
-        {/* Success Message */}
         {registered && (
           <div className="mb-6 bg-green-500/10 border border-green-500/50 rounded-lg p-4">
             <p className="text-green-400 text-sm text-center">

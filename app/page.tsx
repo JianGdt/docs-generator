@@ -1,4 +1,4 @@
-import DocsGenerator from "./_components/docs-generator/DocsGenerator";
+import DocsGenerator from "./docs-generator/page";
 
 export default function Home() {
   return <DocsGenerator />;

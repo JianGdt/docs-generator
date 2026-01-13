@@ -1,5 +1,5 @@
 import { FileText } from "lucide-react";
-import RegisterForm from "../Register";
+import RegisterForm from "../../(auth)/Register";
 
 export default function RegisterPage() {
   return (

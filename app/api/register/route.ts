@@ -13,12 +13,9 @@ const registerSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-
-    // Validate input
     const validatedData = registerSchema.parse(body);
     const { name, email, password } = validatedData;
 
-    // Check if user already exists
     const db = await getDatabase();
     const existingUser = await db.collection<User>("users").findOne({ email });
 

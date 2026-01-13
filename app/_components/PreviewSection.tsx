@@ -1,9 +1,16 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Eye, Copy, Check, Download, FileText, ExternalLink } from 'lucide-react';
-import StatsDisplay from './StatsDisplay';
-import { useDocsStore } from '@/app/lib/store';
+import React, { useState } from "react";
+import {
+  Eye,
+  Copy,
+  Check,
+  Download,
+  FileText,
+  ExternalLink,
+} from "lucide-react";
+import StatsDisplay from "./StatsDisplay";
+import { useDocsStore } from "@/app/lib/store";
 
 export default function PreviewSection() {
   const { generatedDocs, docType } = useDocsStore();
@@ -15,14 +22,14 @@ export default function PreviewSection() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy:', err);
+      console.error("Failed to copy:", err);
     }
   };
 
   const downloadMarkdown = () => {
-    const blob = new Blob([generatedDocs], { type: 'text/markdown' });
+    const blob = new Blob([generatedDocs], { type: "text/markdown" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = `${docType.toUpperCase()}.md`;
     document.body.appendChild(a);
@@ -32,15 +39,14 @@ export default function PreviewSection() {
   };
 
   const openInNewTab = () => {
-    const blob = new Blob([generatedDocs], { type: 'text/markdown' });
+    const blob = new Blob([generatedDocs], { type: "text/markdown" });
     const url = URL.createObjectURL(blob);
-    window.open(url, '_blank');
+    window.open(url, "_blank");
   };
 
   return (
     <div className="space-y-6">
       <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl shadow-2xl border border-blue-500/20 overflow-hidden">
-        {/* Preview Header */}
         <div className="flex items-center justify-between px-6 py-4 bg-slate-900/50 border-b border-slate-700">
           <div className="flex items-center space-x-2">
             <Eye className="w-5 h-5 text-blue-400" />
@@ -90,7 +96,6 @@ export default function PreviewSection() {
           )}
         </div>
 
-        {/* Preview Content */}
         <div className="p-6 max-h-[calc(100vh-16rem)] overflow-y-auto custom-scrollbar">
           {!generatedDocs ? (
             <div className="flex flex-col items-center justify-center h-96 text-center">
@@ -98,21 +103,13 @@ export default function PreviewSection() {
                 <div className="absolute inset-0 bg-blue-500/20 blur-xl rounded-full"></div>
                 <FileText className="w-16 h-16 text-slate-600 relative" />
               </div>
-              <h3 className="text-xl font-semibold text-white mb-2">No Documentation Yet</h3>
+              <h3 className="text-xl font-semibold text-white mb-2">
+                No Documentation Yet
+              </h3>
               <p className="text-slate-400 max-w-md mb-6">
-                Enter your repository URL, paste code, or upload files to generate professional
-                documentation using Groq AI
+                Enter your repository URL, paste code, or upload files to
+                generate professional documentation using Groq AI
               </p>
-              <div className="flex items-center space-x-4 text-sm text-slate-500">
-                <div className="flex items-center space-x-1">
-                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                  <span>Free Tier Available</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-                  <span>Fast Generation</span>
-                </div>
-              </div>
             </div>
           ) : (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -126,10 +123,8 @@ export default function PreviewSection() {
         </div>
       </div>
 
-      {/* Quick Stats */}
       {generatedDocs && <StatsDisplay docs={generatedDocs} />}
 
-      {/* Tips Section */}
       {generatedDocs && (
         <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl p-4 border border-blue-500/20">
           <h4 className="text-white font-semibold text-sm mb-2 flex items-center space-x-2">
@@ -149,7 +144,9 @@ export default function PreviewSection() {
             <span>Tips</span>
           </h4>
           <ul className="space-y-1 text-xs text-slate-400">
-            <li>• Copy the markdown and paste it directly into your repository</li>
+            <li>
+              • Copy the markdown and paste it directly into your repository
+            </li>
             <li>• Download as .md file and add it to your project root</li>
             <li>• Customize the generated content to match your needs</li>
           </ul>

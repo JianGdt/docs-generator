@@ -46,7 +46,6 @@ export default function UserProfile({ userId }) {
   );
 }`;
 
-// Environment validation - FIXED
 export const ENV = {
   GROQ_API_KEY: process.env.GROQ_API_KEY,
   MONGODB_URI: process.env.MONGODB_URL, 
@@ -56,7 +55,6 @@ export const ENV = {
   NODE_ENV: process.env.NODE_ENV,
 } as const;
 
-// Validate required env vars (only on server)
 if (typeof window === "undefined") {
   if (!ENV.GROQ_API_KEY) {
     console.error("❌ GROQ_API_KEY is missing");

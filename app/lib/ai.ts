@@ -1,6 +1,6 @@
-import Groq from 'groq-sdk';
-import { DocType } from './types';
-import { ENV } from './constants';
+import Groq from "groq-sdk";
+import { DocType } from "./types";
+import { ENV } from "./constants";
 
 const groq = new Groq({
   apiKey: ENV.GROQ_API_KEY,
@@ -77,20 +77,19 @@ export async function generateDocumentation(
     const completion = await groq.chat.completions.create({
       messages: [
         {
-          role: 'user',
+          role: "user",
           content: PROMPTS[type](codeContext),
         },
       ],
-      model: 'llama-3.3-70b-versatile',
+      model: "llama-3.3-70b-versatile",
       temperature: 0.7,
       max_tokens: 4096,
       top_p: 1,
       stream: false,
     });
-
-    return completion.choices[0]?.message?.content || '';
+    return completion.choices[0]?.message?.content || "";
   } catch (error: any) {
-    console.error('Groq API Error:', error);
+    console.error("Groq API Error:", error);
     throw new Error(`AI generation failed: ${error.message}`);
   }
 }

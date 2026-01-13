@@ -1,34 +1,30 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 import { auth } from "./lib/auth";
-
-// Define public routes that don't require authentication
-const publicRoutes = ["/login", "/signup", "/"];
-const authRoutes = ["/login", "/signup"];
+import { NextResponse } from "next/server";
 
 export default auth((req) => {
   const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
+  const path = nextUrl.pathname;
 
-  const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
-  const isAuthRoute = authRoutes.includes(nextUrl.pathname);
-
-  // If user is logged in and tries to access auth pages, redirect to dashboard
-  if (isAuthRoute && isLoggedIn) {
-    return NextResponse.redirect(new URL("/dashboard", nextUrl));
+  if (["/login", "/register"].includes(path) && isLoggedIn) {
+    return NextResponse.redirect(new URL("/docs-generator", nextUrl));
   }
 
-  // If user is not logged in and tries to access protected route, redirect to login
-  if (!isPublicRoute && !isLoggedIn) {
-    const callbackUrl = nextUrl.pathname + nextUrl.search;
+  if (path.startsWith("/docs-generator") && !isLoggedIn) {
     const loginUrl = new URL("/login", nextUrl);
-    loginUrl.searchParams.set("callbackUrl", callbackUrl);
+    loginUrl.searchParams.set("callbackUrl", path);
     return NextResponse.redirect(loginUrl);
+  }
+
+  if (path === "/" && isLoggedIn) {
+    return NextResponse.redirect(new URL("/docs-generator", nextUrl));
   }
 
   return NextResponse.next();
 });
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+  ],
 };

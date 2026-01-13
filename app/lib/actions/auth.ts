@@ -8,25 +8,22 @@ import {
 import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
-import { createUser, getUserByEmail } from "../lib/database";
-import { signIn, signOut } from "../lib/auth";
+import { createUser, getUserByEmail } from "../database";
+import { signIn, signOut } from "next-auth/react";
 
 export async function signUpAction(
   prevState: FormState,
   formData: FormData
 ): Promise<FormState> {
   try {
-    // Extract form data
     const rawData = {
       name: formData.get("name"),
       email: formData.get("email"),
       password: formData.get("password"),
     };
 
-    // Validate with Zod
     const validatedData = signUpSchema.parse(rawData);
 
-    // Check if user already exists
     const existingUser = await getUserByEmail(validatedData.email);
     if (existingUser) {
       return {
@@ -39,14 +36,12 @@ export async function signUpAction(
     // Hash password
     const hashedPassword = await bcrypt.hash(validatedData.password, 12);
 
-    // Create user
     await createUser({
       name: validatedData.name,
       email: validatedData.email,
       password: hashedPassword,
     });
 
-    // Auto sign in after registration
     await signIn("credentials", {
       email: validatedData.email,
       password: validatedData.password,
@@ -79,9 +74,7 @@ export async function signInAction(
       password: formData.get("password"),
     };
 
-    // Validate with Zod
     const validatedData = signInSchema.parse(rawData);
-
     // Attempt sign in
     await signIn("credentials", {
       email: validatedData.email,

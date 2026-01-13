@@ -9,6 +9,7 @@ import {
   Loader2,
   BookOpen,
 } from "lucide-react";
+
 import { useDocsStore } from "@/app/lib/store";
 import { DocType, InputMethod } from "@/app/lib/types";
 import { DOC_TYPES, INPUT_METHODS } from "@/app/lib/constants";
@@ -71,7 +72,6 @@ export default function InputSection() {
   return (
     <div className="space-y-6">
       <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl shadow-2xl border border-blue-500/20 p-6">
-        {/* Header with Doc Type Selector */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-white">Input Source</h2>
           <select
@@ -88,7 +88,6 @@ export default function InputSection() {
           </select>
         </div>
 
-        {/* Input Method Tabs */}
         <div className="flex space-x-2 mb-6 bg-slate-900/50 p-1 rounded-lg">
           {inputMethods.map((method) => (
             <button
@@ -106,8 +105,6 @@ export default function InputSection() {
             </button>
           ))}
         </div>
-
-        {/* GitHub Input */}
         {inputMethod === "github" && (
           <div className="space-y-4">
             <div>
@@ -134,7 +131,6 @@ export default function InputSection() {
           </div>
         )}
 
-        {/* Code Input */}
         {inputMethod === "code" && (
           <div className="space-y-4">
             <div>
@@ -157,8 +153,6 @@ export default function InputSection() {
             </div>
           </div>
         )}
-
-        {/* Upload Input */}
         {inputMethod === "upload" && (
           <div className="space-y-4">
             <div className="border-2 border-dashed border-slate-700 hover:border-blue-500 rounded-lg p-8 text-center transition-colors cursor-pointer group">
@@ -167,14 +161,15 @@ export default function InputSection() {
                 Drop files here or click to upload
               </p>
               <p className="text-sm text-slate-400">
-                Support: .js, .ts, .jsx, .tsx, .py, .java, .go, .rs
+                Support: .js, .ts, .jsx, .tsx,
               </p>
-              <p className="text-xs text-slate-500 mt-2">Coming soon...</p>
+              <p className="text-xs text-slate-500 mt-2">
+                Coming soon lodicakes...
+              </p>
             </div>
           </div>
         )}
 
-        {/* Error Message */}
         {error && (
           <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-4 mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
             <div className="flex items-start space-x-2">
@@ -196,7 +191,6 @@ export default function InputSection() {
           </div>
         )}
 
-        {/* Generate Button */}
         <button
           onClick={handleGenerate}
           disabled={
@@ -220,7 +214,6 @@ export default function InputSection() {
         </button>
       </div>
 
-      {/* Features Info Card */}
       <div className="bg-slate-800/30 backdrop-blur-sm rounded-xl p-6 border border-blue-500/10">
         <h3 className="text-white font-semibold mb-4 flex items-center space-x-2">
           <BookOpen className="w-5 h-5 text-blue-400" />
@@ -242,17 +235,6 @@ export default function InputSection() {
             </li>
           ))}
         </ul>
-      </div>
-
-      {/* Stats Info */}
-      <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl p-4 border border-blue-500/20">
-        <div className="flex items-center space-x-2 text-sm text-slate-300">
-          <Sparkles className="w-4 h-4 text-blue-400" />
-          <span>
-            <strong className="text-white">Free Tier:</strong> 14,400
-            requests/day with Groq AI
-          </span>
-        </div>
       </div>
     </div>
   );

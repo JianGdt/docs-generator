@@ -1,14 +1,18 @@
-'use server';
-
-
-import { revalidatePath } from 'next/cache';
-import { verifySession } from '../lib/dal';
-import { deleteDoc, getDocById, getUserDocs, saveDocumentation, updateDoc } from '../lib/database';
+"use server";
+import { revalidatePath } from "next/cache";
+import {
+  deleteDoc,
+  getDocById,
+  getUserDocs,
+  saveDocumentation,
+  updateDoc,
+} from "../database";
+import { verifySession } from "../dal";
 
 export async function saveDoc(data: {
   title: string;
   content: string;
-  docType: 'readme' | 'api' | 'guide' | 'contributing';
+  docType: "readme" | "api" | "guide" | "contributing";
 }) {
   const session = await verifySession();
 
@@ -18,11 +22,11 @@ export async function saveDoc(data: {
       userId: session.userId,
     });
 
-    revalidatePath('/dashboard');
+    revalidatePath("/docs-generator");
     return { success: true, docId: doc._id.toString() };
   } catch (error) {
-    console.error('Error saving document:', error);
-    return { success: false, error: 'Failed to save document' };
+    console.error("Error saving document:", error);
+    return { success: false, error: "Failed to save document" };
   }
 }
 
@@ -31,12 +35,12 @@ export async function fetchUserDocs() {
 
   try {
     const docs = await getUserDocs(session.userId);
-    return docs.map(doc => ({
+    return docs.map((doc) => ({
       ...doc,
       _id: doc._id.toString(),
     }));
   } catch (error) {
-    console.error('Error fetching documents:', error);
+    console.error("Error fetching documents:", error);
     return [];
   }
 }
@@ -53,7 +57,7 @@ export async function fetchDocById(docId: string) {
       _id: doc._id.toString(),
     };
   } catch (error) {
-    console.error('Error fetching document:', error);
+    console.error("Error fetching document:", error);
     return null;
   }
 }
@@ -63,23 +67,23 @@ export async function updateDocument(
   data: {
     title?: string;
     content?: string;
-    docType?: 'readme' | 'api' | 'guide' | 'contributing';
+    docType?: "readme" | "api" | "guide" | "contributing";
   }
 ) {
   const session = await verifySession();
 
   try {
     const success = await updateDoc(docId, session.userId, data);
-    
+
     if (success) {
-      revalidatePath('/dashboard');
+      revalidatePath("/docs-generator");
       return { success: true };
     }
-    
-    return { success: false, error: 'Document not found or unauthorized' };
+
+    return { success: false, error: "Document not found or unauthorized" };
   } catch (error) {
-    console.error('Error updating document:', error);
-    return { success: false, error: 'Failed to update document' };
+    console.error("Error updating document:", error);
+    return { success: false, error: "Failed to update document" };
   }
 }
 
@@ -88,15 +92,15 @@ export async function deleteDocument(docId: string) {
 
   try {
     const success = await deleteDoc(docId, session.userId);
-    
+
     if (success) {
-      revalidatePath('/dashboard');
+      revalidatePath("/docs-generator");
       return { success: true };
     }
-    
-    return { success: false, error: 'Document not found or unauthorized' };
+
+    return { success: false, error: "Document not found or unauthorized" };
   } catch (error) {
-    console.error('Error deleting document:', error);
-    return { success: false, error: 'Failed to delete document' };
+    console.error("Error deleting document:", error);
+    return { success: false, error: "Failed to delete document" };
   }
 }
