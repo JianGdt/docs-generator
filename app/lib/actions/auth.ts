@@ -1,20 +1,14 @@
 "use server";
 
-import {
-  signUpSchema,
-  signInSchema,
-  type FormState,
-} from "@/app/lib/validators";
+import { signUpSchema, signInSchema } from "@/app/lib/validators";
 import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
 import { createUser, getUserByEmail } from "../database";
 import { signIn, signOut } from "next-auth/react";
+import { FormState } from "../types";
 
-export async function signUpAction(
-  prevState: FormState,
-  formData: FormData
-): Promise<FormState> {
+export async function signUpAction(formData: FormData): Promise<FormState> {
   try {
     const rawData = {
       name: formData.get("name"),
@@ -33,7 +27,6 @@ export async function signUpAction(
       };
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(validatedData.password, 12);
 
     await createUser({
@@ -65,7 +58,6 @@ export async function signUpAction(
 }
 
 export async function signInAction(
-  prevState: FormState,
   formData: FormData
 ): Promise<FormState> {
   try {
@@ -75,7 +67,6 @@ export async function signInAction(
     };
 
     const validatedData = signInSchema.parse(rawData);
-    // Attempt sign in
     await signIn("credentials", {
       email: validatedData.email,
       password: validatedData.password,

@@ -48,7 +48,6 @@ export default function LoginForm() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Email Input */}
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">
               Email Address

@@ -11,40 +11,9 @@ export const INPUT_METHODS = {
   upload: "Upload Files",
 } as const;
 
-export const EXAMPLE_GITHUB_URL = "https://github.com/vercel/next.js";
+export const EXAMPLE_GITHUB_URL = "https://github.com/~~~~";
 
-export const EXAMPLE_CODE = `import { useState, useEffect } from 'react';
-
-export default function UserProfile({ userId }) {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchUser(userId);
-  }, [userId]);
-
-  const fetchUser = async (id) => {
-    try {
-      const response = await fetch(\`/api/users/\${id}\`);
-      const data = await response.json();
-      setUser(data);
-    } catch (error) {
-      console.error('Error fetching user:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) return <div>Loading...</div>;
-  if (!user) return <div>User not found</div>;
-
-  return (
-    <div className="profile">
-      <h1>{user.name}</h1>
-      <p>{user.email}</p>
-    </div>
-  );
-}`;
+export const EXAMPLE_CODE = `example code nyo langs`;
 
 export const ENV = {
   GROQ_API_KEY: process.env.GROQ_API_KEY,

@@ -1,47 +1,43 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import axios from 'axios';
-import { User, Mail, Lock, Loader2, Eye, EyeOff } from 'lucide-react';
-import Link from 'next/link';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+import { User, Mail, Lock, Loader2, Eye, EyeOff } from "lucide-react";
+import Link from "next/link";
 
 export default function RegisterForm() {
   const router = useRouter();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
+    setError("");
 
-    // Validate passwords match
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError("Passwords do not match");
       setIsLoading(false);
       return;
     }
-
     try {
-      const response = await axios.post('/api/register', {
-        name,
+      const response = await axios.post("/api/register", {
+        username,
         email,
         password,
       });
-
       if (response.data.success) {
-        // Redirect to login
-        router.push('/login?registered=true');
+        router.push("/login");
       }
     } catch (error: any) {
       const errorMessage =
-        error.response?.data?.error || 'Registration failed. Please try again.';
+        error.response?.data?.error || "Registration failed. Please try again.";
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -57,17 +53,16 @@ export default function RegisterForm() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Name Input */}
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">
-              Full Name
+              Username
             </label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
               <input
                 type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 placeholder="John Doe"
                 required
                 minLength={2}
@@ -76,7 +71,6 @@ export default function RegisterForm() {
             </div>
           </div>
 
-          {/* Email Input */}
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">
               Email Address
@@ -94,7 +88,6 @@ export default function RegisterForm() {
             </div>
           </div>
 
-          {/* Password Input */}
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">
               Password
@@ -102,7 +95,7 @@ export default function RegisterForm() {
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
               <input
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
@@ -124,7 +117,6 @@ export default function RegisterForm() {
             </div>
           </div>
 
-          {/* Confirm Password Input */}
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">
               Confirm Password
@@ -132,7 +124,7 @@ export default function RegisterForm() {
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
               <input
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
@@ -143,14 +135,12 @@ export default function RegisterForm() {
             </div>
           </div>
 
-          {/* Error Message */}
           {error && (
             <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-3">
               <p className="text-red-400 text-sm text-center">{error}</p>
             </div>
           )}
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={isLoading}
@@ -162,15 +152,14 @@ export default function RegisterForm() {
                 <span>Creating account...</span>
               </span>
             ) : (
-              'Create Account'
+              "Create Account"
             )}
           </button>
         </form>
 
-        {/* Login Link */}
         <div className="mt-6 text-center">
           <p className="text-slate-400 text-sm">
-            Already have an account?{' '}
+            Already have an account?{" "}
             <Link
               href="/login"
               className="text-blue-400 hover:text-blue-300 font-medium transition-colors"

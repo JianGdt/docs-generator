@@ -21,6 +21,8 @@ export default function Header({ user }: HeaderProps) {
     await signOut({ callbackUrl: "/login" });
   };
 
+  console.log('user', user)
+
   return (
     <header className="border-b border-white/10 bg-black/20 backdrop-blur-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

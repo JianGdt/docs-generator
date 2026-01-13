@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Geist_Mono } from "next/font/google";
 import { SessionProvider } from "@/app/providers/SessionProvider";
 import "./globals.css";
 
-const inter = Inter({
+const inter = Geist_Mono({
   subsets: ["latin"],
   display: "swap",
 });

@@ -72,3 +72,9 @@ export interface UserSession {
   email: string;
   image?: string;
 }
+
+
+export type FormState = {
+  errors?: Partial<Record<"name" | "email" | "password", string[]>>;
+  message?: string;
+};
