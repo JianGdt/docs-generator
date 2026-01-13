@@ -1,0 +1,124 @@
+"use server";
+
+import {
+  signUpSchema,
+  signInSchema,
+  type FormState,
+} from "@/app/lib/validators";
+import bcrypt from "bcryptjs";
+import { AuthError } from "next-auth";
+import { redirect } from "next/navigation";
+import { createUser, getUserByEmail } from "../lib/database";
+import { signIn, signOut } from "../lib/auth";
+
+export async function signUpAction(
+  prevState: FormState,
+  formData: FormData
+): Promise<FormState> {
+  try {
+    // Extract form data
+    const rawData = {
+      name: formData.get("name"),
+      email: formData.get("email"),
+      password: formData.get("password"),
+    };
+
+    // Validate with Zod
+    const validatedData = signUpSchema.parse(rawData);
+
+    // Check if user already exists
+    const existingUser = await getUserByEmail(validatedData.email);
+    if (existingUser) {
+      return {
+        errors: {
+          email: ["An account with this email already exists"],
+        },
+      };
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(validatedData.password, 12);
+
+    // Create user
+    await createUser({
+      name: validatedData.name,
+      email: validatedData.email,
+      password: hashedPassword,
+    });
+
+    // Auto sign in after registration
+    await signIn("credentials", {
+      email: validatedData.email,
+      password: validatedData.password,
+      redirect: false,
+    });
+
+    return {
+      message: "Account created successfully",
+    };
+  } catch (error: any) {
+    if (error.name === "ZodError") {
+      return {
+        errors: error.flatten().fieldErrors,
+      };
+    }
+
+    return {
+      message: "An error occurred. Please try again.",
+    };
+  }
+}
+
+export async function signInAction(
+  prevState: FormState,
+  formData: FormData
+): Promise<FormState> {
+  try {
+    const rawData = {
+      email: formData.get("email"),
+      password: formData.get("password"),
+    };
+
+    // Validate with Zod
+    const validatedData = signInSchema.parse(rawData);
+
+    // Attempt sign in
+    await signIn("credentials", {
+      email: validatedData.email,
+      password: validatedData.password,
+      redirect: false,
+    });
+
+    return {
+      message: "Signed in successfully",
+    };
+  } catch (error: any) {
+    if (error.name === "ZodError") {
+      return {
+        errors: error.flatten().fieldErrors,
+      };
+    }
+
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case "CredentialsSignin":
+          return {
+            message: "Invalid email or password",
+          };
+        default:
+          return {
+            message: "Something went wrong. Please try again.",
+          };
+      }
+    }
+
+    return {
+      message: "An error occurred. Please try again.",
+    };
+  }
+}
+
+export async function signOutAction() {
+  await signOut({ redirect: false });
+  redirect("/login");
+}
