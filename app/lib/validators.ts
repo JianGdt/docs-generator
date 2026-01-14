@@ -19,8 +19,6 @@ export const generateRequestSchema = z
   })
   .strict();
 
-export type GenerateRequestInput = z.infer<typeof generateRequestSchema>;
-
 export const githubUrlSchema = z
   .string()
   .url("Invalid URL format.")
@@ -32,8 +30,6 @@ export const githubUrlSchema = z
 export const validateGithubUrl = (url: string) => {
   return githubUrlSchema.safeParse(url);
 };
-
-export type GithubUrlInput = z.infer<typeof githubUrlSchema>;
 
 export const signUpSchema = z
   .object({
@@ -51,8 +47,6 @@ export const signUpSchema = z
   })
   .strip();
 
-export type SignUpInput = z.infer<typeof signUpSchema>;
-
 export const signInSchema = z
   .object({
     email: z.string().email("Please enter a valid email address.").trim(),
@@ -60,9 +54,34 @@ export const signInSchema = z
   })
   .strip();
 
-export type SignInInput = z.infer<typeof signInSchema>;
+export const registerSchema = z
+  .object({
+    username: z
+      .string()
+      .min(3, "Username must be at least 3 characters")
+      .max(20, "Username must be at most 20 characters")
+      .regex(
+        /^[a-zA-Z0-9_]+$/,
+        "Username must contain only letters, numbers, and underscores"
+      ),
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+export const loginSchema = z.object({
+  identifier: z.string().min(1, "Username or email is required"),
+  password: z.string().min(1, "Password is required"),
+});
 
-export type FormState = {
-  errors?: Partial<Record<"name" | "email" | "password", string[]>>;
-  message?: string;
-};
+export type LoginFormValues = z.infer<typeof loginSchema>;
+
+export type RegisterFormValues = z.infer<typeof registerSchema>;
+
+export type SignInInput = z.infer<typeof signInSchema>;
+export type SignUpInput = z.infer<typeof signUpSchema>;
+export type GithubUrlInput = z.infer<typeof githubUrlSchema>;
+export type GenerateRequestInput = z.infer<typeof generateRequestSchema>;

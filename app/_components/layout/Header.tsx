@@ -4,6 +4,7 @@ import React from "react";
 import { signOut } from "next-auth/react";
 import { FileCode, Github, LogOut, User } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 interface User {
   id?: string;
@@ -19,9 +20,10 @@ interface HeaderProps {
 export default function Header({ user }: HeaderProps) {
   const handleLogout = async () => {
     await signOut({ callbackUrl: "/login" });
+    toast.info("You have successfully logged out.");
   };
 
-  console.log('user', user)
+  console.log("user", user);
 
   return (
     <header className="border-b border-white/10 bg-black/20 backdrop-blur-md sticky top-0 z-50">
