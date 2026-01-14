@@ -1,57 +1,87 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { z } from "zod";
-import { getDatabase } from "@/app/lib/database";
-import { User } from "@/app/lib/types";
-
-const registerSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
+import {
+  createUser,
+  getUserByEmail,
+  getUserByUsername,
+} from "@/app/lib/database";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const validatedData = registerSchema.parse(body);
-    const { name, email, password } = validatedData;
+    const { username, email, password } = await request.json();
 
-    const db = await getDatabase();
-    const existingUser = await db.collection<User>("users").findOne({ email });
-
-    if (existingUser) {
+    if (!username || !email || !password) {
       return NextResponse.json(
-        { success: false, error: "User already exists" },
+        { error: "Username, email, and password are required" },
         { status: 400 }
       );
     }
 
-    const hashedPassword = await bcrypt.hash(password, 12);
+    const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+    if (!usernameRegex.test(username)) {
+      return NextResponse.json(
+        {
+          error:
+            "Username must be 3-20 characters and contain only letters, numbers, and underscores",
+        },
+        { status: 400 }
+      );
+    }
 
-    const result = await db.collection("users").insertOne({
-      name,
-      email,
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { error: "Invalid email format" },
+        { status: 400 }
+      );
+    }
+
+    if (password.length < 6) {
+      return NextResponse.json(
+        { error: "Password must be at least 6 characters" },
+        { status: 400 }
+      );
+    }
+
+    const existingUsername = await getUserByUsername(username);
+    if (existingUsername) {
+      return NextResponse.json(
+        { error: "Username already exists" },
+        { status: 409 }
+      );
+    }
+
+    const existingEmail = await getUserByEmail(email);
+    if (existingEmail) {
+      return NextResponse.json(
+        { error: "Email already registered" },
+        { status: 409 }
+      );
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await createUser({
+      username: username.toLowerCase(),
+      email: email.toLowerCase(),
       password: hashedPassword,
-      createdAt: new Date(),
     });
-
-    return NextResponse.json({
-      success: true,
-      message: "User created successfully",
-      userId: result.insertedId.toString(),
-    });
-  } catch (error: any) {
-    console.error("Registration error:", error);
-
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { success: false, error: error.message },
-        { status: 400 }
-      );
-    }
 
     return NextResponse.json(
-      { success: false, error: "Registration failed" },
+      {
+        success: true,
+        user: {
+          id: user._id.toString(),
+          username: user.username,
+          email: user.email,
+        },
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error("Registration error:", error);
+    return NextResponse.json(
+      { error: "An error occurred during registration" },
       { status: 500 }
     );
   }

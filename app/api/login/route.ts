@@ -1,20 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { createSession } from "@/app/lib/session";
-import { getUserByEmail } from "@/app/lib/database";
+import { getUserByEmail, getUserByUsername } from "@/app/lib/database";
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json();
+    const body = await request.json();
+    const { username, email, password } = body;
 
-    if (!email || !password) {
+    const loginValue = username || email;
+
+    if (!loginValue || !password) {
       return NextResponse.json(
-        { error: "Email and password are required" },
+        { error: "Username/Email and password are required" },
         { status: 400 }
       );
     }
 
-    const user = await getUserByEmail(email);
+    const isEmail = loginValue.includes("@");
+    let user = null;
+
+    if (isEmail) {
+      user = await getUserByEmail(loginValue);
+    } else {
+      user = await getUserByUsername(loginValue);
+    }
 
     if (!user) {
       return NextResponse.json(
@@ -32,13 +42,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    await createSession(user._id.toString(), user.email);
+    await createSession(user._id.toString(), user.username, user.email);
 
     return NextResponse.json(
       {
         success: true,
         user: {
-          name: user.name,
+          id: user._id.toString(),
+          username: user.username,
           email: user.email,
         },
       },

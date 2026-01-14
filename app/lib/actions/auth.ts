@@ -30,7 +30,7 @@ export async function signUpAction(formData: FormData): Promise<FormState> {
     const hashedPassword = await bcrypt.hash(validatedData.password, 12);
 
     await createUser({
-      name: validatedData.name,
+      username: validatedData.name,
       email: validatedData.email,
       password: hashedPassword,
     });

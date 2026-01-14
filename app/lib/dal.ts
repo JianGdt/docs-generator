@@ -31,7 +31,7 @@ export const getUser = cache(async () => {
     }
 
     return {
-      name: user.name,
+      name: user.username,
       email: user.email,
       createdAt: user.createdAt,
     };

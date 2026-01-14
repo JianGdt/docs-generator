@@ -26,7 +26,7 @@ export async function getDatabase(): Promise<Db> {
 }
 
 export async function createUser(data: {
-  name: string;
+  username: string;
   email: string;
   password: string;
 }): Promise<User> {
@@ -51,6 +51,23 @@ export async function createUser(data: {
 export async function getUserByEmail(email: string): Promise<User | null> {
   const db = await getDatabase();
   return db.collection<User>("users").findOne({ email: email.toLowerCase() });
+}
+
+export async function getUserByUsername(username: string): Promise<User | null> {
+  const db = await getDatabase();
+  return db.collection<User>("users").findOne({ username: username.toLowerCase() });
+}
+
+export async function getUserByEmailOrUsername(identifier: string): Promise<User | null> {
+  const db = await getDatabase();
+  const lowerIdentifier = identifier.toLowerCase();
+  
+  return db.collection<User>("users").findOne({
+    $or: [
+      { email: lowerIdentifier },
+      { username: lowerIdentifier }
+    ]
+  });
 }
 
 export async function getUserById(id: string): Promise<User | null> {

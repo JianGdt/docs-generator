@@ -1,83 +1,123 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
+import GitHub from "next-auth/providers/github";
 import bcrypt from "bcryptjs";
-import { signInSchema } from "./validators";
-import { getUserByEmail } from "./database";
+import { getUserByEmailOrUsername, createUser } from "./database";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Credentials({
-      name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "email" },
+        identifier: { label: "Username or Email", type: "text" },
         password: { label: "Password", type: "password" },
       },
       authorize: async (credentials) => {
-        try {
-          const { email, password } = await signInSchema.parseAsync(
-            credentials
-          );
-          const user = await getUserByEmail(email);
-
-          if (!user) {
-            throw new Error("Invalid email or password");
-          }
-
-          const passwordsMatch = await bcrypt.compare(password, user.password);
-          if (!passwordsMatch) {
-            throw new Error("Invalid email or password");
-          }
-          return {
-            id: user._id.toString(),
-            email: user.email,
-            name: user.name,
-          };
-        } catch (error) {
-          console.error("Auth error:", error);
-          return null;
+        if (!credentials?.identifier || !credentials?.password) {
+          throw new Error("Invalid credentials");
         }
+
+        const user = await getUserByEmailOrUsername(
+          credentials.identifier as string
+        );
+
+        if (!user || !user.password) {
+          throw new Error("Invalid credentials");
+        }
+
+        const isCorrectPassword = await bcrypt.compare(
+          credentials.password as string,
+          user.password
+        );
+
+        if (!isCorrectPassword) {
+          throw new Error("Invalid credentials");
+        }
+
+        return {
+          id: user._id.toString(),
+          email: user.email,
+          name: user.username,
+          username: user.username,
+        };
       },
     }),
+
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    }),
+
+    GitHub({
+      clientId: process.env.GITHUB_ID,
+      clientSecret: process.env.GITHUB_SECRET,
+    }),
   ],
-  pages: {
-    signIn: "/login",
-    signOut: "/login",
-    error: "/login",
-  },
+
   callbacks: {
-    async jwt({ token, user, trigger, session }) {
+    async signIn({ user, account, profile }) {
+      if (account?.provider === "google" || account?.provider === "github") {
+        try {
+          const existingUser = await getUserByEmailOrUsername(user.email!);
+
+          if (!existingUser) {
+            const username = user.email!.split("@")[0];
+            const newUser = await createUser({
+              username: username.toLowerCase(),
+              email: user.email!.toLowerCase(),
+              password: "",
+            });
+
+            user.id = newUser._id.toString();
+            user.name = newUser.username;
+          } else {
+            user.id = existingUser._id.toString();
+            user.name = existingUser.username;
+          }
+
+          return true;
+        } catch (error) {
+          console.error("Error in signIn callback:", error);
+          return false;
+        }
+      }
+
+      return true;
+    },
+
+    async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id;
-        token.name = user.name;
+        token.username = (user as any).username || user.name;
         token.email = user.email;
       }
 
-      if (trigger === "update" && session) {
-        token.name = session.name;
-        token.email = session.email;
+      if (account) {
+        token.provider = account.provider;
       }
 
       return token;
     },
+
     async session({ session, token }) {
-      if (token && session.user) {
+      if (session.user) {
         session.user.id = token.id as string;
-        session.user.name = token.name as string;
+        session.user.name = token.username as string;
         session.user.email = token.email as string;
       }
       return session;
     },
-    async redirect({ url, baseUrl }) {
-      if (url.startsWith("/")) return `${baseUrl}${url}`;
-      else if (new URL(url).origin === baseUrl) return url;
-      return baseUrl;
-    },
   },
+
+  pages: {
+    signIn: "/login",
+    error: "/login",
+  },
+
   session: {
     strategy: "jwt",
-    maxAge: 7 * 24 * 60 * 60, 
+    maxAge: 7 * 24 * 60 * 60,
   },
+
   secret: process.env.AUTH_SECRET,
-  trustHost: true,
-  debug: process.env.NODE_ENV === "development",
 });
