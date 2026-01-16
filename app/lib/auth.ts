@@ -51,6 +51,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     GitHub({
       clientId: process.env.GITHUB_ID,
       clientSecret: process.env.GITHUB_SECRET,
+      authorization: {
+        params: {
+          scope: "read:user user:email repo",
+        },
+      },
     }),
   ],
 
@@ -85,7 +90,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return true;
     },
 
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account, profile }) {
       if (user) {
         token.id = user.id;
         token.username = (user as any).username || user.name;
@@ -94,6 +99,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       if (account) {
         token.provider = account.provider;
+
+        // Store GitHub access token for API calls
+        if (account.provider === "github") {
+          token.accessToken = account.access_token;
+          token.githubId = profile?.id;
+        }
+
+        // Store Google access token if needed
+        if (account.provider === "google") {
+          token.accessToken = account.access_token;
+        }
       }
 
       return token;
@@ -105,6 +121,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.name = token.username as string;
         session.user.email = token.email as string;
       }
+
+      // Add access token and provider to session
+      session.accessToken = token.accessToken as string;
+      session.provider = token.provider as string;
+      session.githubId = token.githubId as string;
+
       return session;
     },
   },

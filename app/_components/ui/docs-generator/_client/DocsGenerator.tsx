@@ -4,23 +4,16 @@ import { useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import Header from "../../_components/layout/Header";
-import InputSection from "../../_components/InputSection";
-import PreviewSection from "../../_components/PreviewSection";
-
-interface User {
-  id?: string;
-  name?: string | null;
-  email?: string | null;
-  image?: string | null;
-}
-
-interface DocsGeneratorProps {
-  user: User;
-}
+import Header from "../../../layout/Header";
+import InputSection from "../../../InputSection";
+import PreviewSection from "../../../PreviewSection";
+import GitHubIntegration from "../../github-integration/_client/GIthubConnect";
+import { useDocsStore } from "@/app/lib/store";
+import { DocsGeneratorProps } from "@/app/lib/types";
 
 export default function DocsGenerator({ user }: DocsGeneratorProps) {
   const { data: session, status } = useSession();
+  const { generatedDocs, docType } = useDocsStore();
   const router = useRouter();
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -50,6 +43,13 @@ export default function DocsGenerator({ user }: DocsGeneratorProps) {
         <div className="grid lg:grid-cols-2 gap-8">
           <InputSection />
           <PreviewSection />
+
+          {generatedDocs && (
+            <GitHubIntegration
+              documentContent={generatedDocs}
+              documentType={docType}
+            />
+          )}
         </div>
       </div>
     </div>

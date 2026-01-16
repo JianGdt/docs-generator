@@ -32,7 +32,7 @@ export interface SavedDoc {
   _id: ObjectId;
   title: string;
   content: string;
-  docType: 'readme' | 'api' | 'guide' | 'contributing';
+  docType: "readme" | "api" | "guide" | "contributing";
   userId: string;
   createdAt: Date;
   updatedAt?: Date;
@@ -56,6 +56,24 @@ export interface DocsState {
   reset: () => void;
 }
 
+// gen-docs types
+
+export interface GenDocsUser {
+  id?: string;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+}
+
+export interface DocsGeneratorProps {
+  user: GenDocsUser;
+}
+
+// components types
+export interface StatsDisplayProps {
+  docs: string;
+}
+
 // user types
 
 export interface User {
@@ -73,8 +91,17 @@ export interface UserSession {
   image?: string;
 }
 
-
 export type FormState = {
   errors?: Partial<Record<"name" | "email" | "password", string[]>>;
   message?: string;
 };
+
+// GITHUB CONNECTION TYPES (temporary file or folder structure)
+
+export interface Repository {
+  id: number;
+  name: string;
+  fullName: string;
+  owner: string;
+  defaultBranch: string;
+}

@@ -53,20 +53,23 @@ export async function getUserByEmail(email: string): Promise<User | null> {
   return db.collection<User>("users").findOne({ email: email.toLowerCase() });
 }
 
-export async function getUserByUsername(username: string): Promise<User | null> {
+export async function getUserByUsername(
+  username: string
+): Promise<User | null> {
   const db = await getDatabase();
-  return db.collection<User>("users").findOne({ username: username.toLowerCase() });
+  return db
+    .collection<User>("users")
+    .findOne({ username: username.toLowerCase() });
 }
 
-export async function getUserByEmailOrUsername(identifier: string): Promise<User | null> {
+export async function getUserByEmailOrUsername(
+  identifier: string
+): Promise<User | null> {
   const db = await getDatabase();
   const lowerIdentifier = identifier.toLowerCase();
-  
+
   return db.collection<User>("users").findOne({
-    $or: [
-      { email: lowerIdentifier },
-      { username: lowerIdentifier }
-    ]
+    $or: [{ email: lowerIdentifier }, { username: lowerIdentifier }],
   });
 }
 
@@ -193,4 +196,62 @@ export async function deleteDoc(
   } catch (error) {
     return false;
   }
+}
+
+// GitHub Integration specific functions
+
+export interface GitHubCommit {
+  _id?: ObjectId;
+  userId: string;
+  docId: string;
+  repositoryFullName: string;
+  filePath: string;
+  commitSha: string | any;
+  commitMessage: string;
+  commitUrl: string | any;
+  pullRequestNumber?: number;
+  pullRequestUrl?: string;
+  createdAt: Date;
+}
+
+export async function saveGitHubCommit(
+  data: Omit<GitHubCommit, "_id" | "createdAt">
+): Promise<GitHubCommit> {
+  const db = await getDatabase();
+  const result = await db.collection<GitHubCommit>("github_commits").insertOne({
+    ...data,
+    createdAt: new Date(),
+  } as GitHubCommit);
+
+  const commit = await db.collection<GitHubCommit>("github_commits").findOne({
+    _id: result.insertedId,
+  });
+
+  if (!commit) {
+    throw new Error("Failed to save GitHub commit");
+  }
+
+  return commit;
+}
+
+export async function getGitHubCommitsByUser(
+  userId: string,
+  limit: number = 20
+) {
+  const db = await getDatabase();
+  return db
+    .collection<GitHubCommit>("github_commits")
+    .find({ userId })
+    .sort({ createdAt: -1 })
+    .limit(limit)
+    .toArray();
+}
+
+export async function getGitHubCommitsByDoc(docId: string, userId: string) {
+  const db = await getDatabase();
+  return db
+    .collection<GitHubCommit>("github_commits")
+    .find({ docId, userId })
+    .sort({ createdAt: -1 })
+    .toArray();
 }

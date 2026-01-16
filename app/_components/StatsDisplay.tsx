@@ -1,40 +1,35 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { FileText, Clock, Hash } from 'lucide-react';
-import { calculateReadingTime } from '@/app/lib/utils';
-
-interface StatsDisplayProps {
-  docs: string;
-}
+import { FileText, Clock, Hash } from "lucide-react";
+import { calculateReadingTime } from "@/app/lib/utils";
+import { StatsDisplayProps } from "../lib/types";
 
 export default function StatsDisplay({ docs }: StatsDisplayProps) {
   const wordCount = docs.trim().split(/\s+/).length;
-  const lineCount = docs.split('\n').length;
-  const charCount = docs.length;
+  const lineCount = docs.split("\n").length;
   const readingTime = calculateReadingTime(docs);
 
   const stats = [
     {
-      label: 'Words',
+      label: "Words",
       value: wordCount.toLocaleString(),
       icon: FileText,
-      color: 'text-blue-400',
-      bgColor: 'bg-blue-500/10',
+      color: "text-blue-400",
+      bgColor: "bg-blue-500/10",
     },
     {
-      label: 'Lines',
+      label: "Lines",
       value: lineCount.toLocaleString(),
       icon: Hash,
-      color: 'text-purple-400',
-      bgColor: 'bg-purple-500/10',
+      color: "text-purple-400",
+      bgColor: "bg-purple-500/10",
     },
     {
-      label: 'Read Time',
+      label: "Read Time",
       value: `${readingTime} min`,
       icon: Clock,
-      color: 'text-green-400',
-      bgColor: 'bg-green-500/10',
+      color: "text-green-400",
+      bgColor: "bg-green-500/10",
     },
   ];
 
@@ -45,7 +40,9 @@ export default function StatsDisplay({ docs }: StatsDisplayProps) {
           key={idx}
           className="bg-slate-800/30 backdrop-blur-sm rounded-lg p-4 border border-blue-500/10 text-center hover:border-blue-500/30 transition-all hover:scale-105"
         >
-          <div className={`inline-flex items-center justify-center w-10 h-10 ${stat.bgColor} rounded-lg mb-2`}>
+          <div
+            className={`inline-flex items-center justify-center w-10 h-10 ${stat.bgColor} rounded-lg mb-2`}
+          >
             <stat.icon className={`w-5 h-5 ${stat.color}`} />
           </div>
           <div className="text-2xl font-bold text-white mb-1">{stat.value}</div>
