@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import { getUserByEmailOrUsername, createUser } from "./database";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  basePath: "/api/auth",
   providers: [
     Credentials({
       credentials: {
@@ -60,7 +61,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
 
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account }) {
       if (account?.provider === "google" || account?.provider === "github") {
         try {
           const existingUser = await getUserByEmailOrUsername(user.email!);

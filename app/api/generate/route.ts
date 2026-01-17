@@ -17,35 +17,51 @@ export async function POST(req: NextRequest) {
       await req.json()
     );
 
-    const codeContext =
-      method === "github"
-        ? await fetchGitHubRepo(data).then(
-            (repo: any) =>
-              `Repository: ${repo.name}\nDescription: ${
-                repo.description
-              }\n\n${repo.files
-                .map((file: any) => `--- ${file.path} ---\n${file.content}`)
-                .join("\n\n")}`
-          )
-        : data;
+    let documentation: string;
 
-    const documentation = await generateDocumentation(codeContext, docType);
+    if (method === "github") {
+      const repo = await fetchGitHubRepo(data);
 
-    await saveDocumentation({
-      userId: session.user.id!,
-      title: `${docType} Documentation`,
-      content: documentation,
-      docType,
-    }).catch(console.warn);
+      if (docType === "readme") {
+        documentation = await generateDocumentation(repo, docType);
+      } else {
+        const textContext = `Repository: ${repo.name}\nDescription: ${
+          repo.description
+        }\n\n${repo.files
+          .map((file: any) => `--- ${file.path} ---\n${file.content}`)
+          .join("\n\n")}`;
+
+        documentation = await generateDocumentation(textContext, docType);
+      }
+
+      await saveDocumentation({
+        userId: session.user.id!,
+        title: `${repo.name} - ${docType}`,
+        content: documentation,
+        docType,
+      }).catch(console.warn);
+    } else {
+      documentation = await generateDocumentation(data, docType);
+
+      await saveDocumentation({
+        userId: session.user.id!,
+        title: `${docType} Documentation`,
+        content: documentation,
+        docType,
+      }).catch(console.warn);
+    }
 
     return NextResponse.json({ success: true, documentation });
   } catch (error) {
+    console.error("Generate documentation error:", error);
+
     if (error instanceof ZodError) {
       return NextResponse.json(
         { error: "Invalid request", details: error },
         { status: 400 }
       );
     }
+
     return NextResponse.json(
       { error: (error as Error).message || "Failed to generate" },
       { status: 500 }

@@ -13,3 +13,14 @@ export function calculateReadingTime(
   const minutes = words / wordsPerMinute;
   return Math.ceil(minutes);
 }
+
+export function getDefaultPath(docType: string): string {
+  const pathMap: Record<string, string> = {
+    readme: "README.md",
+    api: "docs/API.md",
+    contributing: "CONTRIBUTING.md",
+    changelog: "CHANGELOG.md",
+    license: "LICENSE.md",
+  };
+  return pathMap[docType.toLowerCase()] || `${docType.toUpperCase()}.md`;
+}

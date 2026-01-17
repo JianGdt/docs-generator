@@ -6,87 +6,90 @@ const groq = new Groq({
   apiKey: ENV.GROQ_API_KEY,
 });
 
-const PROMPTS: Record<DocType, (context: string) => string> = {
-  readme: (context) => `Generate a comprehensive, professional README.md file.
+interface RepoContext {
+  owner: string;
+  repoName: string;
+  name: string;
+  description: string;
+  packageJson?: any;
+  techStack?: any;
+  fileStructure: string[];
+  files: Array<{ path: string; content: string }>;
+}
 
-Include:
-- Project title with badges
-- Overview (2-3 paragraphs)
-- Key Features (with emojis)
-- Prerequisites
-- Installation steps
-- Usage examples
-- Configuration
-- Project structure
-- Testing
-- Deployment
-- Contributing
-- License
+function buildReadmePrompt(repo: RepoContext): string {
+  const dirs = [
+    ...new Set(repo.fileStructure.map((f) => f.split("/")[0])),
+  ].sort();
 
-Project Info:
-${context}
+  return `Generate a professional documents based ONLY on this data. Do not hallucinate features.
 
-Generate ONLY markdown content.`,
+REPOSITORY: ${repo.name}
+DESCRIPTION: ${repo.description || "No description"}
 
-  api: (context) => `Generate comprehensive API documentation.
+${
+  repo.packageJson?.dependencies
+    ? `DEPENDENCIES:\n${JSON.stringify(
+        repo.packageJson.dependencies,
+        null,
+        2
+      )}\n`
+    : ""
+}
+${
+  repo.packageJson?.scripts
+    ? `NPM SCRIPTS:\n${JSON.stringify(repo.packageJson.scripts, null, 2)}\n`
+    : ""
+}
+${
+  repo.techStack
+    ? `TECH STACK:\n- Framework: ${repo.techStack.framework.join(
+        ", "
+      )}\n- UI: ${repo.techStack.ui.join(
+        ", "
+      )}\n- Auth: ${repo.techStack.auth.join(
+        ", "
+      )}\n- Database: ${repo.techStack.database.join(
+        ", "
+      )}\n- APIs: ${repo.techStack.api.join(", ")}\n`
+    : ""
+}
 
-Include all endpoints with:
-- HTTP Method and Path
-- Description
-- Parameters
-- Request/Response examples
-- Status codes
-- Error handling
+DIRECTORIES: ${dirs.join(", ")}
 
-Code:
-${context}`,
+FILES:
+${repo.files.map((f) => `--- ${f.path} ---\n${f.content.slice(0, 1500)}`).join("\n\n")}
+`;
 
-  guide: (context) => `Generate a User Guide.
-
-Include:
-- Introduction
-- Getting Started
-- Features Guide
-- Use Cases
-- Best Practices
-- Troubleshooting
-- FAQ
-
-Project:
-${context}`,
-
-  contributing: (context) => `Generate CONTRIBUTING.md.
-
-Include:
-- How to contribute
-- Development setup
-- Coding standards
-- Commit guidelines
-- PR process
-- Testing
-
-Project:
-${context}`,
-};
+}
 
 export async function generateDocumentation(
-  codeContext: string,
+  contextData: string | RepoContext,
   type: DocType
 ): Promise<string> {
   try {
+    const prompt =
+      typeof contextData === "object"
+        ? buildReadmePrompt(contextData)
+        : contextData;
+
     const completion = await groq.chat.completions.create({
       messages: [
         {
+          role: "system",
+          content:
+            "You are a technical writer. Generate accurate documentation based ONLY on provided data. No hallucinations.",
+        },
+        {
           role: "user",
-          content: PROMPTS[type](codeContext),
+          content: prompt,
         },
       ],
       model: "llama-3.3-70b-versatile",
-      temperature: 0.7,
+      temperature: 0.3,
       max_tokens: 4096,
-      top_p: 1,
-      stream: false,
     });
+
     return completion.choices[0]?.message?.content || "";
   } catch (error: any) {
     console.error("Groq API Error:", error);

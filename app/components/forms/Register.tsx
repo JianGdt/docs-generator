@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import Link from "next/link";
 import { Github, Loader2 } from "lucide-react";
 
@@ -28,7 +27,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { RegisterFormValues, registerSchema } from "../lib/validators";
+import { RegisterFormValues, registerSchema } from "../../lib/schema/auth";
 
 export default function RegisterForm() {
   const router = useRouter();

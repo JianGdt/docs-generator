@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist_Mono } from "next/font/google";
-import { SessionProvider } from "@/app/providers/SessionProvider";
 import "./globals.css";
 import { Toaster } from "./components/ui/sonner";
+import { SessionProvider } from "./providers/SessionProvider";
 
 const inter = Geist_Mono({
   subsets: ["latin"],

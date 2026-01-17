@@ -1,4 +1,5 @@
 import { ObjectId } from "mongodb";
+import type { Session } from "next-auth";
 
 export type DocType = "readme" | "api" | "guide" | "contributing";
 export type InputMethod = "github" | "code" | "upload";
@@ -16,11 +17,23 @@ export interface GenerateResponse {
 }
 
 export interface GitHubRepo {
+  owner?: string;
+  repoName?: string;
   name: string;
   description: string;
   language: string;
   stars: number;
   files: GitHubFile[];
+  fileStructure?: string[];
+  packageJson?: any;
+  techStack?: {
+    framework: string[];
+    ui: string[];
+    auth: string[];
+    database: string[];
+    api: string[];
+    other: string[];
+  };
 }
 
 export interface GitHubFile {
@@ -29,11 +42,13 @@ export interface GitHubFile {
 }
 
 export interface SavedDoc {
-  _id: ObjectId;
+  _id?: ObjectId;
+  userId: string;
   title: string;
   content: string;
-  docType: "readme" | "api" | "guide" | "contributing";
-  userId: string;
+  docType: DocType;
+  repositoryUrl?: string;
+  repositoryName?: string;
   createdAt: Date;
   updatedAt?: Date;
 }
@@ -67,6 +82,7 @@ export interface GenDocsUser {
 
 export interface DocsGeneratorProps {
   user: GenDocsUser;
+  session: Session;
 }
 
 // components types

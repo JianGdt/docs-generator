@@ -9,8 +9,8 @@ import {
   FileText,
   ExternalLink,
 } from "lucide-react";
-import StatsDisplay from "./StatsDisplay";
 import { useDocsStore } from "@/app/lib/store";
+import StatsDisplay from "./StatsDisplay";
 
 export default function PreviewSection() {
   const { generatedDocs, docType } = useDocsStore();

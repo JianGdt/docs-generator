@@ -40,6 +40,15 @@ export const commitSchema = z.object({
   prBody: z.string().optional(),
 });
 
+export const githubUrlSchema = z
+  .string()
+  .url("Invalid URL format.")
+  .regex(
+    /github\.com\/[\w.-]+\/[\w.-]+$/i,
+    "Must be a valid GitHub repository URL."
+  );
+
+export type GithubUrlInput = z.infer<typeof githubUrlSchema>;
 export type CommitFormValues = z.infer<typeof commitSchema>;
 export type CommitFileInput = z.infer<typeof commitFileSchema>;
 export type CreatePullRequestInput = z.infer<typeof createPullRequestSchema>;

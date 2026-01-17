@@ -1,12 +1,12 @@
 "use server";
 
-import { signUpSchema, signInSchema } from "@/app/lib/validators";
 import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
 import { createUser, getUserByEmail } from "../database";
 import { signIn, signOut } from "next-auth/react";
 import { FormState } from "../types";
+import { signInSchema, signUpSchema } from "../schema/auth";
 
 export async function signUpAction(formData: FormData): Promise<FormState> {
   try {
@@ -57,9 +57,7 @@ export async function signUpAction(formData: FormData): Promise<FormState> {
   }
 }
 
-export async function signInAction(
-  formData: FormData
-): Promise<FormState> {
+export async function signInAction(formData: FormData): Promise<FormState> {
   try {
     const rawData = {
       email: formData.get("email"),

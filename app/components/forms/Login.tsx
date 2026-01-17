@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
 
@@ -27,8 +26,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { LoginFormValues, loginSchema } from "../lib/validators";
 import { toast } from "sonner";
+import { LoginFormValues, loginSchema } from "../../lib/schema/auth";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -53,13 +52,12 @@ export default function LoginForm() {
         redirect: false,
       });
 
-
       if (result?.error) {
         setError("Invalid username/email or password");
       } else {
         router.push("/");
         router.refresh();
-        toast.success("Logged in")
+        toast.success("Logged in");
       }
     } catch (error) {
       setError("An error occurred. Please try again.");
@@ -85,7 +83,8 @@ export default function LoginForm() {
           Welcome Back
         </CardTitle>
         <CardDescription className="text-center">
-          Sign in to continue to AI Docs Generator
+          Sign in to continue to AI Docs Generator, A simple tool for developers
+          powered by AI
         </CardDescription>
       </CardHeader>
       <CardContent>

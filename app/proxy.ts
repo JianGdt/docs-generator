@@ -6,6 +6,14 @@ export default auth((req) => {
   const isLoggedIn = !!req.auth;
   const path = nextUrl.pathname;
 
+  if (
+    path.startsWith("/api") ||
+    path.startsWith("/_next") ||
+    path.includes(".")
+  ) {
+    return NextResponse.next();
+  }
+
   if (["/login", "/register"].includes(path) && isLoggedIn) {
     return NextResponse.redirect(new URL("/docs-generator", nextUrl));
   }

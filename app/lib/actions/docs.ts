@@ -23,7 +23,7 @@ export async function saveDoc(data: {
     });
 
     revalidatePath("/docs-generator");
-    return { success: true, docId: doc._id.toString() };
+    return { success: true, docId: doc._id };
   } catch (error) {
     console.error("Error saving document:", error);
     return { success: false, error: "Failed to save document" };
@@ -54,7 +54,7 @@ export async function fetchDocById(docId: string) {
 
     return {
       ...doc,
-      _id: doc._id.toString(),
+      _id: doc._id,
     };
   } catch (error) {
     console.error("Error fetching document:", error);

@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { auth } from "../../../lib/auth";
+import { auth } from "../lib/auth";
 import DocsGenerator from "./_client/DocsGenerator";
 
 export const metadata = {
@@ -14,5 +14,5 @@ export default async function DocsGeneratorPage() {
     redirect("/login");
   }
 
-  return <DocsGenerator  user={session.user} />;
+  return <DocsGenerator user={session.user} session={session} />;
 }
