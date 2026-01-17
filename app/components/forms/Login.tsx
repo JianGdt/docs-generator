@@ -1,140 +1,123 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
-import { Loader2 } from "lucide-react";
-
+import { useRouter, useSearchParams } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { toast } from "sonner";
-import { LoginFormValues, loginSchema } from "../../lib/schema/auth";
+import { Loader2, Github, Chrome, AlertCircle } from "lucide-react";
 
 export default function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [isOAuthLoading, setIsOAuthLoading] = useState(false);
 
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      identifier: "",
-      password: "",
-    },
-  });
+  const urlError = searchParams.get("error");
 
-  const onSubmit = async (values: LoginFormValues) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
     setError("");
+
+    const formData = new FormData(e.currentTarget);
+    const identifier = formData.get("identifier") as string;
+    const password = formData.get("password") as string;
 
     try {
       const result = await signIn("credentials", {
-        identifier: values.identifier.trim(),
-        password: values.password,
+        identifier,
+        password,
         redirect: false,
       });
 
       if (result?.error) {
-        setError("Invalid username/email or password");
-      } else {
-        router.push("/");
+        setError(result.error);
+      } else if (result?.ok) {
+        router.push("/docs-generator");
         router.refresh();
-        toast.success("Logged in");
       }
-    } catch (error) {
-      setError("An error occurred. Please try again.");
+    } catch (err) {
+      setError("An unexpected error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleOAuthSignIn = async (provider: "google" | "github") => {
-    setIsOAuthLoading(true);
+    setLoading(true);
+    setError("");
+
     try {
-      await signIn(provider, { redirectTo: "/" });
-    } catch (error) {
-      setError("OAuth sign in failed. Please try again.");
-      setIsOAuthLoading(false);
+      await signIn(provider, {
+        callbackUrl: "/docs-generator",
+      });
+    } catch (err) {
+      setError("OAuth sign-in failed. Please try again.");
+      setLoading(false);
     }
   };
 
-  const isLoading = form.formState.isSubmitting || isOAuthLoading;
-
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-3xl font-bold text-center">
-          Welcome Back
-        </CardTitle>
-        <CardDescription className="text-center">
-          Sign in to continue to AI Docs Generator, A simple tool for developers
-          powered by AI
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="identifier"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Username or Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="username or email@example.com"
-                      {...field}
-                      disabled={isLoading}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-slate-900 to-purple-900 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md bg-slate-800/50 border-purple-500/20">
+        <CardHeader>
+          <CardTitle className="text-2xl text-white text-center">
+            Welcome Back
+          </CardTitle>
+          <p className="text-slate-400 text-center text-sm mt-2">
+            Sign in to continue to AI Docs Generator
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {(error || urlError) && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                {error || urlError === "CredentialsSignin"
+                  ? "Invalid username/email or password"
+                  : error || "An error occurred during sign in"}
+              </AlertDescription>
+            </Alert>
+          )}
 
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="••••••••"
-                      {...field}
-                      disabled={isLoading}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="text-sm text-slate-300 mb-2 block">
+                Username or Email
+              </label>
+              <Input
+                name="identifier"
+                type="text"
+                placeholder="player2"
+                required
+                className="bg-slate-700/50 border-slate-600 text-white"
+                disabled={loading}
+              />
+            </div>
 
-            {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
+            <div>
+              <label className="text-sm text-slate-300 mb-2 block">
+                Password
+              </label>
+              <Input
+                name="password"
+                type="password"
+                placeholder="••••••••"
+                required
+                className="bg-slate-700/50 border-slate-600 text-white"
+                disabled={loading}
+              />
+            </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {form.formState.isSubmitting ? (
+            <Button
+              type="submit"
+              className="w-full bg-purple-600 hover:bg-purple-700"
+              disabled={loading}
+            >
+              {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Signing in...
@@ -144,76 +127,47 @@ export default function LoginForm() {
               )}
             </Button>
           </form>
-        </Form>
 
-        <div className="relative my-4">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-slate-600" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-slate-800 px-2 text-slate-400">
+                Or continue with
+              </span>
+            </div>
           </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
-              Or continue with
-            </span>
-          </div>
-        </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <Button
-            variant="outline"
-            onClick={() => handleOAuthSignIn("google")}
-            disabled={isLoading}
-          >
-            <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
-              <path
-                fill="currentColor"
-                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-              />
-              <path
-                fill="currentColor"
-                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-              />
-              <path
-                fill="currentColor"
-                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-              />
-              <path
-                fill="currentColor"
-                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-              />
-            </svg>
-            Google
-          </Button>
-
-          <Button
-            variant="outline"
-            onClick={() => handleOAuthSignIn("github")}
-            disabled={isLoading}
-          >
-            <svg
-              className="mr-2 h-4 w-4"
-              fill="currentColor"
-              viewBox="0 0 24 24"
+          <div className="grid grid-cols-2 gap-4">
+            <Button
+              variant="outline"
+              onClick={() => handleOAuthSignIn("google")}
+              disabled={loading}
+              className="bg-slate-700/50 border-slate-600 hover:bg-slate-700"
             >
-              <path
-                fillRule="evenodd"
-                d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-                clipRule="evenodd"
-              />
-            </svg>
-            GitHub
-          </Button>
-        </div>
+              <Chrome className="mr-2 h-4 w-4" />
+              Google
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => handleOAuthSignIn("github")}
+              disabled={loading}
+              className="bg-slate-700/50 border-slate-600 hover:bg-slate-700"
+            >
+              <Github className="mr-2 h-4 w-4" />
+              GitHub
+            </Button>
+          </div>
 
-        <p className="mt-4 text-center text-sm text-muted-foreground">
-          Don't have an account?{" "}
-          <Link
-            href="/register"
-            className="font-medium text-primary underline-offset-4 hover:underline"
-          >
-            Create one
-          </Link>
-        </p>
-      </CardContent>
-    </Card>
+          <p className="text-center text-sm text-slate-400">
+            Don't have an account?{" "}
+            <a href="/register" className="text-purple-400 hover:underline">
+              Create one
+            </a>
+          </p>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
