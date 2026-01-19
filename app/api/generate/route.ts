@@ -18,10 +18,8 @@ export async function POST(req: NextRequest) {
     );
 
     let documentation: string;
-
     if (method === "github") {
       const repo = await fetchGitHubRepo(data);
-
       if (docType === "readme") {
         documentation = await generateDocumentation(repo, docType);
       } else {

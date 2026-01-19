@@ -1,14 +1,7 @@
 "use client";
 
 import axios from "axios";
-import {
-  Github,
-  Code2,
-  Upload,
-  Sparkles,
-  Loader2,
-  BookOpen,
-} from "lucide-react";
+import { Github, Code2, Upload, Sparkles, Loader2 } from "lucide-react";
 
 import { useDocsStore } from "@/app/lib/store";
 import { DocType, InputMethod } from "@/app/lib/types";
@@ -47,6 +40,19 @@ export default function InputSection() {
         data,
         docType,
       });
+
+      if (response.data.success) {
+        await fetch("/api/docs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: `My Doc - ${docType}`,
+            content: data,
+            docType: docType,
+            repositoryUrl: githubUrl,
+          }),
+        });
+      }
 
       if (response.data.success) {
         setGeneratedDocs(response.data.documentation);

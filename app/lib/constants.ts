@@ -17,10 +17,10 @@ export const EXAMPLE_CODE = `example code nyo langs`;
 
 export const ENV = {
   GROQ_API_KEY: process.env.GROQ_API_KEY,
-  MONGODB_URI: process.env.MONGODB_URL, 
+  MONGODB_URI: process.env.MONGODB_URL,
   GITHUB_TOKEN: process.env.GITHUB_TOKEN,
   APP_URL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-  AUTH_SECRET: process.env.NEXTAUTH_SECRET,
+  AUTH_SECRET: process.env.AUTH_SECRET,
   NODE_ENV: process.env.NODE_ENV,
 } as const;
 

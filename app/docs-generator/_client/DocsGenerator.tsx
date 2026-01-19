@@ -1,6 +1,5 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
 import Header from "@/components/layout/Header";
 import InputSection from "@/components/InputSection";
 import PreviewSection from "@/components/PreviewSection";
@@ -18,7 +17,6 @@ export default function DocsGenerator({ user, session }: DocsGeneratorProps) {
         <div className="grid lg:grid-cols-2 gap-8">
           <InputSection />
           <PreviewSection />
-
           {generatedDocs && (
             <GitHubIntegration
               documentContent={generatedDocs}

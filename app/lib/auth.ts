@@ -3,8 +3,33 @@ import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import GitHub from "next-auth/providers/github";
 import bcrypt from "bcryptjs";
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
 import { getUserByEmailOrUsername, createUser } from "./database";
-import { checkLoginRateLimit } from "./rate-limit";
+
+const redis = Redis.fromEnv();
+const loginRateLimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(5, "15 m"),
+  analytics: true,
+  prefix: "ratelimit:login",
+});
+
+const DUMMY_HASH = "$2a$10$dummyhashtopreventtimingattacks1234567890";
+
+async function checkRateLimit(identifier: string) {
+  const key = `login:${identifier.toLowerCase()}`;
+  const { success, reset } = await loginRateLimit.limit(key);
+
+  if (!success) {
+    const minutes = Math.ceil((reset - Date.now()) / 1000 / 60);
+    throw new Error(
+      `Too many login attempts. Try again in ${minutes} minute${
+        minutes !== 1 ? "s" : ""
+      }.`
+    );
+  }
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -14,53 +39,30 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       authorize: async (credentials) => {
-        if (
-          !credentials?.identifier ||
-          !credentials?.password ||
-          typeof credentials.identifier !== "string" ||
-          typeof credentials.password !== "string"
-        ) {
+        if (!credentials?.identifier || !credentials?.password) {
           return null;
         }
 
-        const identifier = credentials.identifier.trim();
-        const password = credentials.password;
+        const identifier = String(credentials.identifier).trim();
+        const password = String(credentials.password);
 
-        if (identifier.length < 3 || identifier.length > 255) {
-          return null;
-        }
-
-        if (password.length < 6 || password.length > 255) {
+        if (identifier.length < 3 || password.length < 6) {
           return null;
         }
 
         try {
-          const rateLimit = await checkLoginRateLimit(identifier);
-
-          if (!rateLimit.success) {
-            throw new Error(
-              `Too many login attempts. Please try again in ${Math.ceil(
-                (rateLimit.reset.getTime() - Date.now()) / 1000 / 60
-              )} minutes.`
-            );
-          }
+          await checkRateLimit(identifier);
 
           const user = await getUserByEmailOrUsername(identifier);
 
           if (!user || !user.password) {
-            await bcrypt.compare(
-              password,
-              "$2a$10$dummyhashtopreventtimingattacks1234567890"
-            );
+            await bcrypt.compare(password, DUMMY_HASH);
             return null;
           }
 
-          const isCorrectPassword = await bcrypt.compare(
-            password,
-            user.password
-          );
-
-          if (!isCorrectPassword) {
+          // Verify password
+          const isValid = await bcrypt.compare(password, user.password);
+          if (!isValid) {
             return null;
           }
 
@@ -71,11 +73,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             username: user.username,
           };
         } catch (error) {
-          console.error("Authorization error:", error);
           if (error instanceof Error && error.message.includes("Too many")) {
-            throw error;
+            console.error(`Rate limit: ${error.message}`);
           }
-          return null;
+          throw error;
         }
       },
     }),
@@ -98,61 +99,55 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
   callbacks: {
     async signIn({ user, account }) {
-      if (account?.provider === "google" || account?.provider === "github") {
-        if (!user.email) {
-          console.error("OAuth user missing email");
-          return false;
-        }
-
-        try {
-          const existingUser = await getUserByEmailOrUsername(user.email);
-
-          if (!existingUser) {
-            const username = user.email.split("@")[0];
-            const sanitizedUsername = username
-              .toLowerCase()
-              .replace(/[^a-z0-9_-]/g, "")
-              .slice(0, 30);
-
-            const newUser = await createUser({
-              username: sanitizedUsername,
-              email: user.email.toLowerCase(),
-              password: "",
-            });
-
-            user.id = newUser._id.toString();
-            user.name = newUser.username;
-          } else {
-            user.id = existingUser._id.toString();
-            user.name = existingUser.username;
-          }
-
-          return true;
-        } catch (error) {
-          console.error("Sign in error:", error);
-          return false;
-        }
+      if (account?.provider !== "google" && account?.provider !== "github") {
+        return true;
       }
 
-      return true;
+      if (!user.email) {
+        console.error("OAuth user missing email");
+        return false;
+      }
+
+      try {
+        const existingUser = await getUserByEmailOrUsername(user.email);
+
+        if (existingUser) {
+          user.id = existingUser._id.toString();
+          user.name = existingUser.username;
+        } else {
+          const username = user.email.split("@")[0].toLowerCase();
+          const newUser = await createUser({
+            username,
+            email: user.email.toLowerCase(),
+            password: "",
+          });
+
+          user.id = newUser._id.toString();
+          user.name = newUser.username;
+        }
+
+        return true;
+      } catch (error) {
+        console.error("OAuth sign-in error:", error);
+        return false;
+      }
     },
 
     async jwt({ token, user, account, profile }) {
       if (user) {
         token.id = user.id;
-        token.username = (user as any).user.username || user.name;
-        token.email = user.email;
+        token.username = user.username || user.name || undefined;
+        token.email = user.email || undefined;
       }
 
+      // Store OAuth tokens
       if (account) {
         token.provider = account.provider;
 
         if (account.provider === "github") {
           token.accessToken = account.access_token;
-          token.githubId = profile?.id as string;
-        }
-
-        if (account.provider === "google") {
+          token.githubId = String(profile?.id);
+        } else if (account.provider === "google") {
           token.accessToken = account.access_token;
         }
       }
@@ -161,15 +156,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
 
     async session({ session, token }) {
+      // Add custom fields to session
       if (session.user) {
         session.user.id = token.id as string;
         session.user.name = token.username as string;
         session.user.email = token.email as string;
       }
 
-      session.accessToken = token.accessToken;
-      session.provider = token.provider;
-      session.githubId = token.githubId;
+      session.accessToken = token.accessToken as string;
+      session.provider = token.provider as string;
+      session.githubId = token.githubId as string;
 
       return session;
     },
@@ -200,6 +196,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
   },
 
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.AUTH_SECRET,
   debug: process.env.NODE_ENV === "development",
 });

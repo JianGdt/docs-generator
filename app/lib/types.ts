@@ -49,9 +49,11 @@ export interface SavedDoc {
   docType: DocType;
   repositoryUrl?: string;
   repositoryName?: string;
+  version?: number;
   createdAt: Date;
   updatedAt?: Date;
 }
+
 export interface DocsState {
   inputMethod: InputMethod;
   docType: DocType;
@@ -100,6 +102,7 @@ export interface User {
   createdAt: Date;
   updatedAt?: Date;
 }
+
 export interface UserSession {
   id: string;
   name: string;
@@ -120,4 +123,43 @@ export interface Repository {
   fullName: string;
   owner: string;
   defaultBranch: string;
+}
+
+// ==================== HISTORY TYPES ====================
+
+export interface DocHistoryEntry {
+  _id?: ObjectId;
+  docId: string;
+  userId: string;
+  title: string;
+  documentType: string;
+  content: string;
+  version: number;
+  changeDescription?: string;
+  createdAt: Date;
+}
+
+export interface HistoryResponse {
+  history: DocHistoryEntry[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface RestoreHistoryRequest {
+  historyId: string;
+}
+
+export interface CleanupHistoryRequest {
+  keepVersions?: number;
+}
+
+export interface UpdateDocRequest {
+  title?: string;
+  documentType?: string;
+  content?: string;
+  changeDescription?: string;
 }

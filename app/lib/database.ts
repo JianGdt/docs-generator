@@ -25,6 +25,8 @@ export async function getDatabase(): Promise<Db> {
   return client.db("ai-docs-generator");
 }
 
+// ==================== USER FUNCTIONS ====================
+
 export async function createUser(data: {
   username: string;
   email: string;
@@ -103,12 +105,15 @@ export async function updateUser(
   }
 }
 
+// ==================== DOCUMENT FUNCTIONS ====================
+
 export async function saveDocumentation(
   doc: Omit<SavedDoc, "_id" | "createdAt">
 ): Promise<SavedDoc> {
   const db = await getDatabase();
   const result = await db.collection<SavedDoc>("docs").insertOne({
     ...doc,
+    version: 1, // Initialize version
     createdAt: new Date(),
   } as SavedDoc);
 
@@ -198,7 +203,203 @@ export async function deleteDoc(
   }
 }
 
-// GitHub Integration specific functions
+// ==================== HISTORY FUNCTIONS ====================
+
+export interface DocHistoryEntry {
+  _id?: ObjectId;
+  docId: string;
+  userId: string;
+  title: string;
+  documentType: string;
+  content: string;
+  version: number;
+  changeDescription?: string;
+  createdAt: Date;
+}
+
+// Get doc history with pagination
+export async function getDocHistory(
+  docId: string,
+  userEmail: string,
+  page: number = 1,
+  limit: number = 10
+) {
+  const db = await getDatabase();
+  const skip = (page - 1) * limit;
+
+  const [history, total] = await Promise.all([
+    db
+      .collection<DocHistoryEntry>("doc_history")
+      .find({ docId, userId: userEmail })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .toArray(),
+    db
+      .collection<DocHistoryEntry>("doc_history")
+      .countDocuments({ docId, userId: userEmail }),
+  ]);
+
+  return {
+    history,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+}
+
+// Save a history entry when doc is updated
+export async function saveDocHistory(
+  data: Omit<DocHistoryEntry, "_id" | "createdAt">
+): Promise<DocHistoryEntry> {
+  const db = await getDatabase();
+
+  const result = await db.collection<DocHistoryEntry>("doc_history").insertOne({
+    ...data,
+    createdAt: new Date(),
+  } as DocHistoryEntry);
+
+  const historyEntry = await db
+    .collection<DocHistoryEntry>("doc_history")
+    .findOne({ _id: result.insertedId });
+
+  if (!historyEntry) {
+    throw new Error("Failed to save doc history");
+  }
+
+  return historyEntry;
+}
+
+// Get specific history version
+export async function getHistoryVersion(
+  historyId: string,
+  userEmail: string
+): Promise<DocHistoryEntry | null> {
+  const db = await getDatabase();
+  try {
+    return db.collection<DocHistoryEntry>("doc_history").findOne({
+      _id: new ObjectId(historyId),
+      userId: userEmail,
+    });
+  } catch (error) {
+    return null;
+  }
+}
+
+export async function restoreDocFromHistory(
+  docId: string,
+  historyId: string,
+  userEmail: string
+): Promise<boolean> {
+  const db = await getDatabase();
+
+  try {
+    const historyEntry = await getHistoryVersion(historyId, userEmail);
+    if (!historyEntry || historyEntry.docId !== docId) {
+      return false;
+    }
+
+    const currentDoc = await getDocById(docId, userEmail);
+    if (currentDoc) {
+      await saveDocHistory({
+        docId,
+        userId: userEmail,
+        title: currentDoc.title,
+        documentType: currentDoc.docType,
+        content: currentDoc.content,
+        version: (currentDoc.version || 0) + 1,
+        changeDescription: "Auto-saved before restore",
+      });
+    }
+    const result = await db.collection<SavedDoc>("docs").updateOne(
+      { _id: new ObjectId(docId), userId: userEmail },
+      {
+        $set: {
+          title: historyEntry.title,
+          documentType: historyEntry.documentType,
+          content: historyEntry.content,
+          version: (currentDoc?.version || 0) + 1,
+          updatedAt: new Date(),
+        },
+      }
+    );
+
+    return result.modifiedCount > 0;
+  } catch (error) {
+    return false;
+  }
+}
+
+export async function getUserHistory(
+  userEmail: string,
+  page: number = 1,
+  limit: number = 20
+) {
+  const db = await getDatabase();
+  const skip = (page - 1) * limit;
+
+  const [history, total] = await Promise.all([
+    db
+      .collection<DocHistoryEntry>("doc_history")
+      .find({ userId: userEmail })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .toArray(),
+    db
+      .collection<DocHistoryEntry>("doc_history")
+      .countDocuments({ userId: userEmail }),
+  ]);
+
+  return {
+    history,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+}
+
+// Delete old history entries (cleanup)
+export async function deleteOldHistory(
+  docId: string,
+  userEmail: string,
+  keepVersions: number = 10
+): Promise<number> {
+  const db = await getDatabase();
+
+  try {
+    const allVersions = await db
+      .collection<DocHistoryEntry>("doc_history")
+      .find({ docId, userId: userEmail })
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    if (allVersions.length <= keepVersions) {
+      return 0;
+    }
+
+    const versionsToDelete = allVersions.slice(keepVersions);
+    const idsToDelete = versionsToDelete.map((v) => v._id).filter(Boolean);
+
+    const result = await db
+      .collection<DocHistoryEntry>("doc_history")
+      .deleteMany({
+        _id: { $in: idsToDelete },
+      });
+
+    return result.deletedCount;
+  } catch (error) {
+    return 0;
+  }
+}
+
+// ==================== GITHUB INTEGRATION FUNCTIONS ====================
 
 export interface GitHubCommit {
   _id?: ObjectId;
@@ -254,4 +455,44 @@ export async function getGitHubCommitsByDoc(docId: string, userId: string) {
     .find({ docId, userId })
     .sort({ createdAt: -1 })
     .toArray();
+}
+
+export async function saveDocumentationWithHistory(
+  doc: Omit<SavedDoc, "_id" | "createdAt" | "version">
+): Promise<SavedDoc> {
+  const db = await getDatabase();
+
+  // Save the document with version 1
+  const docToSave = {
+    ...doc,
+    version: 1,
+    createdAt: new Date(),
+  } as SavedDoc;
+
+  const result = await db.collection<SavedDoc>("docs").insertOne(docToSave);
+
+  const savedDoc = await db.collection<SavedDoc>("docs").findOne({
+    _id: result.insertedId,
+  });
+
+  if (!savedDoc) {
+    throw new Error("Failed to save documentation");
+  }
+
+  try {
+    await saveDocHistory({
+      docId: savedDoc._id!.toString(),
+      userId: doc.userId,
+      title: doc.title,
+      documentType: doc.docType,
+      content: doc.content,
+      version: 1,
+      changeDescription: "Initial version",
+    });
+  } catch (error) {
+    console.error("Failed to save initial history:", error);
+    // Continue even if history save fails
+  }
+
+  return savedDoc;
 }
