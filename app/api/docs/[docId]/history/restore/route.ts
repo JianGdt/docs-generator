@@ -11,20 +11,21 @@ const restoreSchema = z.object({
   historyId: z.string().min(1, "History ID is required"),
 });
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { docId: string } }
-) {
+type RouteParams = {
+  params: Promise<{ docId: string }> | { docId: string };
+};
+
+export async function POST(req: NextRequest, context: RouteParams) {
   try {
     const session = await auth();
-
+    
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const params = await Promise.resolve(context.params);
     const { docId } = params;
 
-    // Verify document exists and belongs to user
     const doc = await getDocById(docId, session.user.email);
     if (!doc) {
       return NextResponse.json(
