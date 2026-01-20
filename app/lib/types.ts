@@ -63,6 +63,8 @@ export interface DocsState {
   isGenerating: boolean;
   error: string | null;
 
+  uploadedFiles: UploadedFileData[];
+  setUploadedFiles: (files: UploadedFileData[]) => void;
   setInputMethod: (method: InputMethod) => void;
   setDocType: (type: DocType) => void;
   setGithubUrl: (url: string) => void;
@@ -162,4 +164,11 @@ export interface UpdateDocRequest {
   documentType?: string;
   content?: string;
   changeDescription?: string;
+}
+
+export interface UploadedFileData {
+  id: string;
+  fileName: string;
+  fileSize: number;
+  content: string;
 }

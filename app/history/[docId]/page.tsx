@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { formatDate } from "@//lib/utils";
+import { useHistoryRefetch } from "@//hooks/useHistoryRefetch";
 
 interface Document {
   _id: string;
@@ -43,10 +44,12 @@ interface Document {
   updatedAt?: string;
   userId: string;
 }
+
 export default function DocumentPage() {
   const params = useParams();
   const router = useRouter();
   const docId = params.docId as string;
+  const { triggerRefetch } = useHistoryRefetch();
 
   const [document, setDocument] = useState<Document | null>(null);
   const [loading, setLoading] = useState(true);
@@ -139,6 +142,9 @@ export default function DocumentPage() {
       setDocument(result.document);
       setIsEditing(false);
       setEditForm((prev) => ({ ...prev, changeDescription: "" }));
+
+      // Trigger history refetch after successful save
+      triggerRefetch();
     } catch (error) {
       console.error("Error updating document:", error);
       toast.error("Failed to update document");
@@ -160,6 +166,9 @@ export default function DocumentPage() {
       }
 
       toast.success("Document deleted successfully");
+
+      // Trigger history refetch after deletion
+      triggerRefetch();
 
       router.push("/history");
     } catch (error) {
@@ -194,32 +203,17 @@ export default function DocumentPage() {
       <div className="min-h-screen bg-gradient-to-br from-blue-900 via-slate-900 to-purple-900 flex items-center justify-center">
         <Card className="bg-white/10 backdrop-blur-lg border-white/20 p-8">
           <p className="text-white text-center mb-4">Document not found</p>
-          <Button
-            onClick={() => router.push("/history")}
-            className="w-full bg-blue-600 hover:bg-blue-700"
-          >
-            Back to History
-          </Button>
         </Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-slate-900 to-purple-900">
+    <div>
       <div className="border-b border-white/10 bg-black/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Button
-                onClick={() => router.push("/history")}
-                variant="ghost"
-                className="text-white"
-                disabled={isEditing}
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back
-              </Button>
               <Separator orientation="vertical" className="h-6 bg-white/20" />
               <div>
                 <h1 className="text-xl font-semibold text-white">

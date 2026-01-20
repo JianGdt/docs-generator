@@ -32,3 +32,14 @@ if (typeof window === "undefined") {
     console.error("❌ MONGODB_URI is missing");
   }
 }
+
+export const MAX_FILE_SIZE = 5 * 1024 * 1024;
+
+export const ALLOWED_EXTENSIONS = [
+  ".js",
+  ".jsx",
+  ".ts",
+  ".tsx",
+  ".json",
+  ".md",
+];

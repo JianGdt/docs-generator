@@ -56,7 +56,7 @@ export async function getUserByEmail(email: string): Promise<User | null> {
 }
 
 export async function getUserByUsername(
-  username: string
+  username: string,
 ): Promise<User | null> {
   const db = await getDatabase();
   return db
@@ -65,7 +65,7 @@ export async function getUserByUsername(
 }
 
 export async function getUserByEmailOrUsername(
-  identifier: string
+  identifier: string,
 ): Promise<User | null> {
   const db = await getDatabase();
   const lowerIdentifier = identifier.toLowerCase();
@@ -86,7 +86,7 @@ export async function getUserById(id: string): Promise<User | null> {
 
 export async function updateUser(
   id: string,
-  data: Partial<Omit<User, "_id" | "createdAt">>
+  data: Partial<Omit<User, "_id" | "createdAt">>,
 ): Promise<boolean> {
   const db = await getDatabase();
   try {
@@ -97,7 +97,7 @@ export async function updateUser(
           ...data,
           updatedAt: new Date(),
         },
-      }
+      },
     );
     return result.modifiedCount > 0;
   } catch (error) {
@@ -108,7 +108,7 @@ export async function updateUser(
 // ==================== DOCUMENT FUNCTIONS ====================
 
 export async function saveDocumentation(
-  doc: Omit<SavedDoc, "_id" | "createdAt">
+  doc: Omit<SavedDoc, "_id" | "createdAt">,
 ): Promise<SavedDoc> {
   const db = await getDatabase();
   const result = await db.collection<SavedDoc>("docs").insertOne({
@@ -149,7 +149,7 @@ export async function getUserDocs(userId: string) {
 
 export async function getDocById(
   docId: string,
-  userId: string
+  userId: string,
 ): Promise<SavedDoc | null> {
   const db = await getDatabase();
   try {
@@ -165,7 +165,7 @@ export async function getDocById(
 export async function updateDoc(
   docId: string,
   userId: string,
-  data: Partial<Omit<SavedDoc, "_id" | "createdAt" | "userId">>
+  data: Partial<Omit<SavedDoc, "_id" | "createdAt" | "userId">>,
 ): Promise<boolean> {
   const db = await getDatabase();
   try {
@@ -179,7 +179,7 @@ export async function updateDoc(
           ...data,
           updatedAt: new Date(),
         },
-      }
+      },
     );
     return result.modifiedCount > 0;
   } catch (error) {
@@ -189,7 +189,7 @@ export async function updateDoc(
 
 export async function deleteDoc(
   docId: string,
-  userId: string
+  userId: string,
 ): Promise<boolean> {
   const db = await getDatabase();
   try {
@@ -222,7 +222,7 @@ export async function getDocHistory(
   docId: string,
   userEmail: string,
   page: number = 1,
-  limit: number = 10
+  limit: number = 10,
 ) {
   const db = await getDatabase();
   const skip = (page - 1) * limit;
@@ -253,7 +253,7 @@ export async function getDocHistory(
 
 // Save a history entry when doc is updated
 export async function saveDocHistory(
-  data: Omit<DocHistoryEntry, "_id" | "createdAt">
+  data: Omit<DocHistoryEntry, "_id" | "createdAt">,
 ): Promise<DocHistoryEntry> {
   const db = await getDatabase();
 
@@ -276,7 +276,7 @@ export async function saveDocHistory(
 // Get specific history version
 export async function getHistoryVersion(
   historyId: string,
-  userEmail: string
+  userEmail: string,
 ): Promise<DocHistoryEntry | null> {
   const db = await getDatabase();
   try {
@@ -292,7 +292,7 @@ export async function getHistoryVersion(
 export async function restoreDocFromHistory(
   docId: string,
   historyId: string,
-  userEmail: string
+  userEmail: string,
 ): Promise<boolean> {
   const db = await getDatabase();
 
@@ -324,7 +324,7 @@ export async function restoreDocFromHistory(
           version: (currentDoc?.version || 0) + 1,
           updatedAt: new Date(),
         },
-      }
+      },
     );
 
     return result.modifiedCount > 0;
@@ -336,7 +336,7 @@ export async function restoreDocFromHistory(
 export async function getUserHistory(
   userEmail: string,
   page: number = 1,
-  limit: number = 20
+  limit: number = 20,
 ) {
   const db = await getDatabase();
   const skip = (page - 1) * limit;
@@ -369,7 +369,7 @@ export async function getUserHistory(
 export async function deleteOldHistory(
   docId: string,
   userEmail: string,
-  keepVersions: number = 10
+  keepVersions: number = 10,
 ): Promise<number> {
   const db = await getDatabase();
 
@@ -399,6 +399,34 @@ export async function deleteOldHistory(
   }
 }
 
+/**
+ * Delete all history entries for a specific document
+ * This should be called when a document is deleted
+ */
+export async function deleteDocHistory(
+  docId: string,
+  userId: string,
+): Promise<boolean> {
+  const db = await getDatabase();
+
+  try {
+    const result = await db
+      .collection<DocHistoryEntry>("doc_history")
+      .deleteMany({
+        docId: docId,
+        userId: userId,
+      });
+
+    console.log(
+      `Deleted ${result.deletedCount} history entries for document ${docId}`,
+    );
+    return true;
+  } catch (error) {
+    console.error("Error deleting document history:", error);
+    return false;
+  }
+}
+
 // ==================== GITHUB INTEGRATION FUNCTIONS ====================
 
 export interface GitHubCommit {
@@ -416,7 +444,7 @@ export interface GitHubCommit {
 }
 
 export async function saveGitHubCommit(
-  data: Omit<GitHubCommit, "_id" | "createdAt">
+  data: Omit<GitHubCommit, "_id" | "createdAt">,
 ): Promise<GitHubCommit> {
   const db = await getDatabase();
   const result = await db.collection<GitHubCommit>("github_commits").insertOne({
@@ -437,7 +465,7 @@ export async function saveGitHubCommit(
 
 export async function getGitHubCommitsByUser(
   userId: string,
-  limit: number = 20
+  limit: number = 20,
 ) {
   const db = await getDatabase();
   return db
@@ -458,7 +486,7 @@ export async function getGitHubCommitsByDoc(docId: string, userId: string) {
 }
 
 export async function saveDocumentationWithHistory(
-  doc: Omit<SavedDoc, "_id" | "createdAt" | "version">
+  doc: Omit<SavedDoc, "_id" | "createdAt" | "version">,
 ): Promise<SavedDoc> {
   const db = await getDatabase();
 
@@ -491,8 +519,82 @@ export async function saveDocumentationWithHistory(
     });
   } catch (error) {
     console.error("Failed to save initial history:", error);
-    // Continue even if history save fails
   }
 
   return savedDoc;
+}
+
+// ==================== FILE UPLOAD FUNCTIONS ====================
+
+export interface UploadedFile {
+  _id?: ObjectId;
+  userId: string;
+  fileName: string;
+  fileType: string;
+  fileSize: number;
+  content: string;
+  uploadedAt: Date;
+}
+
+export async function saveUploadedFile(
+  data: Omit<UploadedFile, "_id" | "uploadedAt">,
+): Promise<UploadedFile> {
+  const db = await getDatabase();
+  const result = await db.collection<UploadedFile>("uploaded_files").insertOne({
+    ...data,
+    uploadedAt: new Date(),
+  } as UploadedFile);
+
+  const file = await db
+    .collection<UploadedFile>("uploaded_files")
+    .findOne({ _id: result.insertedId });
+
+  if (!file) {
+    throw new Error("Failed to save uploaded file");
+  }
+
+  return file;
+}
+
+export async function getUserUploadedFiles(userId: string, limit: number = 50) {
+  const db = await getDatabase();
+  return db
+    .collection<UploadedFile>("uploaded_files")
+    .find({ userId })
+    .sort({ uploadedAt: -1 })
+    .limit(limit)
+    .toArray();
+}
+
+export async function getUploadedFileById(
+  fileId: string,
+  userId: string,
+): Promise<UploadedFile | null> {
+  const db = await getDatabase();
+  try {
+    return db.collection<UploadedFile>("uploaded_files").findOne({
+      _id: new ObjectId(fileId),
+      userId,
+    });
+  } catch (error) {
+    return null;
+  }
+}
+
+export async function deleteUploadedFile(
+  fileId: string,
+  userId: string,
+): Promise<boolean> {
+  const db = await getDatabase();
+  try {
+    const result = await db
+      .collection<UploadedFile>("uploaded_files")
+      .deleteOne({
+        _id: new ObjectId(fileId),
+        userId,
+      });
+    return result.deletedCount > 0;
+  } catch (error) {
+    return false;
+  }
 }

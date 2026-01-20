@@ -71,12 +71,9 @@ export default function LoginForm() {
   return (
     <Card className="w-full max-w-md bg-slate-800/50 border-purple-500/20">
       <CardHeader>
-        <CardTitle className="text-2xl text-white text-center">
-          Welcome Back
+        <CardTitle className="text-2xl text-white text-start">
+          Login
         </CardTitle>
-        <p className="text-slate-400 text-center text-sm mt-2">
-          Sign in to continue to AI Docs Generator
-        </p>
       </CardHeader>
       <CardContent className="space-y-4">
         {(error || urlError) && (

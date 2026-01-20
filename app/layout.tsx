@@ -3,6 +3,7 @@ import { Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "./components/ui/sonner";
 import { SessionProvider } from "./providers/SessionProvider";
+import BreadcumbLayout from "./components/layout/Breadcrumb";
 
 const inter = Geist_Mono({
   subsets: ["latin"],
@@ -24,8 +25,10 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>
         <SessionProvider>
-          <Toaster position="top-center" />
-          {children}
+          <BreadcumbLayout>
+            <Toaster position="top-center" />
+            {children}
+          </BreadcumbLayout>
         </SessionProvider>
       </body>
     </html>

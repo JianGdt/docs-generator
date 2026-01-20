@@ -1,7 +1,6 @@
-// components/layout/Header.tsx
 "use client";
 
-import { History, FileText, Settings, LogOut } from "lucide-react";
+import { History, FileText, LogOut } from "lucide-react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 import {
@@ -38,7 +37,6 @@ export default function Header({ user }: HeaderProps) {
     <header className="border-b border-white/10 bg-black/20 backdrop-blur-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             <FileText className="h-8 w-8 text-blue-400" />
             <span className="text-xl font-bold text-white">

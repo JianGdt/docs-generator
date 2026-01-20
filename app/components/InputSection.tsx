@@ -1,7 +1,16 @@
 "use client";
 
 import axios from "axios";
-import { Github, Code2, Upload, Sparkles, Loader2 } from "lucide-react";
+import {
+  Github,
+  Code2,
+  Upload,
+  Sparkles,
+  Loader2,
+  X,
+  File,
+} from "lucide-react";
+import { useState } from "react";
 
 import { useDocsStore } from "@/app/lib/store";
 import { DocType, InputMethod } from "@/app/lib/types";
@@ -15,6 +24,7 @@ export default function InputSection() {
     codeInput,
     isGenerating,
     error,
+    uploadedFiles,
     setInputMethod,
     setDocType,
     setGithubUrl,
@@ -22,14 +32,84 @@ export default function InputSection() {
     setGeneratedDocs,
     setIsGenerating,
     setError,
+    setUploadedFiles,
   } = useDocsStore();
+
+  const [isDragging, setIsDragging] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleFileUpload = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
+    setIsUploading(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      Array.from(files).forEach((file) => {
+        formData.append("files", file);
+      });
+
+      const response = await axios.post("/api/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response.data.success) {
+        setUploadedFiles(response.data.files);
+      } else {
+        throw new Error(response.data.error || "Upload failed");
+      }
+    } catch (err: any) {
+      const errorMessage =
+        err.response?.data?.error || err.message || "Upload failed";
+      setError(errorMessage);
+      console.error("Upload error:", err);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    handleFileUpload(e.dataTransfer.files);
+  };
+
+  const removeFile = (indexToRemove: number) => {
+    setUploadedFiles(
+      uploadedFiles.filter((_, index) => index !== indexToRemove),
+    );
+  };
 
   const handleGenerate = async () => {
     setIsGenerating(true);
     setError(null);
 
     try {
-      const data = inputMethod === "github" ? githubUrl : codeInput;
+      let data = "";
+
+      if (inputMethod === "github") {
+        data = githubUrl;
+      } else if (inputMethod === "code") {
+        data = codeInput;
+      } else if (inputMethod === "upload") {
+        // Combine all uploaded files content
+        data = uploadedFiles
+          .map((file) => `// File: ${file.fileName}\n${file.content}`)
+          .join("\n\n");
+      }
 
       if (!data.trim()) {
         throw new Error("Please provide input data");
@@ -75,6 +155,12 @@ export default function InputSection() {
     { id: "upload" as InputMethod, label: INPUT_METHODS.upload, icon: Upload },
   ];
 
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(2) + " MB";
+  };
+
   return (
     <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl shadow-2xl border border-blue-500/20 p-6">
       <div className="flex items-center justify-between mb-6">
@@ -110,6 +196,7 @@ export default function InputSection() {
           </button>
         ))}
       </div>
+
       {inputMethod === "github" && (
         <div className="space-y-4">
           <div>
@@ -146,6 +233,7 @@ export default function InputSection() {
               onChange={(e) => setCodeInput(e.target.value)}
               disabled={isGenerating}
               className="w-full h-64 bg-slate-900 text-white rounded-lg px-4 py-3 font-mono text-sm border border-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 resize-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              placeholder="// Paste your code here..."
             />
           </div>
           <div className="flex items-start space-x-2 text-sm text-slate-400 bg-slate-900/50 p-3 rounded-lg">
@@ -157,20 +245,81 @@ export default function InputSection() {
           </div>
         </div>
       )}
+
       {inputMethod === "upload" && (
         <div className="space-y-4">
-          <div className="border-2 border-dashed border-slate-700 hover:border-blue-500 rounded-lg p-8 text-center transition-colors cursor-pointer group">
-            <Upload className="w-12 h-12 text-slate-500 group-hover:text-blue-400 mx-auto mb-4 transition-colors" />
+          <div
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className={`border-2 border-dashed rounded-lg p-8 text-center transition-all cursor-pointer group ${
+              isDragging
+                ? "border-blue-500 bg-blue-500/10"
+                : "border-slate-700 hover:border-blue-500"
+            }`}
+            onClick={() => document.getElementById("file-input")?.click()}
+          >
+            <input
+              id="file-input"
+              type="file"
+              multiple
+              accept=".js,.jsx,.ts,.tsx,.json,.md"
+              onChange={(e) => handleFileUpload(e.target.files)}
+              className="hidden"
+              disabled={isUploading || isGenerating}
+            />
+            {isUploading ? (
+              <Loader2 className="w-12 h-12 text-blue-400 mx-auto mb-4 animate-spin" />
+            ) : (
+              <Upload className="w-12 h-12 text-slate-500 group-hover:text-blue-400 mx-auto mb-4 transition-colors" />
+            )}
             <p className="text-white font-medium mb-1">
-              Drop files here or click to upload
+              {isUploading
+                ? "Uploading..."
+                : "Drop files here or click to upload"}
             </p>
             <p className="text-sm text-slate-400">
-              Support: .js, .ts, .jsx, .tsx,
+              Support: .js, .ts, .jsx, .tsx, .json, .md
             </p>
             <p className="text-xs text-slate-500 mt-2">
-              Coming soon lodicakes...
+              Max 5MB per file, up to 10 files
             </p>
           </div>
+
+          {uploadedFiles.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-slate-300">
+                Uploaded Files ({uploadedFiles.length})
+              </p>
+              {uploadedFiles.map((file, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between bg-slate-900/50 p-3 rounded-lg group"
+                >
+                  <div className="flex items-center space-x-3">
+                    <File className="w-5 h-5 text-blue-400" />
+                    <div>
+                      <p className="text-white text-sm font-medium">
+                        {file.fileName}
+                      </p>
+                      <p className="text-slate-500 text-xs">
+                        {formatFileSize(file.fileSize)}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeFile(index);
+                    }}
+                    className="text-slate-400 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -199,8 +348,9 @@ export default function InputSection() {
         onClick={handleGenerate}
         disabled={
           isGenerating ||
-          (!githubUrl.trim() && !codeInput.trim()) ||
-          inputMethod === "upload"
+          (inputMethod === "github" && !githubUrl.trim()) ||
+          (inputMethod === "code" && !codeInput.trim()) ||
+          (inputMethod === "upload" && uploadedFiles.length === 0)
         }
         className="w-full mt-6 flex items-center justify-center space-x-2 px-6 py-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/50 hover:shadow-blue-500/70 hover:scale-[1.02] active:scale-[0.98]"
       >
