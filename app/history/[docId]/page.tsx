@@ -33,6 +33,7 @@ import {
 import { toast } from "sonner";
 import { formatDate } from "@//lib/utils";
 import { useHistoryRefetch } from "@//hooks/useHistoryRefetch";
+import { SkeletonList } from "@//components/skeleton/SkeletonLists";
 
 interface Document {
   _id: string;
@@ -190,13 +191,7 @@ export default function DocumentPage() {
     URL.revokeObjectURL(url);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-slate-900 to-purple-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
-      </div>
-    );
-  }
+  if (loading) return <SkeletonList />;
 
   if (!document) {
     return (

@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useHistoryRefetch } from "@//hooks/useHistoryRefetch";
 import BreadcumbLayout from "../components/layout/Breadcrumb";
+import { SkeletonList } from "../components/skeleton/SkeletonLists";
 
 interface HistoryEntry {
   _id: string;
@@ -150,11 +151,7 @@ export default function HistoryPage() {
     ) || {};
 
   if (loading && history.length === 0) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-slate-900 to-purple-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
-      </div>
-    );
+    return <SkeletonList />;
   }
 
   return (

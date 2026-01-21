@@ -1,3 +1,6 @@
+import { Code2, Github, Upload } from "lucide-react";
+import { InputMethod } from "./types";
+
 export const DOC_TYPES = {
   readme: "README.md",
   api: "API Docs",
@@ -42,4 +45,10 @@ export const ALLOWED_EXTENSIONS = [
   ".tsx",
   ".json",
   ".md",
+];
+
+export const inputMethods = [
+  { id: "github" as InputMethod, label: INPUT_METHODS.github, icon: Github },
+  { id: "code" as InputMethod, label: INPUT_METHODS.code, icon: Code2 },
+  { id: "upload" as InputMethod, label: INPUT_METHODS.upload, icon: Upload },
 ];

@@ -8,7 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export function calculateReadingTime(
   text: string,
-  wordsPerMinute: number = 200
+  wordsPerMinute: number = 200,
 ): number {
   const words = text.trim().split(/\s+/).length;
   const minutes = words / wordsPerMinute;
@@ -37,4 +37,26 @@ export const formatDate = (dateString?: string): string => {
   }
 };
 
+export const formatFileSize = (bytes: number) => {
+  if (bytes < 1024) return bytes + " B";
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + " KB";
+  return (bytes / (1024 * 1024)).toFixed(2) + " MB";
+};
 
+export const downloadMarkdown = (content: string, filename: string): void => {
+  const blob = new Blob([content], { type: "text/markdown" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${filename}.md`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
+export const openInNewTab = (content: string): void => {
+  const blob = new Blob([content], { type: "text/markdown" });
+  const url = URL.createObjectURL(blob);
+  window.open(url, "_blank");
+};

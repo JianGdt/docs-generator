@@ -26,7 +26,7 @@ async function checkRateLimit(identifier: string) {
     throw new Error(
       `Too many login attempts. Try again in ${minutes} minute${
         minutes !== 1 ? "s" : ""
-      }.`
+      }.`,
     );
   }
 }
@@ -156,7 +156,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
 
     async session({ session, token }) {
-      // Add custom fields to session
       if (session.user) {
         session.user.id = token.id as string;
         session.user.name = token.username as string;
