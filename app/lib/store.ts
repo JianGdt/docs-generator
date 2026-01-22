@@ -3,15 +3,16 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { DocsState, InputMethod, DocType } from "./types";
-import { EXAMPLE_GITHUB_URL, EXAMPLE_CODE } from "./constants";
 
 export const useDocsStore = create<DocsState>()(
   devtools(
     (set) => ({
       inputMethod: "github",
       docType: "readme",
-      githubUrl: EXAMPLE_GITHUB_URL,
-      codeInput: EXAMPLE_CODE,
+
+      githubUrl: "",
+      codeInput: "",
+
       generatedDocs: "",
       isGenerating: false,
       error: null,
@@ -38,7 +39,6 @@ export const useDocsStore = create<DocsState>()(
         set({
           generatedDocs: "",
           error: null,
-          isGenerating: false,
         }),
     }),
     { name: "DocsStore" },

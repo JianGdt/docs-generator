@@ -23,7 +23,7 @@ export const ENV = {
   MONGODB_URI: process.env.MONGODB_URL,
   GITHUB_TOKEN: process.env.GITHUB_TOKEN,
   APP_URL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-  AUTH_SECRET: process.env.AUTH_SECRET,
+  NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
   NODE_ENV: process.env.NODE_ENV,
 } as const;
 
@@ -51,4 +51,27 @@ export const inputMethods = [
   { id: "github" as InputMethod, label: INPUT_METHODS.github, icon: Github },
   { id: "code" as InputMethod, label: INPUT_METHODS.code, icon: Code2 },
   { id: "upload" as InputMethod, label: INPUT_METHODS.upload, icon: Upload },
+];
+
+export const CRITICAL_FILES = [
+  "package.json",
+  "README.md",
+  "next.config.ts",
+  "next.config.js",
+  "next.config.mjs",
+  "tsconfig.json",
+  ".env.example",
+  "tailwind.config.ts",
+  "tailwind.config.js",
+];
+
+export const SAMPLE_FILES = [
+  "app/page.tsx",
+  "app/layout.tsx",
+  "src/index.ts",
+  "src/index.js",
+  "index.ts",
+  "index.js",
+  "lib/utils.ts",
+  "components/ui/button.tsx",
 ];
