@@ -6,6 +6,9 @@ import { generateRequestSchema } from "@/app/lib/validators";
 import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   try {
     const session = await auth();
@@ -14,7 +17,7 @@ export async function POST(req: NextRequest) {
     }
 
     const { method, data, docType } = generateRequestSchema.parse(
-      await req.json()
+      await req.json(),
     );
 
     let documentation: string;
@@ -56,13 +59,13 @@ export async function POST(req: NextRequest) {
     if (error instanceof ZodError) {
       return NextResponse.json(
         { error: "Invalid request", details: error },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     return NextResponse.json(
       { error: (error as Error).message || "Failed to generate" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
