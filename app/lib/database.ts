@@ -1,5 +1,5 @@
 import { MongoClient, Db, ObjectId } from "mongodb";
-import { SavedDoc, User } from "./types";
+import { DocHistoryEntry, SavedDoc, User } from "./types";
 import { ENV } from "./constants";
 
 let client: MongoClient;
@@ -201,20 +201,6 @@ export async function deleteDoc(
   } catch (error) {
     return false;
   }
-}
-
-// ==================== HISTORY FUNCTIONS ====================
-
-export interface DocHistoryEntry {
-  _id?: ObjectId;
-  docId: string;
-  userId: string;
-  title: string;
-  documentType: string;
-  content: string;
-  version: number;
-  changeDescription?: string;
-  createdAt: Date;
 }
 
 // Get doc history with pagination

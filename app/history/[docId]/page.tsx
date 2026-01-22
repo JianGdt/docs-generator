@@ -413,7 +413,7 @@ export default function DocumentPage() {
                         <span>•</span>
                         <span className="flex items-center gap-1">
                           <Clock className="h-4 w-4" />
-                          {formatDate(document.updatedAt)}
+                          {formatDate(document.updatedAt || document.createdAt)}
                         </span>
                         <span>•</span>
                         <span>Version {document.version}</span>

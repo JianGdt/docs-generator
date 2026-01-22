@@ -141,9 +141,20 @@ export interface DocHistoryEntry {
   createdAt: Date;
 }
 
+export interface HistoryEntry {
+  _id: string;
+  userId: string;
+  title: string;
+  docType: string;
+  version: number;
+  changeDescription?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
 export interface HistoryResponse {
-  history: DocHistoryEntry[];
-  pagination: {
+  documents: {
+    data: HistoryEntry[];
     page: number;
     limit: number;
     total: number;
