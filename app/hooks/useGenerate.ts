@@ -15,36 +15,48 @@ export function useDocumentGeneration() {
     setGeneratedDocs,
   } = useDocsStore();
 
+  const getInputData = () => {
+    if (inputMethod === "github") return githubUrl;
+    if (inputMethod === "code") return codeInput;
+    return uploadedFiles
+      .map((file) => `// File: ${file.fileName}\n${file.content}`)
+      .join("\n\n");
+  };
+
   const handleGenerate = async () => {
     setIsGenerating(true);
     setError(null);
 
     try {
-      let data = "";
-
-      if (inputMethod === "github") data = githubUrl;
-      else if (inputMethod === "code") data = codeInput;
-      else if (inputMethod === "upload") {
-        data = uploadedFiles
-          .map((file) => `// File: ${file.fileName}\n${file.content}`)
-          .join("\n\n");
+      const data = getInputData();
+      
+      if (!data.trim()) {
+        throw new Error("Please provide input data");
       }
 
-      if (!data.trim()) throw new Error("Please provide input data");
+      const response = await axios.post("/api/generate", {
+        method: inputMethod,
+        data,
+        docType,
+      });
 
-      const response = await axios.post(
-        "/api/generate",
-        { method: inputMethod, data, docType },
-        { withCredentials: true },
-      );
+      if (!response.data.success) {
+        throw new Error(response.data.error || "Generation failed");
+      }
+
+      await fetch("/api/docs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: `My Doc - ${docType}`,
+          content: data,
+          docType,
+          repositoryUrl: githubUrl,
+        }),
+      });
 
       setGeneratedDocs(response.data.documentation);
     } catch (err: any) {
-      if (err.response?.status === 401) {
-        setError("You must be logged in to generate documentation.");
-        return;
-      }
-
       setError(err.response?.data?.error || err.message || "An error occurred");
       console.error("Error generating docs:", err);
     } finally {
