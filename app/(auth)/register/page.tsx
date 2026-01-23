@@ -1,4 +1,5 @@
-import { FileText } from "lucide-react";
+"use client";
+
 import RegisterForm from "../../components/forms/Register";
 import DescriptionSection from "@//components/DescriptionSection";
 

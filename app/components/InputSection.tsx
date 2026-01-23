@@ -12,9 +12,11 @@ export default function InputSection() {
   const { inputMethod, error } = useDocsStore();
 
   return (
-    <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl shadow-2xl border border-blue-500/20 p-6">
+    <div className="bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 p-3 md:p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-white">Input Source</h2>
+        <h2 className="text-sm md:text-xl font-semibold text-white">
+          Input Source
+        </h2>
         <DocTypeSelector />
       </div>
 

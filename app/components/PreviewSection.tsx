@@ -6,8 +6,6 @@ import { useCopyToClipboard } from "../hooks/useClipboard";
 import PreviewHeader from "./preview/Header";
 import EmptyState from "./preview/EmptyState";
 import DocumentPreview from "./preview/DocsPreview";
-import StatsDisplay from "./StatsDisplay";
-import TipsAlert from "./preview/Alert";
 
 export default function PreviewSection() {
   const { generatedDocs, docType } = useDocsStore();
@@ -19,8 +17,8 @@ export default function PreviewSection() {
   const handleOpen = () => openInNewTab(generatedDocs);
 
   return (
-    <div className="space-y-6">
-      <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl shadow-2xl border border-blue-500/20 overflow-hidden">
+    <>
+      <div className="bg-white/10 backdrop-blur-sm rounded-2xl  shadow-2xl border border-white/20 overflow-hidden">
         <PreviewHeader
           hasContent={!!generatedDocs}
           onCopy={handleCopy}
@@ -29,7 +27,7 @@ export default function PreviewSection() {
           copied={copied}
         />
 
-        <div className="p-6 max-h-[calc(100vh-16rem)] overflow-y-auto">
+        <div className="md:p-6 p-3 max-h-[calc(100vh-16rem)] overflow-y-auto">
           {!generatedDocs ? (
             <EmptyState />
           ) : (
@@ -37,13 +35,6 @@ export default function PreviewSection() {
           )}
         </div>
       </div>
-
-      {generatedDocs && (
-        <>
-          <StatsDisplay docs={generatedDocs} />
-          <TipsAlert />
-        </>
-      )}
-    </div>
+    </>
   );
 }

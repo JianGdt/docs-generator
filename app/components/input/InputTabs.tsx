@@ -21,8 +21,8 @@ export function InputMethodTabs() {
             value={method.id}
             disabled={isGenerating}
           >
-            <method.icon className="w-4 h-4" />
-            <span className="text-sm">{method.label}</span>
+            <method.icon className="hidden md:flex w-4 h-4" />
+            <span className="px-2 py-0.5 text-xs">{method.label}</span>
           </TabsTrigger>
         ))}
       </TabsList>

@@ -9,7 +9,7 @@ export default function EmptyState() {
         <div className="absolute inset-0 bg-blue-500/20 blur-xl rounded-full" />
         <FileText className="w-16 h-16 text-slate-600 relative" />
       </div>
-      <h3 className="text-xl font-semibold text-white mb-2">
+      <h3 className="text-sm md:text-xl font-semibold text-white mb-2">
         No Documentation Yet
       </h3>
       <p className="text-slate-400 max-w-md">

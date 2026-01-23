@@ -140,11 +140,11 @@ export default function HistoryPage() {
       {/* Header */}
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold text-white mb-2 flex items-center gap-3">
-            <Clock className="h-10 w-10" />
+          <h1 className=" text-sm md:text-4xl font-bold text-white mb-2 flex items-center gap-3">
+            <Clock className="md:h-10 md:w-10 w-4 h-4" />
             Document History
           </h1>
-          <p className="text-blue-200">
+          <p className="text-blue-200 text-sm md:text-md">
             View and manage all your document versions
           </p>
         </div>
@@ -161,7 +161,6 @@ export default function HistoryPage() {
         </Button>
       </div>
 
-      {/* Search */}
       <div className="mb-6 relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40" />
         <Input
@@ -173,10 +172,9 @@ export default function HistoryPage() {
         />
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        <Card className="bg-white/10 backdrop-blur-lg border-white/20">
-          <CardContent className="p-6 flex items-center gap-3">
+        <Card className="bg-white/10 px-2 backdrop-blur-lg border-white/20">
+          <CardContent className="p-0 md:p-6 flex items-center gap-3">
             <div className="p-3 bg-blue-500/20 rounded-lg">
               <FileText className="h-6 w-6 text-blue-300" />
             </div>
@@ -189,8 +187,8 @@ export default function HistoryPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-white/10 backdrop-blur-lg border-white/20">
-          <CardContent className="p-6 flex items-center gap-3">
+        <Card className="bg-white/10 px-2 backdrop-blur-lg border-white/20">
+          <CardContent className="p-0 md:p-6 flex items-center gap-3">
             <div className="p-3 bg-purple-500/20 rounded-lg">
               <Clock className="h-6 w-6 text-purple-300" />
             </div>
@@ -204,7 +202,6 @@ export default function HistoryPage() {
         </Card>
       </div>
 
-      {/* Content */}
       {filteredData.length === 0 ? (
         <Card className="bg-white/10 backdrop-blur-lg border-white/20">
           <CardContent className="p-12 text-center">
@@ -254,8 +251,8 @@ export default function HistoryPage() {
                     </div>
                   </div>
                   <Link href={`/history/${doc._id}`}>
-                    <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                      View
+                    <Button className="px-2 py-0.5 text-xs rounded-md border">
+                      View Details
                     </Button>
                   </Link>
                 </CardHeader>
@@ -263,7 +260,6 @@ export default function HistoryPage() {
             ))}
           </div>
 
-          {/* Pagination */}
           {pagination.totalPages > 1 && (
             <div className="mt-8">
               <Pagination>

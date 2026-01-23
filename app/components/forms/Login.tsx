@@ -12,12 +12,15 @@ import {
   Github,
   Chrome,
   AlertCircle,
-  EyeOff,
   Eye,
   EyeClosed,
 } from "lucide-react";
 
-export default function LoginForm() {
+interface LoginFormProps {
+  onSwitchToRegister?: () => void;
+}
+
+export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
@@ -71,9 +74,7 @@ export default function LoginForm() {
   return (
     <Card className="w-full max-w-md bg-slate-800/50 border-purple-500/20">
       <CardHeader>
-        <CardTitle className="text-2xl text-white text-start">
-          Login
-        </CardTitle>
+        <CardTitle className="text-2xl text-white text-start">Login</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {(error || urlError) && (
@@ -133,7 +134,7 @@ export default function LoginForm() {
 
           <Button
             type="submit"
-            className="w-full bg-purple-600 hover:bg-purple-700"
+            className="w-full bg-blue-500"
             disabled={loading}
           >
             {loading ? (
@@ -165,7 +166,7 @@ export default function LoginForm() {
             disabled={loading}
             className="bg-slate-700/50 border-slate-600 hover:bg-slate-700"
           >
-            <Chrome className="mr-2 h-4 w-4" />
+            <Chrome />
             Google
           </Button>
           <Button
@@ -174,16 +175,26 @@ export default function LoginForm() {
             disabled={loading}
             className="bg-slate-700/50 border-slate-600 hover:bg-slate-700"
           >
-            <Github className="mr-2 h-4 w-4" />
+            <Github />
             GitHub
           </Button>
         </div>
 
         <p className="text-center text-sm text-slate-400">
           Don't have an account?{" "}
-          <a href="/register" className="text-purple-400 hover:underline">
-            Create one
-          </a>
+          {onSwitchToRegister ? (
+            <button
+              onClick={onSwitchToRegister}
+              className="text-blue-500 hover:underline cursor-pointer bg-transparent border-none"
+              type="button"
+            >
+              Create one
+            </button>
+          ) : (
+            <a href="/register" className="text-blue-500 hover:underline">
+              Create one
+            </a>
+          )}
         </p>
       </CardContent>
     </Card>

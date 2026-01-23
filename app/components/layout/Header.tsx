@@ -38,19 +38,19 @@ export default function Header({ user }: HeaderProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2">
-            <FileText className="h-8 w-8 text-blue-400" />
-            <span className="text-xl font-bold text-white">
+            <FileText className="h-8 hidden md:flex w-8 text-blue-400" />
+            <span className="text-xs md:text-xl font-bold text-white">
               AI Docs Generator
             </span>
           </Link>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-end text-xs md:text-md md:items-center gap-2 md:gap-4">
             <Link href="/history">
               <Button
                 variant="ghost"
                 className="text-white hover:text-blue-400 hover:bg-white/10"
               >
-                <History className="h-5 w-5 mr-2" />
+                <History className="h-5 w-5 mr-0" />
                 History
               </Button>
             </Link>

@@ -13,14 +13,14 @@ export default function PreviewHeader({
   copied,
 }: PreviewHeaderProps) {
   return (
-    <div className="flex items-center justify-between px-6 py-4 bg-slate-900/50 border-b border-slate-700">
+    <div className="flex items-center justify-between px-1.5 w-full md:px-6 py-4 bg-slate-900/50 border-b border-slate-700">
       <div className="flex items-center gap-2">
-        <Eye className="w-5 h-5 text-blue-400" />
-        <h2 className="text-lg font-semibold text-white">Preview</h2>
+        <Eye className="hidden md:flex w-5 h-5 text-blue-400" />
+        <h2 className="text-sm md:text-xl font-semibold text-white">Preview</h2>
         {hasContent && (
           <Badge
             variant="outline"
-            className="bg-green-500/20 text-green-400 border-green-500/30"
+            className="bg-green-500/20  text-xs md:text-md text-green-400 border-green-500/30"
           >
             Ready
           </Badge>
@@ -37,13 +37,15 @@ export default function PreviewHeader({
           >
             {copied ? (
               <>
-                <Check className="w-4 h-4 text-green-400" />
-                <span className="ml-1 text-green-400">Copied!</span>
+                <Check className="hidden md:flex w-4 h-4 text-green-400" />
+                <span className="ml-1 text-green-400 text-xs md:text-md">
+                  Copied!
+                </span>
               </>
             ) : (
               <>
-                <Copy className="w-4 h-4" />
-                <span className="ml-1">Copy</span>
+                <Copy className="w-4 h-4 hidden md:flex" />
+                <span className="ml-1 text-xs md:text-md">Copy</span>
               </>
             )}
           </Button>
@@ -55,7 +57,9 @@ export default function PreviewHeader({
             className="bg-slate-700 hover:bg-slate-600"
           >
             <ExternalLink className="w-4 h-4" />
-            <span className="ml-1 hidden sm:inline">Open</span>
+            <span className="ml-1 hidden text-xs md:text-md sm:inline">
+              Open
+            </span>
           </Button>
 
           <Button
@@ -63,8 +67,8 @@ export default function PreviewHeader({
             size="sm"
             className="bg-blue-600 hover:bg-blue-700"
           >
-            <Download className="w-4 h-4" />
-            <span className="ml-1">Download</span>
+            <Download className="hidden md:flex w-4 h-4" />
+            <span className="ml-0 md:ml-1 text-xs md:text-md">Download</span>
           </Button>
         </div>
       )}

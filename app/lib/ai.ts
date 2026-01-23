@@ -22,7 +22,7 @@ function buildReadmePrompt(repo: RepoContext): string {
     ...new Set(repo.fileStructure.map((f) => f.split("/")[0])),
   ].sort();
 
-  return `Generate a professional documents based ONLY on this data. Do not hallucinate features.
+  return `Generate a professional documents.
 
 REPOSITORY: ${repo.name}
 DESCRIPTION: ${repo.description || "No description"}
@@ -32,7 +32,7 @@ ${
     ? `DEPENDENCIES:\n${JSON.stringify(
         repo.packageJson.dependencies,
         null,
-        2
+        2,
       )}\n`
     : ""
 }
@@ -44,13 +44,13 @@ ${
 ${
   repo.techStack
     ? `TECH STACK:\n- Framework: ${repo.techStack.framework.join(
-        ", "
+        ", ",
       )}\n- UI: ${repo.techStack.ui.join(
-        ", "
+        ", ",
       )}\n- Auth: ${repo.techStack.auth.join(
-        ", "
+        ", ",
       )}\n- Database: ${repo.techStack.database.join(
-        ", "
+        ", ",
       )}\n- APIs: ${repo.techStack.api.join(", ")}\n`
     : ""
 }
@@ -60,12 +60,11 @@ DIRECTORIES: ${dirs.join(", ")}
 FILES:
 ${repo.files.map((f) => `--- ${f.path} ---\n${f.content.slice(0, 1500)}`).join("\n\n")}
 `;
-
 }
 
 export async function generateDocumentation(
   contextData: string | RepoContext,
-  type: DocType
+  type: DocType,
 ): Promise<string> {
   try {
     const prompt =
@@ -77,8 +76,7 @@ export async function generateDocumentation(
       messages: [
         {
           role: "system",
-          content:
-            "You are a technical writer. Generate accurate documentation based ONLY on provided data. No hallucinations.",
+          content: "",
         },
         {
           role: "user",

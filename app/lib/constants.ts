@@ -75,3 +75,9 @@ export const SAMPLE_FILES = [
   "lib/utils.ts",
   "components/ui/button.tsx",
 ];
+
+export const DUMMY_HASH = "$2a$10$dummyhashtopreventtimingattacks1234567890";
+
+export const IMAGES = {
+  robot: { src: "/images/robot.png", alt: "zodiac" },
+};

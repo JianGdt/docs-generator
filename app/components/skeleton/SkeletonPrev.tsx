@@ -10,7 +10,7 @@ interface SkeletonPreviewProps {
 export function SkeletonPreview({ className }: SkeletonPreviewProps) {
   return (
     <div className={cn("space-y-6", className)}>
-      <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl shadow-2xl border border-blue-500/20 overflow-hidden">
+      <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl w-[350px] md:w-full shadow-2xl border border-blue-500/20 overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 bg-slate-900/50 border-b border-slate-700">
           <div className="flex items-center gap-2">
             <Skeleton className="h-5 w-5 rounded" />

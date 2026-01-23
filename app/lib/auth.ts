@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 import { getUserByEmailOrUsername, createUser } from "./database";
+import { DUMMY_HASH } from "./constants";
 
 const redis = Redis.fromEnv();
 const loginRateLimit = new Ratelimit({
@@ -14,8 +15,6 @@ const loginRateLimit = new Ratelimit({
   analytics: true,
   prefix: "ratelimit:login",
 });
-
-const DUMMY_HASH = "$2a$10$dummyhashtopreventtimingattacks1234567890";
 
 async function checkRateLimit(identifier: string) {
   const key = `login:${identifier.toLowerCase()}`;
@@ -60,7 +59,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             return null;
           }
 
-          // Verify password
           const isValid = await bcrypt.compare(password, user.password);
           if (!isValid) {
             return null;

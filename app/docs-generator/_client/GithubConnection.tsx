@@ -19,12 +19,7 @@ import { GitHubSignInCard } from "../_components/GitHubSignInCard";
 import type { Session } from "next-auth";
 import { useGitHubRepositories } from "@//hooks/github/useGitHubRepo";
 import { useGitHubCommit } from "@//hooks/github/useGitHubCommit";
-
-interface GitHubIntegrationProps {
-  documentContent: string;
-  documentType: string;
-  session: Session;
-}
+import { GitHubIntegrationProps } from "@//lib/@types/github";
 
 export default function GitHubIntegration({
   documentContent,

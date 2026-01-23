@@ -206,15 +206,14 @@ export default function DocumentPage() {
   return (
     <div>
       <div className="border-b border-white/10 bg-black/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className=" w-[350px] md:w-full mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Separator orientation="vertical" className="h-6 bg-white/20" />
+            <div className="flex items-center md:gap-4">
               <div>
-                <h1 className="text-xl font-semibold text-white">
+                <h1 className="text-sm md:text-xl  flex font-semibold text-white">
                   {isEditing ? editForm.title : document.title}
                 </h1>
-                <p className="text-sm text-white/60">
+                <p className="text-sm md:text-xl text-white/60">
                   {isEditing ? editForm.documentType : document.docType}
                 </p>
               </div>
@@ -229,7 +228,7 @@ export default function DocumentPage() {
                     className="bg-white/10 border-white/20 text-white hover:bg-white/20"
                     disabled={isSaving}
                   >
-                    <X className="h-4 w-4 mr-2" />
+                    <X className="hidden md:flex h-4 w-4 mr-2" />
                     Cancel
                   </Button>
                   <Button
@@ -237,7 +236,7 @@ export default function DocumentPage() {
                     className="bg-green-600 hover:bg-green-700 text-white"
                     disabled={isSaving}
                   >
-                    <Save className="h-4 w-4 mr-2" />
+                    <Save className="hidden md:flex h-4 w-4 mr-2" />
                     {isSaving ? "Saving..." : "Save Changes"}
                   </Button>
                 </>
@@ -248,7 +247,7 @@ export default function DocumentPage() {
                     variant="outline"
                     className="bg-white/10 border-white/20 text-white hover:bg-white/20"
                   >
-                    <Download className="h-4 w-4 mr-2" />
+                    <Download className="hidden md:flex h-4 w-4 mr-2" />
                     Download
                   </Button>
                   <Button
@@ -256,14 +255,14 @@ export default function DocumentPage() {
                     variant="outline"
                     className="bg-red-500/10 border-red-500/20 text-red-300 hover:bg-red-500/20"
                   >
-                    <Trash2 className="h-4 w-4 mr-2" />
+                    <Trash2 className="hidden md:flex h-4 w-4 mr-2" />
                     Delete
                   </Button>
                   <Button
                     onClick={handleEdit}
                     className="bg-blue-600 hover:bg-blue-700 text-white"
                   >
-                    <Edit className="h-4 w-4 mr-2" />
+                    <Edit className="hidden md:flex h-4 w-4 mr-2" />
                     Edit
                   </Button>
                 </>
@@ -315,7 +314,7 @@ export default function DocumentPage() {
               variant="outline"
               className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20"
             >
-              <History className="h-4 w-4 mr-2" />
+              <History className="hidden md:flex h-4 w-4 mr-2" />
               View All History
             </Button>
           </div>
@@ -398,14 +397,12 @@ export default function DocumentPage() {
             ) : (
               <Card className="bg-white backdrop-blur-lg border-white/20 shadow-2xl">
                 <CardContent className="p-0">
-                  {/* Document Paper Effect */}
                   <div className="bg-white min-h-[800px]">
-                    {/* Document Header */}
-                    <div className="border-b border-gray-200 px-12 py-8">
+                    <div className="border-b border-gray-200 px-2 md:px-10 py-8">
                       <h1 className="text-3xl font-bold text-gray-900 mb-2">
                         {document.title}
                       </h1>
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
+                      <div className="flex items-center gap-1.5 md:gap-4 text-[0.675rem] md:text-md text-gray-500">
                         <span className="flex items-center gap-1">
                           <FileText className="h-4 w-4" />
                           {document.docType}

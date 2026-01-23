@@ -47,7 +47,7 @@ export default function BreadcumbLayout({ children }: LayoutProps) {
   const showEllipsis = breadcrumbs.length > MAX_ITEMS;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900">
+    <div className="min-h-screen bg-dark from-gray-900 via-blue-900 to-gray-900">
       {pathname !== "/" && breadcrumbs.length > 0 && (
         <div className="border-b border-white/10 bg-black/20 backdrop-blur-lg">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
