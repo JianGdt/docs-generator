@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { CommitFormValues } from "@/app/lib/schema/github";
-import { Repository } from "@/app/lib/types";
+import { Repository } from "@//lib/@types/github";
 
 export function useGitHubCommit() {
   const [loading, setLoading] = useState(false);
@@ -11,7 +11,7 @@ export function useGitHubCommit() {
   const commit = async (
     values: CommitFormValues,
     content: string,
-    repositories: Repository[]
+    repositories: Repository[],
   ) => {
     setLoading(true);
     setError(null);
@@ -19,7 +19,7 @@ export function useGitHubCommit() {
 
     try {
       const selectedRepo = repositories.find(
-        (r) => r.fullName === values.repository
+        (r) => r.fullName === values.repository,
       );
 
       if (!selectedRepo) {
@@ -41,7 +41,7 @@ export function useGitHubCommit() {
         });
 
         setSuccess(
-          `Pull request created successfully! PR #${data.pullRequest.number}`
+          `Pull request created successfully! PR #${data.pullRequest.number}`,
         );
       } else {
         const { data } = await axios.post("/api/github/commit", {
@@ -60,7 +60,7 @@ export function useGitHubCommit() {
       setError(
         err.response?.data?.error ||
           err.message ||
-          "Failed to push documentation. Please try again."
+          "Failed to push documentation. Please try again.",
       );
     } finally {
       setLoading(false);

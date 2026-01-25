@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Octokit } from "@octokit/rest";
-import { GitHubRepo, GitHubFile } from "./types";
 import { CRITICAL_FILES, ENV, SAMPLE_FILES } from "./constants";
+import { EnhancedGitHubRepo, GitHubFile } from "./@types/github";
 
 export class GitHubService {
   private octokit: Octokit;
@@ -12,7 +12,6 @@ export class GitHubService {
     });
   }
 
-  // Get authenticated user info
   async getAuthenticatedUser() {
     try {
       const { data } = await this.octokit.users.getAuthenticated();
@@ -221,22 +220,6 @@ export class GitHubService {
       throw new Error("Failed to fetch commits");
     }
   }
-}
-
-// Enhanced repository analysis
-interface EnhancedGitHubRepo extends GitHubRepo {
-  owner: string;
-  repoName: string;
-  packageJson?: any;
-  fileStructure: string[];
-  techStack?: {
-    framework: string[];
-    ui: string[];
-    auth: string[];
-    database: string[];
-    api: string[];
-    other: string[];
-  };
 }
 
 export async function fetchGitHubRepo(

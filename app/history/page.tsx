@@ -16,9 +16,8 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { useHistoryRefetch } from "@//hooks/useHistoryRefetch";
-import { SkeletonList } from "@/components/skeleton/SkeletonLists";
-import { HistoryEntry, HistoryResponse } from "../lib/types";
 import { SkeletonCard } from "../components/skeleton/SkeletonCard";
+import { HistoryEntry, HistoryResponse } from "../lib/@types/history";
 
 const ITEMS_PER_PAGE = 5;
 

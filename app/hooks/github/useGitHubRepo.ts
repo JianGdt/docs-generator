@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { Repository } from "@/app/lib/types";
+import { Repository } from "@//lib/@types/github";
 
 export function useGitHubRepositories(accessToken?: string) {
   const [repositories, setRepositories] = useState<Repository[]>([]);

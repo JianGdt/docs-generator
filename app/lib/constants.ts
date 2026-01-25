@@ -1,5 +1,5 @@
 import { Code2, Github, Upload } from "lucide-react";
-import { InputMethod } from "./types";
+import { InputMethod } from "./@types/common";
 
 export const DOC_TYPES = {
   readme: "README.md",

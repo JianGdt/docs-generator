@@ -1,6 +1,8 @@
 import { MongoClient, Db, ObjectId } from "mongodb";
-import { DocHistoryEntry, SavedDoc, User } from "./types";
 import { ENV } from "./constants";
+import { User } from "./@types/user";
+import { SavedDoc } from "./@types/docs";
+import { DocHistoryEntry } from "./@types/history";
 
 let client: MongoClient;
 let clientPromise: Promise<MongoClient>;

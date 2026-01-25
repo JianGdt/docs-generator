@@ -1,4 +1,5 @@
 import { Session } from "next-auth";
+import { RepoContext } from "./common";
 
 export interface GitHubIntegrationProps {
   documentContent: string;
@@ -39,4 +40,20 @@ export interface Repository {
   fullName: string;
   owner: string;
   defaultBranch: string;
+}
+
+export interface EnhancedGitHubRepo extends RepoContext {
+  owner: string;
+  repoName: string;
+  stars: number;
+  fileStructure: string[];
+  packageJson?: any;
+  techStack?: {
+    framework: string[];
+    ui: string[];
+    auth: string[];
+    database: string[];
+    api: string[];
+    other: string[];
+  };
 }

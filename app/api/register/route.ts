@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     if (!username || !email || !password) {
       return NextResponse.json(
         { error: "Username, email, and password are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
           error:
             "Username must be 3-20 characters and contain only letters, numbers, and underscores",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -32,14 +32,14 @@ export async function POST(request: NextRequest) {
     if (!emailRegex.test(email)) {
       return NextResponse.json(
         { error: "Invalid email format" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (password.length < 6) {
       return NextResponse.json(
         { error: "Password must be at least 6 characters" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     if (existingUsername) {
       return NextResponse.json(
         { error: "Username already exists" },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     if (existingEmail) {
       return NextResponse.json(
         { error: "Email already registered" },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -71,18 +71,18 @@ export async function POST(request: NextRequest) {
       {
         success: true,
         user: {
-          id: user._id.toString(),
+          id: user._id,
           username: user.username,
           email: user.email,
         },
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     console.error("Registration error:", error);
     return NextResponse.json(
       { error: "An error occurred during registration" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

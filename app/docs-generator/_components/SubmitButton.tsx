@@ -15,11 +15,7 @@ export function SubmitButton({
   disabled,
 }: SubmitButtonProps) {
   return (
-    <Button
-      type="submit"
-      disabled={disabled}
-      className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
-    >
+    <Button type="submit" disabled={disabled} variant="outline">
       {loading ? (
         <>
           <Loader2 className="w-4 h-4 mr-2 animate-spin" />

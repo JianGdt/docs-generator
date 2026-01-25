@@ -14,7 +14,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeToggle } from "../ThemeToggle";
-import { User } from "@//lib/@types/user";
+
+interface User {
+  id?: string;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+}
+
 interface HeaderProps {
   user?: User;
 }
@@ -26,6 +33,7 @@ export default function Header({ user }: HeaderProps) {
     .join("")
     .toUpperCase()
     .slice(0, 2);
+
 
   return (
     <header className="border-b border-border bg-background/80 backdrop-blur-lg min-h-full sticky top-0 z-50">

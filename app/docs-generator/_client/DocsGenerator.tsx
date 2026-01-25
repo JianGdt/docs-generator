@@ -5,7 +5,7 @@ import InputSection from "@/components/InputSection";
 import PreviewSection from "@/components/PreviewSection";
 import { useDocsStore } from "@//lib/store/useDocStore";
 import GitHubIntegration from "./GithubConnection";
-import { DocsGeneratorProps } from "@//lib/types";
+import { DocsGeneratorProps } from "@//lib/@types/components";
 
 export default function DocsGenerator({ user, session }: DocsGeneratorProps) {
   const { generatedDocs, docType } = useDocsStore();

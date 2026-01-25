@@ -7,8 +7,6 @@ export interface User {
   password: string;
   createdAt: Date;
   updatedAt?: Date;
-  name?: string | null;
-  image?: string | null;
 }
 
 export interface UserSession {

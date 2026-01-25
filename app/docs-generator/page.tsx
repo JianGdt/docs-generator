@@ -14,5 +14,5 @@ export default async function DocsGeneratorPage() {
     redirect("/login");
   }
 
-  return <DocsGenerator user={session.user} session={session} />;
+  return <DocsGenerator user={session?.user} session={session} />;
 }

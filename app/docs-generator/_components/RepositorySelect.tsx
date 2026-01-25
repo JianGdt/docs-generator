@@ -14,9 +14,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Repository } from "@/app/lib/types";
 import { Control } from "react-hook-form";
 import { CommitFormValues } from "@/app/lib/schema/github";
+import { Repository } from "@//lib/@types/github";
 
 interface RepositorySelectProps {
   control: Control<CommitFormValues>;
