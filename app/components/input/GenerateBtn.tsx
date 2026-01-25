@@ -1,7 +1,7 @@
 "use client";
 
 import { Sparkles, Loader2 } from "lucide-react";
-import { useDocsStore } from "@/app/lib/store";
+import { useDocsStore } from "@//lib/store/useDocStore";
 import { Button } from "@/components/ui/button";
 import { useDocumentGeneration } from "../../hooks/useGenerate";
 
@@ -19,14 +19,14 @@ export function GenerateButton() {
   return (
     <Button
       onClick={handleGenerate}
+      variant="outline"
       disabled={isDisabled}
-      className="w-full mt-6 flex items-center justify-center space-x-2 px-6 py-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold shadow-lg shadow-blue-500/50 hover:shadow-blue-500/70 hover:scale-[1.02] active:scale-[0.98] transition-all"
-      size="lg"
+      className="w-full"
     >
       {isGenerating ? (
         <>
           <Loader2 className="w-5 h-5 animate-spin" />
-          <span>Generating with Groq AI...</span>
+          <span>Generating...</span>
         </>
       ) : (
         <>

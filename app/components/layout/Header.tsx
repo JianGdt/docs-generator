@@ -13,20 +13,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
-interface User {
-  id?: string;
-  name?: string | null;
-  email?: string | null;
-  image?: string | null;
-}
-
+import { ThemeToggle } from "../ThemeToggle";
+import { User } from "@//lib/@types/user";
 interface HeaderProps {
   user?: User;
 }
 
 export default function Header({ user }: HeaderProps) {
-  const initials = (user?.name || user?.email || "U")
+  const initials = (user?.name || user?.email || "A")
     .split(" ")
     .map((n) => n[0])
     .join("")
@@ -34,26 +28,25 @@ export default function Header({ user }: HeaderProps) {
     .slice(0, 2);
 
   return (
-    <header className="border-b border-white/10 bg-black/20 backdrop-blur-lg sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <header className="border-b border-border bg-background/80 backdrop-blur-lg min-h-full sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2">
             <FileText className="h-8 hidden md:flex w-8 text-blue-400" />
-            <span className="text-xs md:text-xl font-bold text-white">
+            <span className="text-sm md:text-xl text-black dark:text-white px-2 py-2 font-bold">
               AI Docs Generator
             </span>
           </Link>
 
           <div className="flex items-end text-xs md:text-md md:items-center gap-2 md:gap-4">
             <Link href="/history">
-              <Button
-                variant="ghost"
-                className="text-white hover:text-blue-400 hover:bg-white/10"
-              >
+              <Button variant="outline">
                 <History className="h-5 w-5 mr-0" />
                 History
               </Button>
             </Link>
+
+            <ThemeToggle />
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Upload, Loader2 } from "lucide-react";
-import { useDocsStore } from "@/app/lib/store";
+import { useDocsStore } from "@//lib/store/useDocStore";
 import { cn } from "../../lib/utils";
 import { useFileUpload } from "../../hooks/useFIleUpload";
 import { UploadedFilesList } from "./FIlesLIsts";
@@ -57,7 +57,7 @@ export function FileUpload() {
         ) : (
           <Upload className="w-12 h-12 text-slate-500 group-hover:text-blue-400 mx-auto mb-4 transition-colors" />
         )}
-        <p className="text-white font-medium mb-1">
+        <p className="dark:text-white text-black font-medium mb-1">
           {isUploading ? "Uploading..." : "Drop files here or click to upload"}
         </p>
         <p className="text-sm text-slate-400">

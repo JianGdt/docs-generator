@@ -1,7 +1,7 @@
 "use client";
 
 import { Sparkles } from "lucide-react";
-import { useDocsStore } from "@/app/lib/store";
+import { useDocsStore } from "@//lib/store/useDocStore";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { InfoMessage } from "../InfoMessage";
@@ -20,7 +20,6 @@ export function CodeInput() {
           value={codeInput}
           onChange={(e) => setCodeInput(e.target.value)}
           disabled={isGenerating}
-          className="min-h-64 bg-slate-900 text-white border-slate-700 focus:border-blue-500 focus:ring-blue-500/50 font-mono text-sm resize-none"
           placeholder="// Paste your code here..."
         />
       </div>

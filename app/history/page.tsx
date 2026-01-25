@@ -18,6 +18,7 @@ import {
 import { useHistoryRefetch } from "@//hooks/useHistoryRefetch";
 import { SkeletonList } from "@/components/skeleton/SkeletonLists";
 import { HistoryEntry, HistoryResponse } from "../lib/types";
+import { SkeletonCard } from "../components/skeleton/SkeletonCard";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -133,18 +134,17 @@ export default function HistoryPage() {
     });
   };
 
-  if (loading && data.length === 0) return <SkeletonList />;
+  if (loading && data.length === 0) return <SkeletonCard />;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      {/* Header */}
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className=" text-sm md:text-4xl font-bold text-white mb-2 flex items-center gap-3">
+          <h1 className=" text-sm md:text-4xl font-bold text-black dark:text-white mb-2 flex items-center gap-3">
             <Clock className="md:h-10 md:w-10 w-4 h-4" />
             Document History
           </h1>
-          <p className="text-blue-200 text-sm md:text-md">
+          <p className="text-gray-500 dark:text-white text-sm md:text-md">
             View and manage all your document versions
           </p>
         </div>
@@ -152,7 +152,6 @@ export default function HistoryPage() {
           onClick={() => fetchHistory(false)}
           disabled={refreshing}
           variant="outline"
-          className="bg-white/10 border-white/20 text-white hover:bg-white/20"
         >
           <RefreshCw
             className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`}
@@ -162,38 +161,40 @@ export default function HistoryPage() {
       </div>
 
       <div className="mb-6 relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-black dark:text-white" />
         <Input
           type="text"
           placeholder="Search by title or document type..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:bg-white/15"
+          className="pl-10 text-black dark:text-white placeholder:text-white/40 "
         />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        <Card className="bg-white/10 px-2 backdrop-blur-lg border-white/20">
-          <CardContent className="p-0 md:p-6 flex items-center gap-3">
+        <Card>
+          <CardContent className="px-2 md:p-6 flex items-center gap-3">
             <div className="p-3 bg-blue-500/20 rounded-lg">
               <FileText className="h-6 w-6 text-blue-300" />
             </div>
             <div>
-              <p className="text-sm text-white/60">Total Documents</p>
-              <p className="text-2xl font-bold text-white">
+              <p className="text-sm text-black dark:text-white">
+                Total Documents
+              </p>
+              <p className="text-2xl font-bold text-black dark:text-white">
                 {pagination.total}
               </p>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-white/10 px-2 backdrop-blur-lg border-white/20">
-          <CardContent className="p-0 md:p-6 flex items-center gap-3">
+        <Card>
+          <CardContent className="px-2 md:p-6 flex items-center gap-3">
             <div className="p-3 bg-purple-500/20 rounded-lg">
               <Clock className="h-6 w-6 text-purple-300" />
             </div>
             <div>
-              <p className="text-sm text-white/60">Last Updated</p>
+              <p className="text-sm text-black dark:text-white">Last Updated</p>
               <p className="text-sm font-medium text-white">
                 {data[0] ? formatDate(data[0].createdAt) : "N/A"}
               </p>
@@ -203,13 +204,13 @@ export default function HistoryPage() {
       </div>
 
       {filteredData.length === 0 ? (
-        <Card className="bg-white/10 backdrop-blur-lg border-white/20">
+        <Card>
           <CardContent className="p-12 text-center">
             <Clock className="mx-auto h-16 w-16 text-white/40 mb-4" />
             <h3 className="text-lg font-medium text-white mb-2">
               {searchQuery ? "No matching documents found" : "No History Yet"}
             </h3>
-            <p className="text-white/60">
+            <p className="text-black dark:text-white">
               {searchQuery
                 ? "Try adjusting your search terms"
                 : "Your document history will appear here"}
@@ -220,30 +221,27 @@ export default function HistoryPage() {
         <>
           <div className="space-y-4">
             {filteredData.map((doc) => (
-              <Card
-                key={doc._id}
-                className="bg-white/10 backdrop-blur-lg border-white/20 hover:bg-white/15 transition-colors"
-              >
+              <Card key={doc._id} className="transition-colors">
                 <CardHeader className="flex flex-row items-start justify-between space-y-0">
                   <div className="flex-1">
-                    <CardTitle className="text-white text-xl mb-2">
+                    <CardTitle className="text-black dark:text-white text-xl mb-2">
                       {doc.title}
                     </CardTitle>
                     <div className="flex items-center gap-3 flex-wrap">
                       <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30">
                         v{doc.version}
                       </Badge>
-                      <span className="text-sm text-white/60">
+                      <span className="text-sm text-black dark:text-white">
                         {doc.docType}
                       </span>
                       <span className="text-white/40">·</span>
-                      <span className="text-sm text-white/60">
+                      <span className="text-sm text-black dark:text-white">
                         {formatDate(doc.createdAt)}
                       </span>
                       {doc.changeDescription && (
                         <>
                           <span className="text-white/40">·</span>
-                          <span className="text-sm text-white/60">
+                          <span className="text-sm text-black dark:text-white">
                             {doc.changeDescription}
                           </span>
                         </>

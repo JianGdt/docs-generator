@@ -1,7 +1,7 @@
 "use client";
 
 import { Sparkles } from "lucide-react";
-import { useDocsStore } from "@/app/lib/store";
+import { useDocsStore } from "@//lib/store/useDocStore";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { InfoMessage } from "../InfoMessage";
@@ -12,7 +12,7 @@ export function GithubInput() {
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="github-url" className="text-slate-300">
+        <Label htmlFor="github-url" className="text-black dark:text-white">
           GitHub Repository URL
         </Label>
         <Input
@@ -22,12 +22,11 @@ export function GithubInput() {
           onChange={(e) => setGithubUrl(e.target.value)}
           placeholder="https://github.com/username/repository"
           disabled={isGenerating}
-          className="bg-slate-900 text-white border-slate-700 focus:border-blue-500 focus:ring-blue-500/50"
         />
       </div>
       <InfoMessage
         icon={Sparkles}
-        message="AI will analyze your repository structure, code, and generate comprehensive documentation"
+        message="AI will analyze your repository structure, code, and generate comprehensive documentation, check nyo nalang kung tama, ai is ai parin mga lodicakes"
       />
     </div>
   );

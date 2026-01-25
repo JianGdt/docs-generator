@@ -3,7 +3,7 @@
 import Header from "@/components/layout/Header";
 import InputSection from "@/components/InputSection";
 import PreviewSection from "@/components/PreviewSection";
-import { useDocsStore } from "@/app/lib/store";
+import { useDocsStore } from "@//lib/store/useDocStore";
 import GitHubIntegration from "./GithubConnection";
 import { DocsGeneratorProps } from "@//lib/types";
 

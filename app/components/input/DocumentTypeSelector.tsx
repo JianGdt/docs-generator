@@ -1,8 +1,8 @@
 "use client";
 
-import { useDocsStore } from "@/app/lib/store";
+import { DocType } from "@//lib/@types/common";
+import { useDocsStore } from "@//lib/store/useDocStore";
 import { DOC_TYPES } from "@/app/lib/constants";
-import { DocType } from "@/app/lib/types";
 import {
   Select,
   SelectContent,
@@ -20,7 +20,7 @@ export function DocTypeSelector() {
       onValueChange={(value) => setDocType(value as DocType)}
       disabled={isGenerating}
     >
-      <SelectTrigger className="w-[180px] bg-slate-700 text-white border-slate-600 focus:border-blue-500 focus:ring-blue-500/50">
+      <SelectTrigger>
         <SelectValue placeholder="Select doc type" />
       </SelectTrigger>
       <SelectContent className="bg-slate-800 border-slate-700">

@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "./components/ui/sonner";
 import { SessionProvider } from "./providers/SessionProvider";
 import BreadcumbLayout from "./components/layout/Breadcrumb";
+import { ThemeProvider } from "./providers/ThemeProvider";
 
 const inter = Geist_Mono({
   subsets: ["latin"],
@@ -22,14 +23,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className="dark">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>
-        <SessionProvider>
-          <BreadcumbLayout>
-            <Toaster position="top-center" />
-            {children}
-          </BreadcumbLayout>
-        </SessionProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <SessionProvider>
+            <BreadcumbLayout>
+              <Toaster position="top-center" />
+              {children}
+            </BreadcumbLayout>
+          </SessionProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

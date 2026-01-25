@@ -34,8 +34,8 @@ export function AnimatedRobot() {
             src={IMAGES.robot.src}
             priority
             alt="robot"
-            width={900}
-            height={900}
+            width={600}
+            height={600}
             className="drop-shadow-2xl"
           />
         </motion.div>

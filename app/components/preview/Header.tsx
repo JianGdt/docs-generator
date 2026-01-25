@@ -13,14 +13,14 @@ export default function PreviewHeader({
   copied,
 }: PreviewHeaderProps) {
   return (
-    <div className="flex items-center justify-between px-1.5 w-full md:px-6 py-4 bg-slate-900/50 border-b border-slate-700">
+    <div className="flex items-center justify-between w-full">
       <div className="flex items-center gap-2">
         <Eye className="hidden md:flex w-5 h-5 text-blue-400" />
-        <h2 className="text-sm md:text-xl font-semibold text-white">Preview</h2>
+        <h2 className="text-sm md:text-xl font-semibold text-black dark:text-white">Preview</h2>
         {hasContent && (
           <Badge
             variant="outline"
-            className="bg-green-500/20  text-xs md:text-md text-green-400 border-green-500/30"
+            className=" text-xs md:text-md text-green-400 border-1"
           >
             Ready
           </Badge>
@@ -31,9 +31,8 @@ export default function PreviewHeader({
         <div className="flex items-center gap-2">
           <Button
             onClick={onCopy}
-            variant="secondary"
+            variant="ghost"
             size="sm"
-            className="bg-slate-700 hover:bg-slate-600"
           >
             {copied ? (
               <>
@@ -52,9 +51,8 @@ export default function PreviewHeader({
 
           <Button
             onClick={onOpen}
-            variant="secondary"
+            variant="ghost"
             size="sm"
-            className="bg-slate-700 hover:bg-slate-600"
           >
             <ExternalLink className="w-4 h-4" />
             <span className="ml-1 hidden text-xs md:text-md sm:inline">
@@ -65,7 +63,6 @@ export default function PreviewHeader({
           <Button
             onClick={onDownload}
             size="sm"
-            className="bg-blue-600 hover:bg-blue-700"
           >
             <Download className="hidden md:flex w-4 h-4" />
             <span className="ml-0 md:ml-1 text-xs md:text-md">Download</span>

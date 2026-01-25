@@ -1,18 +1,13 @@
 "use client";
 
 import { File, X } from "lucide-react";
-import { useDocsStore } from "@/app/lib/store";
+import { useDocsStore } from "@//lib/store/useDocStore";
 import { formatFileSize } from "@/app/lib/utils";
 import { Button } from "@/components/ui/button";
-
-interface UploadedFile {
-  fileName: string;
-  fileSize: number;
-  content: string;
-}
+import { UploadedFileData } from "@//lib/@types/store";
 
 interface UploadedFilesListProps {
-  files: UploadedFile[];
+  files: UploadedFileData[];
 }
 
 export function UploadedFilesList({ files }: UploadedFilesListProps) {

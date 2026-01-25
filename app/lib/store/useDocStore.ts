@@ -2,7 +2,8 @@
 
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import { DocsState, InputMethod, DocType } from "./types";
+import { DocsState } from "../@types/store";
+import { DocType, InputMethod } from "../@types/common";
 
 export const useDocsStore = create<DocsState>()(
   devtools(

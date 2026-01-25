@@ -1,96 +1,359 @@
 import Groq from "groq-sdk";
-import { DocType } from "./types";
 import { ENV } from "./constants";
+import { DocType, RepoContext } from "./@types/common";
 
 const groq = new Groq({
   apiKey: ENV.GROQ_API_KEY,
 });
 
-interface RepoContext {
-  owner: string;
-  repoName: string;
-  name: string;
-  description: string;
-  packageJson?: any;
-  techStack?: any;
-  fileStructure: string[];
-  files: Array<{ path: string; content: string }>;
+/**
+ * Build a comprehensive system prompt for repository analysis
+ */
+function buildSystemPrompt(docType: DocType): string {
+  const basePrompt = `You are an expert technical documentation generator specializing in analyzing codebases and creating professional documentation.
+
+CORE COMPETENCIES:
+- Deep understanding of modern web frameworks (Next.js, React, Vue, etc.)
+- Expertise in TypeScript/JavaScript ecosystems
+- Knowledge of database systems (MongoDB, PostgreSQL, etc.)
+- Understanding of authentication patterns (NextAuth, Auth.js, JWT)
+- Familiarity with UI frameworks (Tailwind, Radix UI, Material UI)
+- API integration patterns and best practices
+
+ANALYSIS APPROACH:
+1. Identify the project's primary purpose and architecture
+2. Map out the technology stack and dependencies
+3. Understand the file structure and organization patterns
+4. Recognize key features and functionality
+5. Identify authentication, database, and API patterns
+6. Note development and deployment configurations`;
+
+  const docTypeSpecifics: Record<DocType, string> = {
+    readme: `
+
+README GENERATION REQUIREMENTS:
+- Create a compelling project overview with clear value proposition
+- Include comprehensive installation and setup instructions
+- Document environment variables and configuration
+- Provide usage examples and code snippets
+- List all features with descriptions
+- Include API endpoints if applicable
+- Add troubleshooting section
+- Document deployment process
+- Include contribution guidelines
+- Add license information
+
+FORMAT: Professional markdown with proper headers, code blocks, badges, and tables.`,
+
+    api: `
+
+API DOCUMENTATION REQUIREMENTS:
+- Document all API endpoints with HTTP methods
+- Include request/response schemas with examples
+- Specify authentication requirements
+- Document query parameters, headers, and body structure
+- Provide error codes and messages
+- Include rate limiting information
+- Add authentication flow documentation
+- Document WebSocket connections if applicable
+
+FORMAT: Clear REST API documentation with request/response examples.`,
+
+    guide: `
+
+SETUP GUIDE REQUIREMENTS:
+- Step-by-step installation instructions
+- Prerequisites and system requirements
+- Environment setup (Node.js version, package manager)
+- Database setup and configuration
+- Environment variables with descriptions
+- Authentication provider configuration
+- Third-party service integrations
+- Development server setup
+- Common troubleshooting issues
+
+FORMAT: Beginner-friendly guide with command examples.`,
+
+    architecture: `
+
+ARCHITECTURE DOCUMENTATION REQUIREMENTS:
+- System overview and design philosophy
+- Component architecture and relationships
+- Data flow and state management
+- Database schema and relationships
+- Authentication and authorization flow
+- API layer structure
+- Frontend component hierarchy
+- File structure explanation
+- Design patterns used
+- Scalability considerations
+
+FORMAT: Technical documentation with diagrams descriptions and code references.`,
+
+    contributing: `
+
+CONTRIBUTING GUIDE REQUIREMENTS:
+- Code of conduct
+- Development setup instructions
+- Branch naming conventions
+- Commit message guidelines
+- Pull request process
+- Code style and linting rules
+- Testing requirements
+- Documentation standards
+- Issue reporting guidelines
+- Review process
+
+FORMAT: Clear guidelines for contributors.`,
+  };
+
+  return basePrompt + (docTypeSpecifics[docType] || "");
 }
 
-function buildReadmePrompt(repo: RepoContext): string {
-  const dirs = [
+/**
+ * Build the analysis prompt with repository context
+ */
+function buildAnalysisPrompt(repo: RepoContext, docType: DocType): string {
+  const directories = [
     ...new Set(repo.fileStructure.map((f) => f.split("/")[0])),
   ].sort();
 
-  return `Generate a professional documents.
+  const hasApi = directories.some((d) =>
+    ["api", "pages/api", "app/api", "src/*"].includes(d),
+  );
+  const hasComponents = directories.some((d) =>
+    ["components", "src/components"].includes(d),
+  );
+  const hasLib = directories.some((d) =>
+    ["lib", "utils", "helpers"].includes(d),
+  );
+  const hasAuth = repo.files.some(
+    (f) =>
+      f.path.includes("auth") ||
+      f.content.toLowerCase().includes("nextauth") ||
+      f.content.toLowerCase().includes("session"),
+  );
+  const hasDatabase = repo.files.some(
+    (f) =>
+      f.path.includes("database") ||
+      f.path.includes("db") ||
+      f.content.toLowerCase().includes("mongodb") ||
+      f.content.toLowerCase().includes("prisma"),
+  );
 
-REPOSITORY: ${repo.name}
-DESCRIPTION: ${repo.description || "No description"}
+  let prompt = `# REPOSITORY ANALYSIS REQUEST
 
-${
-  repo.packageJson?.dependencies
-    ? `DEPENDENCIES:\n${JSON.stringify(
-        repo.packageJson.dependencies,
+## Project Information
+- **Repository**: ${repo.owner}/${repo.repoName}
+- **Name**: ${repo.name}
+- **Description**: ${repo.description || "No description provided"}
+- **Primary Language**: ${repo.language}
+
+## Technology Stack
+`;
+
+  // Add tech stack if available
+  if (repo.techStack) {
+    if (repo.techStack.framework?.length > 0) {
+      prompt += `\n### Framework & Core\n${repo.techStack.framework.map((t: string) => `- ${t}`).join("\n")}\n`;
+    }
+    if (repo.techStack.ui?.length > 0) {
+      prompt += `\n### UI & Styling\n${repo.techStack.ui.map((t: string) => `- ${t}`).join("\n")}\n`;
+    }
+    if (repo.techStack.auth?.length > 0) {
+      prompt += `\n### Authentication\n${repo.techStack.auth.map((t: string) => `- ${t}`).join("\n")}\n`;
+    }
+    if (repo.techStack.database?.length > 0) {
+      prompt += `\n### Database\n${repo.techStack.database.map((t: string) => `- ${t}`).join("\n")}\n`;
+    }
+    if (repo.techStack.api?.length > 0) {
+      prompt += `\n### APIs & SDKs\n${repo.techStack.api.map((t: string) => `- ${t}`).join("\n")}\n`;
+    }
+    if (repo.techStack.other?.length > 0) {
+      prompt += `\n### Other Tools\n${repo.techStack.other.map((t: string) => `- ${t}`).join("\n")}\n`;
+    }
+  }
+
+  // Add package.json analysis
+  if (repo.packageJson) {
+    prompt += `\n## Package Configuration\n`;
+
+    if (repo.packageJson.scripts) {
+      prompt += `\n### Available Scripts\n\`\`\`json\n${JSON.stringify(
+        repo.packageJson.scripts,
         null,
         2,
-      )}\n`
-    : ""
-}
-${
-  repo.packageJson?.scripts
-    ? `NPM SCRIPTS:\n${JSON.stringify(repo.packageJson.scripts, null, 2)}\n`
-    : ""
-}
-${
-  repo.techStack
-    ? `TECH STACK:\n- Framework: ${repo.techStack.framework.join(
-        ", ",
-      )}\n- UI: ${repo.techStack.ui.join(
-        ", ",
-      )}\n- Auth: ${repo.techStack.auth.join(
-        ", ",
-      )}\n- Database: ${repo.techStack.database.join(
-        ", ",
-      )}\n- APIs: ${repo.techStack.api.join(", ")}\n`
-    : ""
-}
+      )}\n\`\`\`\n`;
+    }
 
-DIRECTORIES: ${dirs.join(", ")}
+    if (repo.packageJson.dependencies) {
+      const depCount = Object.keys(repo.packageJson.dependencies).length;
+      prompt += `\n### Dependencies (${depCount} packages)\n`;
 
-FILES:
-${repo.files.map((f) => `--- ${f.path} ---\n${f.content.slice(0, 1500)}`).join("\n\n")}
+      // Highlight key dependencies
+      const keyDeps = Object.entries(repo.packageJson.dependencies).filter(
+        ([key]) =>
+          ["next", "react", "mongodb", "next-auth", "tailwindcss"].some(
+            (important) => key.includes(important),
+          ),
+      );
+
+      if (keyDeps.length > 0) {
+        prompt += `Key dependencies:\n${keyDeps.map(([k, v]) => `- ${k}@${v}`).join("\n")}\n`;
+      }
+    }
+  }
+
+  prompt += `\n## Project Structure
+
+### Directory Organization
+${directories.map((d) => `- \`${d}/\``).join("\n")}
+
+### Architecture Patterns Detected
+${hasApi ? "- ✅ API Routes (Backend endpoints present)" : ""}
+${hasComponents ? "- ✅ Component-based architecture" : ""}
+${hasLib ? "- ✅ Utility/Helper functions separated" : ""}
+${hasAuth ? "- ✅ Authentication system implemented" : ""}
+${hasDatabase ? "- ✅ Database integration" : ""}
+
 `;
+
+  prompt += `\n## Key Files Analysis\n\n`;
+
+  const configFiles = repo.files.filter((f) =>
+    [
+      "package.json",
+      "tsconfig.json",
+      "next.config.js",
+      ".env.example",
+    ].includes(f.path),
+  );
+  const authFiles = repo.files.filter((f) => f.path.includes("auth"));
+  const apiFiles = repo.files.filter((f) => f.path.includes("api"));
+  const componentFiles = repo.files.filter((f) => f.path.includes("component"));
+
+  if (configFiles.length > 0) {
+    prompt += `### Configuration Files\n`;
+    configFiles.forEach((file) => {
+      prompt += `\n#### ${file.path}\n\`\`\`\n${file.content.slice(0, 2000)}\n\`\`\`\n`;
+    });
+  }
+
+  if (authFiles.length > 0) {
+    prompt += `\n### Authentication Files\n`;
+    authFiles.forEach((file) => {
+      prompt += `\n#### ${file.path}\n\`\`\`typescript\n${file.content.slice(
+        0,
+        1500,
+      )}\n\`\`\`\n`;
+    });
+  }
+
+  if (apiFiles.length > 0 && docType === "api") {
+    prompt += `\n### API Routes\n`;
+    apiFiles.forEach((file) => {
+      prompt += `\n#### ${file.path}\n\`\`\`typescript\n${file.content.slice(
+        0,
+        1500,
+      )}\n\`\`\`\n`;
+    });
+  }
+
+  const remainingFiles = repo.files.filter(
+    (f) =>
+      !configFiles.includes(f) &&
+      !authFiles.includes(f) &&
+      !apiFiles.includes(f) &&
+      !componentFiles.includes(f),
+  );
+
+  if (remainingFiles.length > 0) {
+    prompt += `\n### Other Important Files\n`;
+    remainingFiles.forEach((file) => {
+      prompt += `\n#### ${file.path}\n\`\`\`\n${file.content.slice(
+        0,
+        1200,
+      )}\n\`\`\`\n`;
+    });
+  }
+
+  prompt += `\n\n---
+
+## DOCUMENTATION REQUEST
+
+Based on the above repository analysis, generate comprehensive **${docType.toUpperCase()}** documentation.
+
+### Requirements:
+1. Analyze the code structure and identify key features
+2. Use the actual technology stack detected
+3. Reference specific file paths and code patterns found
+4. Include practical examples based on the actual codebase
+5. Maintain professional technical writing standards
+6. Ensure accuracy with the detected configurations
+
+### Output Format:
+- Use proper Markdown formatting
+- Include code blocks with syntax highlighting
+- Add badges for technologies used (if README)
+- Create tables for structured data
+- Use emojis sparingly for section headers
+- Ensure the documentation is actionable and complete
+
+Generate the ${docType} documentation now.`;
+
+  return prompt;
 }
 
 export async function generateDocumentation(
   contextData: string | RepoContext,
-  type: DocType,
+  docType: DocType,
 ): Promise<string> {
   try {
-    const prompt =
-      typeof contextData === "object"
-        ? buildReadmePrompt(contextData)
-        : contextData;
+    let userPrompt: string;
+    let systemPrompt: string;
+    if (typeof contextData === "object") {
+      systemPrompt = buildSystemPrompt(docType);
+      userPrompt = buildAnalysisPrompt(contextData, docType);
+    } else {
+      systemPrompt = buildSystemPrompt(docType);
+      userPrompt = `Analyze the following code and generate ${docType} documentation:\n\n${contextData}`;
+    }
 
     const completion = await groq.chat.completions.create({
       messages: [
         {
           role: "system",
-          content: "",
+          content: systemPrompt,
         },
         {
           role: "user",
-          content: prompt,
+          content: userPrompt,
         },
       ],
       model: "llama-3.3-70b-versatile",
       temperature: 0.3,
-      max_tokens: 4096,
+      max_tokens: 8000,
+      top_p: 0.9,
     });
 
-    return completion.choices[0]?.message?.content || "";
+    const documentation = completion.choices[0]?.message?.content || "";
+
+    if (!documentation.trim()) {
+      throw new Error("Generated documentation is empty");
+    }
+
+    return documentation;
   } catch (error: any) {
     console.error("Groq API Error:", error);
+
+    if (error.message?.includes("rate_limit")) {
+      throw new Error("Rate limit exceeded. Please try again in a moment.");
+    }
+
+    if (error.message?.includes("context_length")) {
+      throw new Error("Repository is too large. Try with fewer files.");
+    }
+
     throw new Error(`AI generation failed: ${error.message}`);
   }
 }

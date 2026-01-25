@@ -1,8 +1,6 @@
 import { email, z } from "zod";
 import { passwordRules } from "../validators";
 
-// FORMS
-
 export const registerSchema = z
   .object({
     username: z

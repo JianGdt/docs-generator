@@ -1,9 +1,9 @@
 "use client";
 
-import { useDocsStore } from "@/app/lib/store";
-import { InputMethod } from "@/app/lib/types";
+import { useDocsStore } from "@//lib/store/useDocStore";
 import { inputMethods } from "@/app/lib/constants";
 import { Tabs, TabsList, TabsTrigger } from "@//components/ui/tabs";
+import { InputMethod } from "@//lib/@types/common";
 
 export function InputMethodTabs() {
   const { inputMethod, setInputMethod, isGenerating } = useDocsStore();

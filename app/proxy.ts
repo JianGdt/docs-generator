@@ -15,17 +15,17 @@ export default auth((req) => {
   }
 
   if (["/login", "/register"].includes(path) && isLoggedIn) {
-    return NextResponse.redirect(new URL("/docs-generator", nextUrl));
+    return NextResponse.redirect(new URL("/", nextUrl));
   }
 
-  if (path.startsWith("/docs-generator") && !isLoggedIn) {
-    const loginUrl = new URL("/login", nextUrl);
+  if (path.startsWith("/") && !isLoggedIn) {
+    const loginUrl = new URL("/", nextUrl);
     loginUrl.searchParams.set("callbackUrl", path);
     return NextResponse.redirect(loginUrl);
   }
 
   if (path === "/" && isLoggedIn) {
-    return NextResponse.redirect(new URL("/docs-generator", nextUrl));
+    return NextResponse.redirect(new URL("/", nextUrl));
   }
 
   return NextResponse.next();

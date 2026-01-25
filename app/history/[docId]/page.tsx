@@ -59,7 +59,6 @@ export default function DocumentPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Edit form state
   const [editForm, setEditForm] = useState({
     title: "",
     documentType: "",
@@ -197,111 +196,117 @@ export default function DocumentPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-900 via-slate-900 to-purple-900 flex items-center justify-center">
         <Card className="bg-white/10 backdrop-blur-lg border-white/20 p-8">
-          <p className="text-white text-center mb-4">Document not found</p>
+          <p className="text-black dark:text-white text-center mb-4">
+            Document not found
+          </p>
         </Card>
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="border-b border-white/10 bg-black/20">
-        <div className=" w-[350px] md:w-full mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center md:gap-4">
-              <div>
-                <h1 className="text-sm md:text-xl  flex font-semibold text-white">
-                  {isEditing ? editForm.title : document.title}
-                </h1>
-                <p className="text-sm md:text-xl text-white/60">
-                  {isEditing ? editForm.documentType : document.docType}
-                </p>
-              </div>
+    <>
+      <div className="max-w-7xl md:w-full mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center md:gap-4">
+            <div>
+              <h1 className="text-sm md:text-xl flex font-semibold text-black dark:text-white">
+                {isEditing ? editForm.title : document.title}
+              </h1>
+              <p className="text-sm md:text-xl text-black dark:text-white/60">
+                {isEditing ? editForm.documentType : document.docType}
+              </p>
             </div>
+          </div>
 
-            <div className="flex items-center gap-2">
-              {isEditing ? (
-                <>
-                  <Button
-                    onClick={handleCancelEdit}
-                    variant="outline"
-                    className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-                    disabled={isSaving}
-                  >
-                    <X className="hidden md:flex h-4 w-4 mr-2" />
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={handleSave}
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                    disabled={isSaving}
-                  >
-                    <Save className="hidden md:flex h-4 w-4 mr-2" />
-                    {isSaving ? "Saving..." : "Save Changes"}
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button
-                    onClick={handleDownload}
-                    variant="outline"
-                    className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-                  >
-                    <Download className="hidden md:flex h-4 w-4 mr-2" />
-                    Download
-                  </Button>
-                  <Button
-                    onClick={() => setShowDeleteDialog(true)}
-                    variant="outline"
-                    className="bg-red-500/10 border-red-500/20 text-red-300 hover:bg-red-500/20"
-                  >
-                    <Trash2 className="hidden md:flex h-4 w-4 mr-2" />
-                    Delete
-                  </Button>
-                  <Button
-                    onClick={handleEdit}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                  >
-                    <Edit className="hidden md:flex h-4 w-4 mr-2" />
-                    Edit
-                  </Button>
-                </>
-              )}
-            </div>
+          <div className="flex items-center gap-2">
+            {isEditing ? (
+              <>
+                <Button
+                  onClick={handleCancelEdit}
+                  variant="outline"
+                  className="bg-white/10 border-white/20 text-black dark:text-white hover:bg-white/20"
+                  disabled={isSaving}
+                >
+                  <X className="hidden md:flex h-4 w-4 mr-2" />
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSave}
+                  className="bg-green-600 hover:bg-green-700 text-black dark:text-white"
+                  disabled={isSaving}
+                >
+                  <Save className="hidden md:flex h-4 w-4 mr-2" />
+                  {isSaving ? "Saving..." : "Save Changes"}
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  onClick={handleDownload}
+                  variant="outline"
+                  className="bg-white/10 border-white/20 text-black dark:text-white hover:bg-white/20"
+                >
+                  <Download className="hidden md:flex h-4 w-4 mr-2" />
+                  Download
+                </Button>
+                <Button
+                  onClick={() => setShowDeleteDialog(true)}
+                  variant="outline"
+                  className="bg-red-500/10 border-red-500/20 text-red-300 hover:bg-red-500/20"
+                >
+                  <Trash2 className="hidden md:flex h-4 w-4 mr-2" />
+                  Delete
+                </Button>
+                <Button
+                  onClick={handleEdit}
+                  className="bg-blue-600 hover:bg-blue-700 text-black dark:text-white"
+                >
+                  <Edit className="hidden md:flex h-4 w-4 mr-2" />
+                  Edit
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Sidebar */}
           <div className="lg:col-span-1 space-y-4">
             <Card className="bg-white/10 backdrop-blur-lg border-white/20">
               <CardHeader>
-                <CardTitle className="text-white text-sm font-medium">
+                <CardTitle className="text-black dark:text-white text-sm font-medium">
                   Document Info
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
-                  <p className="text-xs text-white/50 mb-1">Type</p>
+                  <p className="text-xs text-black dark:text-white mb-1">
+                    Type
+                  </p>
                   <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30">
                     {document.docType}
                   </Badge>
                 </div>
                 <div>
-                  <p className="text-xs text-white/50 mb-1">Version</p>
-                  <p className="text-sm text-white">v{document.version}</p>
+                  <p className="text-xs text-black dark:text-white mb-1">
+                    Version
+                  </p>
+                  <p className="text-sm text-black dark:text-white">
+                    v{document.version}
+                  </p>
                 </div>
                 <div>
-                  <p className="text-xs text-white/50 mb-1">Created</p>
-                  <p className="text-sm text-white">
+                  <p className="text-xs text-black dark:text-white mb-1">
+                    Created
+                  </p>
+                  <p className="text-sm text-black dark:text-white">
                     {formatDate(document.createdAt)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-white/50 mb-1">Last Modified</p>
+                  <p className="text-xs text-white mb-1">Last Modified</p>
                   <p className="text-sm text-white">
                     {formatDate(document.updatedAt)}
                   </p>
@@ -462,6 +467,6 @@ export default function DocumentPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </>
   );
 }

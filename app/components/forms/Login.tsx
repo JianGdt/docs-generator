@@ -3,18 +3,19 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  Loader2,
-  Github,
-  Chrome,
-  AlertCircle,
-  Eye,
-  EyeClosed,
-} from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
+import Link from "next/link";
+import { FormFieldWrapper } from "./FormWrapper";
+import { PasswordInput } from "../input/PasswordInput";
+import { OAuthButtons } from "../OAuthBtn";
+import { LoginFormValues, loginSchema } from "@//lib/schema/auth";
 
 interface LoginFormProps {
   onSwitchToRegister?: () => void;
@@ -23,53 +24,37 @@ interface LoginFormProps {
 export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
 
   const urlError = searchParams.get("error");
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
+  const form = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      identifier: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = async (values: LoginFormValues) => {
     setError("");
-
-    const formData = new FormData(e.currentTarget);
-    const identifier = formData.get("identifier") as string;
-    const password = formData.get("password") as string;
-
     try {
       const result = await signIn("credentials", {
-        identifier,
-        password,
+        identifier: values.identifier,
+        password: values.password,
         redirect: false,
       });
 
-      if (result?.error) {
-        setError(result.error);
-      } else if (result?.ok) {
-        router.push("/docs-generator");
+      if (result?.ok) {
+        router.push("/");
         router.refresh();
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");
-    } finally {
-      setLoading(false);
     }
   };
 
-  const handleOAuthSignIn = async (provider: "google" | "github") => {
-    setLoading(true);
-    setError("");
-    try {
-      await signIn(provider, {
-        callbackUrl: "/docs-generator",
-      });
-    } catch (err) {
-      setError("OAuth sign-in failed. Please try again.");
-      setLoading(false);
-    }
-  };
+  const isLoading = form.formState.isSubmitting;
 
   return (
     <Card className="w-full max-w-md bg-slate-800/50 border-purple-500/20">
@@ -83,117 +68,65 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
             <AlertDescription>
               {error || urlError === "CredentialsSignin"
                 ? "Invalid username/email or password"
-                : error || "An error occurred during sign in"}
+                : "An error occurred during sign in"}
             </AlertDescription>
           </Alert>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="text-sm text-slate-300 mb-2 block">
-              Username or Email
-            </label>
-            <Input
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormFieldWrapper
+              control={form.control}
               name="identifier"
-              type="text"
-              placeholder="player2"
-              required
-              className="bg-slate-700/50 border-slate-600 text-white"
-              disabled={loading}
-            />
-          </div>
+              label="Username or Email"
+            >
+              {(field) => (
+                <Input
+                  placeholder="player2"
+                  {...field}
+                  disabled={isLoading}
+                  className="bg-slate-700/50 border-slate-600 text-white"
+                />
+              )}
+            </FormFieldWrapper>
 
-          <div>
-            <label className="text-sm text-slate-300 mb-2 block">
-              Password
-            </label>
-            <div className="relative">
-              <Input
-                name="password"
-                type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
-                required
-                className="bg-slate-700/50 border-slate-600 text-white pr-10"
-                disabled={loading}
-              />
-              <Button
-                type="button"
-                variant="link"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 cursor-pointer -translate-y-1/2 bg-transparent text-slate-400"
-                disabled={loading}
-              >
-                {showPassword ? (
-                  <EyeClosed className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-          </div>
+            <FormFieldWrapper
+              control={form.control}
+              name="password"
+              label="Password"
+            >
+              {(field) => <PasswordInput {...field} disabled={isLoading} />}
+            </FormFieldWrapper>
 
-          <Button
-            type="submit"
-            className="w-full bg-blue-500"
-            disabled={loading}
-          >
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Signing in...
-              </>
-            ) : (
-              "Sign In"
-            )}
-          </Button>
-        </form>
+            <Button
+              type="submit"
+              className="w-full bg-blue-500"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Signing in...
+                </>
+              ) : (
+                "Sign In"
+              )}
+            </Button>
+          </form>
+        </Form>
 
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-slate-600" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-slate-800 px-2 text-slate-400">
-              Or continue with
-            </span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <Button
-            variant="outline"
-            onClick={() => handleOAuthSignIn("google")}
-            disabled={loading}
-            className="bg-slate-700/50 border-slate-600 hover:bg-slate-700"
-          >
-            <Chrome />
-            Google
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => handleOAuthSignIn("github")}
-            disabled={loading}
-            className="bg-slate-700/50 border-slate-600 hover:bg-slate-700"
-          >
-            <Github />
-            GitHub
-          </Button>
-        </div>
+        <OAuthButtons disabled={isLoading} callbackUrl="/" onError={setError} />
 
         <p className="text-center text-sm text-slate-400">
           Don't have an account?{" "}
           {onSwitchToRegister ? (
-            <button
-              onClick={onSwitchToRegister}
-              className="text-blue-500 hover:underline cursor-pointer bg-transparent border-none"
-              type="button"
-            >
+            <Button onClick={onSwitchToRegister} type="button" variant="link">
               Create one
-            </button>
+            </Button>
           ) : (
-            <a href="/register" className="text-blue-500 hover:underline">
+            <Link href="/register" className="text-blue-500 hover:underline">
               Create one
-            </a>
+            </Link>
           )}
         </p>
       </CardContent>

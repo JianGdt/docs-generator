@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 
-export const AnimatedFormContainer = ({
+export const AnimatedContainer = ({
   children,
 }: {
   children: React.ReactNode;

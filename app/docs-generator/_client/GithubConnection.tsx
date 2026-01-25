@@ -72,7 +72,7 @@ export default function GitHubIntegration({
   }
 
   return (
-    <Card className="bg-slate-800/50 border-purple-500/20">
+    <Card className="bg-white/10 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 ">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-white">
           <Github className="w-5 h-5" />

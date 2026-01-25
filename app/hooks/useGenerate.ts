@@ -1,7 +1,7 @@
 "use client";
 
 import axios from "axios";
-import { useDocsStore } from "@/app/lib/store";
+import { useDocsStore } from "@//lib/store/useDocStore";
 
 export function useDocumentGeneration() {
   const {
