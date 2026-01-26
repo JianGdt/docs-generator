@@ -4,10 +4,10 @@ import { useDocsStore } from "@//lib/store/useDocStore";
 import { downloadMarkdown, openInNewTab } from "../lib/utils";
 import { useCopyToClipboard } from "../hooks/useClipboard";
 import PreviewHeader from "./preview/Header";
-import EmptyState from "./preview/EmptyState";
 import DocumentPreview from "./preview/DocsPreview";
-import { Card, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardHeader } from "./ui/card";
 import { Separator } from "./ui/separator";
+import EmptyState from "./EmptyState";
 
 export default function PreviewSection() {
   const { generatedDocs, docType } = useDocsStore();
@@ -34,7 +34,7 @@ export default function PreviewSection() {
 
         <div className="md:p-6 p-3 max-h-[calc(100vh-16rem)] overflow-y-auto">
           {!generatedDocs ? (
-            <EmptyState />
+            <EmptyState type="preview" />
           ) : (
             <DocumentPreview content={generatedDocs} />
           )}

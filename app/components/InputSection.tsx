@@ -21,7 +21,7 @@ export default function InputSection() {
         </h2>
         <DocTypeSelector />
       </CardHeader>
-      <Separator /> 
+      <Separator />
       <CardContent>
         <InputMethodTabs />
         <div className="mt-6">
@@ -31,7 +31,6 @@ export default function InputSection() {
         </div>
         {error && <ErrorAlert message={error} />}
       </CardContent>
-
       <CardFooter>
         <GenerateButton />
       </CardFooter>

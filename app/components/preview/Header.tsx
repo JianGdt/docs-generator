@@ -20,7 +20,7 @@ export default function PreviewHeader({
         {hasContent && (
           <Badge
             variant="outline"
-            className=" text-xs md:text-md text-green-400 border-1"
+            className=" text-xs md:text-md text-green-400"
           >
             Ready
           </Badge>

@@ -23,13 +23,9 @@ export function DocTypeSelector() {
       <SelectTrigger>
         <SelectValue placeholder="Select doc type" />
       </SelectTrigger>
-      <SelectContent className="bg-slate-800 border-slate-700">
+      <SelectContent>
         {Object.entries(DOC_TYPES).map(([key, label]) => (
-          <SelectItem
-            key={key}
-            value={key}
-            className="text-white focus:bg-slate-700 focus:text-white"
-          >
+          <SelectItem key={key} value={key}>
             {label}
           </SelectItem>
         ))}

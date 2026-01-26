@@ -23,6 +23,7 @@ import { FormFieldWrapper } from "./FormWrapper";
 import { PasswordInput } from "../input/PasswordInput";
 import { OAuthButtons } from "../OAuthBtn";
 import Link from "next/link";
+import { toast } from "sonner";
 
 interface RegisterFormProps {
   onSwitchToLogin?: () => void;
@@ -69,10 +70,12 @@ export default function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
       if (signInResult?.error) {
         router.push("/login");
       } else {
+        toast.success("Account created successfully!");
         router.push("/");
         router.refresh();
       }
     } catch (error) {
+      toast.error("Registration failed. Please try again.");
       setError("An error occurred. Please try again.");
     }
   };

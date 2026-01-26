@@ -8,6 +8,8 @@ import {
 } from "@/components/ui/form";
 import { Control } from "react-hook-form";
 import { CommitFormValues } from "@/app/lib/schema/github";
+import { Input } from "@//components/ui/input";
+import { Checkbox } from "@//components/ui/checkbox";
 
 interface PullRequestToggleProps {
   control: Control<CommitFormValues>;
@@ -21,14 +23,13 @@ export function PullRequestToggle({ control }: PullRequestToggleProps) {
       render={({ field }) => (
         <FormItem className="flex flex-row items-center space-x-3 space-y-0">
           <FormControl>
-            <input
-              type="checkbox"
+            <Checkbox
               checked={field.value}
-              onChange={field.onChange}
-              className="w-4 h-4 rounded border-slate-600 bg-slate-900"
+              onCheckedChange={field.onChange}
+              className="w-4 h-4"
             />
           </FormControl>
-          <FormLabel className="!mt-0 text-slate-200 font-normal">
+          <FormLabel className="mt-0! text-black dark:text-white font-normal">
             Create Pull Request instead of direct commit
           </FormLabel>
         </FormItem>

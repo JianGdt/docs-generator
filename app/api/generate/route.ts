@@ -6,20 +6,15 @@ import { generateRequestSchema } from "@/app/lib/validators";
 import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-
 export async function POST(req: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
     const { method, data, docType } = generateRequestSchema.parse(
       await req.json(),
     );
-
     let documentation: string;
     if (method === "github") {
       const repo = await fetchGitHubRepo(data);

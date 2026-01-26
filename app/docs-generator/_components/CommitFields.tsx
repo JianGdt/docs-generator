@@ -23,13 +23,11 @@ export function CommitFields({ control }: CommitFieldsProps) {
         name="path"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-slate-200">File Path</FormLabel>
+            <FormLabel className="text-black dark:text-white">
+              File Path
+            </FormLabel>
             <FormControl>
-              <Input
-                {...field}
-                placeholder="docs/README.md"
-                className="bg-slate-900 text-white border-slate-700"
-              />
+              <Input {...field} placeholder="docs/README.md" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -41,13 +39,11 @@ export function CommitFields({ control }: CommitFieldsProps) {
         name="message"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-slate-200">Commit Message</FormLabel>
+            <FormLabel className="text-black dark:text-white">
+              Commit Message
+            </FormLabel>
             <FormControl>
-              <Input
-                {...field}
-                placeholder="docs: Update documentation"
-                className="bg-slate-900 text-white border-slate-700"
-              />
+              <Input {...field} placeholder="docs: Update documentation" />
             </FormControl>
             <FormMessage />
           </FormItem>

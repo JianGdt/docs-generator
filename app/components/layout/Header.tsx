@@ -37,7 +37,7 @@ export default function Header({ user }: HeaderProps) {
   return (
     <header className="border-b border-border bg-background/80 backdrop-blur-lg min-h-full sticky top-0 z-50">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-16 px-4 py-2.5">
           <Link href="/" className="flex items-center gap-2">
             <FileCode className="h-8 hidden md:flex w-8 text-black dark:text-white" />
             <span className="text-sm md:text-xl text-black dark:text-white px-2 py-2 font-bold">

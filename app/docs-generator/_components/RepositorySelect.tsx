@@ -23,30 +23,35 @@ interface RepositorySelectProps {
   repositories: Repository[];
 }
 
-export function RepositorySelect({ control, repositories }: RepositorySelectProps) {
+export function RepositorySelect({
+  control,
+  repositories,
+}: RepositorySelectProps) {
   return (
     <FormField
       control={control}
       name="repository"
       render={({ field }) => (
         <FormItem>
-          <FormLabel className="text-slate-200">Repository</FormLabel>
+          <FormLabel className="text-black dark:text-white">
+            Repository
+          </FormLabel>
           <Select
             onValueChange={field.onChange}
             value={field.value}
             disabled={repositories.length === 0}
           >
             <FormControl>
-              <SelectTrigger className="bg-slate-900 text-white border-slate-700">
+              <SelectTrigger>
                 <SelectValue placeholder="Select repository" />
               </SelectTrigger>
             </FormControl>
-            <SelectContent className="bg-slate-800 border-slate-700">
+            <SelectContent>
               {repositories.map((repo) => (
                 <SelectItem
                   key={repo.id}
                   value={repo.fullName}
-                  className="text-white hover:bg-slate-700"
+                  className="text-black dark:text-white"
                 >
                   {repo.fullName}
                 </SelectItem>

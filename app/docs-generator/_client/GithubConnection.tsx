@@ -8,7 +8,6 @@ import { Form } from "@/components/ui/form";
 import { Github, CheckCircle } from "lucide-react";
 import { CommitFormValues, commitSchema } from "@/app/lib/schema/github";
 import { getDefaultPath } from "@/app/lib/utils";
-import { EmptyState } from "../_components/EmptyState";
 import { RepositorySelect } from "../_components/RepositorySelect";
 import { CommitFields } from "../_components/CommitFields";
 import { PullRequestToggle } from "../_components/PullRequestToggle";
@@ -20,6 +19,7 @@ import type { Session } from "next-auth";
 import { useGitHubRepositories } from "@//hooks/github/useGitHubRepo";
 import { useGitHubCommit } from "@//hooks/github/useGitHubCommit";
 import { GitHubIntegrationProps } from "@//lib/@types/github";
+import EmptyState from "@//components/EmptyState";
 
 export default function GitHubIntegration({
   documentContent,
@@ -72,9 +72,9 @@ export default function GitHubIntegration({
   }
 
   return (
-    <Card className="bg-white/10 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 ">
+    <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-white">
+        <CardTitle className="flex items-center gap-2 text-black dark:text-white">
           <Github className="w-5 h-5" />
           GitHub Integration
           <CheckCircle className="w-4 h-4 text-green-500 ml-auto" />
@@ -82,7 +82,11 @@ export default function GitHubIntegration({
       </CardHeader>
       <CardContent>
         {fetchingRepos || (repositories.length === 0 && !repoError) ? (
-          <EmptyState loading={fetchingRepos} onRetry={refetch} />
+          <EmptyState
+            type="docsgen"
+            loading={fetchingRepos}
+            onRetry={refetch}
+          />
         ) : (
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

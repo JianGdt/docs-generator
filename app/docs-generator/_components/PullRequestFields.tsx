@@ -24,13 +24,11 @@ export function PullRequestFields({ control }: PullRequestFieldsProps) {
         name="prTitle"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-slate-200">PR Title</FormLabel>
+            <FormLabel className="text-black dark:text-white">
+              PR Title
+            </FormLabel>
             <FormControl>
-              <Input
-                {...field}
-                placeholder="Update documentation"
-                className="bg-slate-900 text-white border-slate-700"
-              />
+              <Input {...field} placeholder="Update documentation" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -42,12 +40,14 @@ export function PullRequestFields({ control }: PullRequestFieldsProps) {
         name="prBody"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-slate-200">PR Description</FormLabel>
+            <FormLabel className="text-black dark:text-white">
+              PR Description
+            </FormLabel>
             <FormControl>
               <Textarea
                 {...field}
                 placeholder="Describe the changes..."
-                className="bg-slate-900 text-white border-slate-700 min-h-[100px]"
+                className="text-black dark:text-white border-slate-700"
               />
             </FormControl>
             <FormMessage />

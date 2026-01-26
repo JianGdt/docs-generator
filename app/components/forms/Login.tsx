@@ -16,6 +16,7 @@ import { FormFieldWrapper } from "./FormWrapper";
 import { PasswordInput } from "../input/PasswordInput";
 import { OAuthButtons } from "../OAuthBtn";
 import { LoginFormValues, loginSchema } from "@//lib/schema/auth";
+import { toast } from "sonner";
 
 interface LoginFormProps {
   onSwitchToRegister?: () => void;
@@ -46,10 +47,12 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
       });
 
       if (result?.ok) {
+        toast.success("Successfully logged in!");
         router.push("/");
         router.refresh();
       }
     } catch (err) {
+      toast.error("Failed to log in. Please try again.");
       setError("An unexpected error occurred. Please try again.");
     }
   };
@@ -100,11 +103,7 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
               {(field) => <PasswordInput {...field} disabled={isLoading} />}
             </FormFieldWrapper>
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading}
-            >
+            <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
