@@ -140,8 +140,6 @@ export default function DocumentPage() {
       setDocument(result.document);
       setIsEditing(false);
       setEditForm((prev) => ({ ...prev, changeDescription: "" }));
-
-      // Trigger history refetch after successful save
       triggerRefetch();
     } catch (error) {
       console.error("Error updating document:", error);
@@ -162,12 +160,8 @@ export default function DocumentPage() {
       if (!response.ok) {
         throw new Error("Failed to delete document");
       }
-
       toast.success("Document deleted successfully");
-
-      // Trigger history refetch after deletion
       triggerRefetch();
-
       router.push("/history");
     } catch (error) {
       console.error("Error deleting document:", error);
@@ -192,7 +186,7 @@ export default function DocumentPage() {
 
   if (!document) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-slate-900 to-purple-900 flex items-center justify-center">
+      <div className="min-h-screen  from-blue-900 via-slate-900 to-purple-900 flex items-center justify-center">
         <Card className="bg-white/10 backdrop-blur-lg border-white/20 p-8">
           <p className="text-black dark:text-white text-center mb-4">
             Document not found
@@ -243,22 +237,23 @@ export default function DocumentPage() {
                 <Button
                   onClick={handleDownload}
                   variant="outline"
-                  className="bg-white/10 border-white/20 text-black dark:text-white hover:bg-white/20"
+                  className="cursor-pointer"
                 >
                   <Download className="hidden md:flex h-4 w-4 mr-2" />
                   Download
                 </Button>
                 <Button
                   onClick={() => setShowDeleteDialog(true)}
-                  variant="outline"
-                  className="bg-red-500/10 border-red-500/20 text-red-300 hover:bg-red-500/20"
+                  variant="destructive"
+                  className="cursor-pointer"
                 >
                   <Trash2 className="hidden md:flex h-4 w-4 mr-2" />
                   Delete
                 </Button>
                 <Button
+                  variant="default"
                   onClick={handleEdit}
-                  className="bg-blue-600 hover:bg-blue-700 text-black dark:text-white"
+                  className="cursor-pointer"
                 >
                   <Edit className="hidden md:flex h-4 w-4 mr-2" />
                   Edit
@@ -304,8 +299,10 @@ export default function DocumentPage() {
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-white mb-1">Last Modified</p>
-                  <p className="text-sm text-white">
+                  <p className="text-xs text-black dark:text-white mb-1">
+                    Last Modified
+                  </p>
+                  <p className="text-sm text-black dark:text-white">
                     {formatDate(document.updatedAt)}
                   </p>
                 </div>
@@ -315,20 +312,22 @@ export default function DocumentPage() {
             <Button
               onClick={() => router.push("/history")}
               variant="outline"
-              className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20"
+              className="text-black dark:text-white"
             >
               <History className="hidden md:flex h-4 w-4 mr-2" />
               View All History
             </Button>
           </div>
 
-          {/* Document Content */}
           <div className="lg:col-span-3">
             {isEditing ? (
-              <Card className="bg-white/10 backdrop-blur-lg border-white/20">
+              <Card>
                 <CardContent className="p-6 space-y-4">
                   <div>
-                    <Label htmlFor="title" className="text-white mb-2">
+                    <Label
+                      htmlFor="title"
+                      className="text-black dark:text-white mb-2"
+                    >
                       Title
                     </Label>
                     <Input
@@ -337,13 +336,16 @@ export default function DocumentPage() {
                       onChange={(e) =>
                         setEditForm({ ...editForm, title: e.target.value })
                       }
-                      className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+                      className=" text-black dark:text-white"
                       placeholder="Document title"
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="documentType" className="text-white mb-2">
+                    <Label
+                      htmlFor="documentType"
+                      className="text-black dark:text-white mb-2"
+                    >
                       Document Type
                     </Label>
                     <Input
@@ -370,7 +372,7 @@ export default function DocumentPage() {
                       onChange={(e) =>
                         setEditForm({ ...editForm, content: e.target.value })
                       }
-                      className="bg-white/10 border-white/20 text-white placeholder:text-white/40 min-h-[500px] font-mono"
+                      className="bg-white/10 border-white/20 text-black dark:text-white placeholder:text-white/40 font-mono"
                       placeholder="Document content..."
                     />
                   </div>
@@ -378,7 +380,7 @@ export default function DocumentPage() {
                   <div>
                     <Label
                       htmlFor="changeDescription"
-                      className="text-white mb-2"
+                      className="text-black dark:text-white mb-2"
                     >
                       Change Description (Optional)
                     </Label>
@@ -391,18 +393,18 @@ export default function DocumentPage() {
                           changeDescription: e.target.value,
                         })
                       }
-                      className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+                      className="bg-white/10 border-white/20 text-black dark:text-white placeholder:text-black"
                       placeholder="What did you change?"
                     />
                   </div>
                 </CardContent>
               </Card>
             ) : (
-              <Card className="bg-white backdrop-blur-lg border-white/20 shadow-2xl">
+              <Card className="shadow-2xl">
                 <CardContent className="p-0">
-                  <div className="bg-white min-h-[800px]">
+                  <div className="min-h-[800px]">
                     <div className="border-b border-gray-200 px-2 md:px-10 py-8">
-                      <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                      <h1 className="text-3xl font-bold text-black dark:text-white mb-2">
                         {document.title}
                       </h1>
                       <div className="flex items-center gap-1.5 md:gap-4 text-[0.675rem] md:text-md text-gray-500">
@@ -419,11 +421,9 @@ export default function DocumentPage() {
                         <span>Version {document.version}</span>
                       </div>
                     </div>
-
-                    {/* Document Body */}
                     <div className="px-12 py-8">
                       <div className="prose prose-lg max-w-none">
-                        <div className="whitespace-pre-wrap text-gray-800 leading-relaxed font-serif">
+                        <div className="whitespace-pre-wrap text-black dark:text-white leading-relaxed font-serif">
                           {document.content}
                         </div>
                       </div>
@@ -436,7 +436,6 @@ export default function DocumentPage() {
         </div>
       </div>
 
-      {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent className="bg-slate-900 border-white/20">
           <AlertDialogHeader>

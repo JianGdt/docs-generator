@@ -82,7 +82,7 @@ export default function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl text-white text-start">
+        <CardTitle className="text-2xl text-black dark:text-white text-start">
           Create Account
         </CardTitle>
         <CardDescription className="text-start">
@@ -140,11 +140,7 @@ export default function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
               </Alert>
             )}
 
-            <Button
-              type="submit"
-              className="w-full bg-blue-500"
-              disabled={isLoading}
-            >
+            <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -166,7 +162,10 @@ export default function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
               Sign in
             </Button>
           ) : (
-            <Link href="/login" className="text-blue-500 hover:underline">
+            <Link
+              href="/login"
+              className="text-black dark:text-white hover:underline"
+            >
               Sign in
             </Link>
           )}

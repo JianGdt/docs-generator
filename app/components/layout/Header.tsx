@@ -1,6 +1,6 @@
 "use client";
 
-import { History, FileText, LogOut } from "lucide-react";
+import { History, FileText, LogOut, FileCode } from "lucide-react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 import {
@@ -34,13 +34,12 @@ export default function Header({ user }: HeaderProps) {
     .toUpperCase()
     .slice(0, 2);
 
-
   return (
     <header className="border-b border-border bg-background/80 backdrop-blur-lg min-h-full sticky top-0 z-50">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2">
-            <FileText className="h-8 hidden md:flex w-8 text-blue-400" />
+            <FileCode className="h-8 hidden md:flex w-8 text-black dark:text-white" />
             <span className="text-sm md:text-xl text-black dark:text-white px-2 py-2 font-bold">
               AI Docs Generator
             </span>

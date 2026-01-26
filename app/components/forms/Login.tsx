@@ -57,9 +57,11 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
   const isLoading = form.formState.isSubmitting;
 
   return (
-    <Card className="w-full max-w-md bg-slate-800/50 border-purple-500/20">
+    <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle className="text-2xl text-white text-start">Login</CardTitle>
+        <CardTitle className="text-2xl text-black dark:text-white text-start">
+          Login
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {(error || urlError) && (
@@ -82,10 +84,10 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
             >
               {(field) => (
                 <Input
-                  placeholder="player2"
+                  placeholder="Enter your username or email"
                   {...field}
                   disabled={isLoading}
-                  className="bg-slate-700/50 border-slate-600 text-white"
+                  className=" text-black dark:text-white"
                 />
               )}
             </FormFieldWrapper>
@@ -100,7 +102,7 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
 
             <Button
               type="submit"
-              className="w-full bg-blue-500"
+              className="w-full"
               disabled={isLoading}
             >
               {isLoading ? (
