@@ -6,9 +6,6 @@ import { generateRequestSchema } from "@/app/lib/validators";
 import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-
 export async function POST(req: NextRequest) {
   try {
     const session = await auth();
