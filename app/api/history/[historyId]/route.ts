@@ -10,19 +10,19 @@ export async function GET(req: NextRequest, context: RouteParams) {
   try {
     const session = await auth();
 
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const params = await Promise.resolve(context.params);
     const { historyId } = params;
 
-    const historyEntry = await getHistoryVersion(historyId, session.user.email);
+    const historyEntry = await getHistoryVersion(historyId, session.user.id);
 
     if (!historyEntry) {
       return NextResponse.json(
         { error: "History version not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -31,7 +31,7 @@ export async function GET(req: NextRequest, context: RouteParams) {
     console.error("Error fetching history version:", error);
     return NextResponse.json(
       { error: "Failed to fetch history version" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

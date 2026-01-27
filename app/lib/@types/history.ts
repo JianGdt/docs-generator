@@ -24,8 +24,8 @@ export interface HistoryEntry {
 }
 
 export interface HistoryResponse {
-  documents: {
-    data: HistoryEntry[];
+  data: {
+    documents: HistoryEntry[];
     page: number;
     limit: number;
     total: number;

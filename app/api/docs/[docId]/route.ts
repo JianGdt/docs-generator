@@ -7,13 +7,7 @@ import {
 } from "@//lib/database";
 import { z } from "zod";
 import { auth } from "@//lib/auth";
-
-const updateDocSchema = z.object({
-  title: z.string().min(1, "Title is required").optional(),
-  documentType: z.string().min(1, "Document type is required").optional(),
-  content: z.string().min(1, "Content is required").optional(),
-  changeDescription: z.string().optional(),
-});
+import { updateDocSchema } from "@//lib/schema/documents";
 
 type RouteParams = {
   params: Promise<{ docId: string }> | { docId: string };
@@ -23,19 +17,19 @@ export async function GET(req: NextRequest, context: RouteParams) {
   try {
     const session = await auth();
 
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const params = await Promise.resolve(context.params);
     const { docId } = params;
 
-    const doc = await getDocById(docId, session.user.email);
+    const doc = await getDocById(docId, session.user.id);
 
     if (!doc) {
       return NextResponse.json(
         { error: "Document not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -44,7 +38,7 @@ export async function GET(req: NextRequest, context: RouteParams) {
     console.error("Error fetching document:", error);
     return NextResponse.json(
       { error: "Failed to fetch document" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -53,20 +47,18 @@ export async function PATCH(req: NextRequest, context: RouteParams) {
   try {
     const session = await auth();
 
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Handle both Promise and direct params
     const params = await Promise.resolve(context.params);
     const { docId } = params;
 
-    // Get current document before updating
-    const currentDoc = await getDocById(docId, session.user.email);
+    const currentDoc = await getDocById(docId, session.user.id);
     if (!currentDoc) {
       return NextResponse.json(
         { error: "Document not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -76,7 +68,7 @@ export async function PATCH(req: NextRequest, context: RouteParams) {
     if (!validation.success) {
       return NextResponse.json(
         { error: "Validation error", details: validation.error.message },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -86,7 +78,7 @@ export async function PATCH(req: NextRequest, context: RouteParams) {
       try {
         await saveDocHistory({
           docId: docId,
-          userId: session.user.email,
+          userId: session.user.id,
           title: currentDoc.title,
           documentType: currentDoc.docType,
           content: currentDoc.content,
@@ -104,16 +96,16 @@ export async function PATCH(req: NextRequest, context: RouteParams) {
       version: (currentDoc.version || 0) + 1,
     };
 
-    const success = await updateDoc(docId, session.user.email, updateData);
+    const success = await updateDoc(docId, session.user.id, updateData);
 
     if (!success) {
       return NextResponse.json(
         { error: "Failed to update document" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
-    const updatedDoc = await getDocById(docId, session.user.email);
+    const updatedDoc = await getDocById(docId, session.user.id);
 
     return NextResponse.json(
       {
@@ -121,20 +113,20 @@ export async function PATCH(req: NextRequest, context: RouteParams) {
         message: "Document updated successfully",
         document: updatedDoc,
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Validation error", details: error.message },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     console.error("Error updating document:", error);
     return NextResponse.json(
       { error: "Failed to update document" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -143,7 +135,7 @@ export async function DELETE(req: NextRequest, context: RouteParams) {
   try {
     const session = await auth();
 
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -151,20 +143,20 @@ export async function DELETE(req: NextRequest, context: RouteParams) {
     const params = await Promise.resolve(context.params);
     const { docId } = params;
 
-    const doc = await getDocById(docId, session.user.email);
+    const doc = await getDocById(docId, session.user.id);
     if (!doc) {
       return NextResponse.json(
         { error: "Document not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
-    const success = await deleteDoc(docId, session.user.email);
+    const success = await deleteDoc(docId, session.user.id);
 
     if (!success) {
       return NextResponse.json(
         { error: "Failed to delete document" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -173,13 +165,13 @@ export async function DELETE(req: NextRequest, context: RouteParams) {
         success: true,
         message: "Document deleted successfully",
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("Error deleting document:", error);
     return NextResponse.json(
       { error: "Failed to delete document" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

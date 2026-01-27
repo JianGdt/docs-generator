@@ -3,6 +3,7 @@ import { ENV } from "./constants";
 import { User } from "./@types/user";
 import { SavedDoc } from "./@types/docs";
 import { DocHistoryEntry } from "./@types/history";
+import { GitHubCommit, UploadedFile } from "./@types/database";
 
 let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
@@ -205,10 +206,9 @@ export async function deleteDoc(
   }
 }
 
-// Get doc history with pagination
 export async function getDocHistory(
   docId: string,
-  userEmail: string,
+  userId: string,
   page: number = 1,
   limit: number = 10,
 ) {
@@ -218,14 +218,14 @@ export async function getDocHistory(
   const [history, total] = await Promise.all([
     db
       .collection<DocHistoryEntry>("doc_history")
-      .find({ docId, userId: userEmail })
+      .find({ docId, userId })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .toArray(),
     db
       .collection<DocHistoryEntry>("doc_history")
-      .countDocuments({ docId, userId: userEmail }),
+      .countDocuments({ docId, userId }),
   ]);
 
   return {
@@ -239,7 +239,6 @@ export async function getDocHistory(
   };
 }
 
-// Save a history entry when doc is updated
 export async function saveDocHistory(
   data: Omit<DocHistoryEntry, "_id" | "createdAt">,
 ): Promise<DocHistoryEntry> {
@@ -261,68 +260,23 @@ export async function saveDocHistory(
   return historyEntry;
 }
 
-// Get specific history version
 export async function getHistoryVersion(
   historyId: string,
-  userEmail: string,
+  userId: string,
 ): Promise<DocHistoryEntry | null> {
   const db = await getDatabase();
   try {
     return db.collection<DocHistoryEntry>("doc_history").findOne({
       _id: new ObjectId(historyId),
-      userId: userEmail,
+      userId,
     });
   } catch (error) {
     return null;
   }
 }
 
-export async function restoreDocFromHistory(
-  docId: string,
-  historyId: string,
-  userEmail: string,
-): Promise<boolean> {
-  const db = await getDatabase();
-
-  try {
-    const historyEntry = await getHistoryVersion(historyId, userEmail);
-    if (!historyEntry || historyEntry.docId !== docId) {
-      return false;
-    }
-
-    const currentDoc = await getDocById(docId, userEmail);
-    if (currentDoc) {
-      await saveDocHistory({
-        docId,
-        userId: userEmail,
-        title: currentDoc.title,
-        documentType: currentDoc.docType,
-        content: currentDoc.content,
-        version: (currentDoc.version || 0) + 1,
-        changeDescription: "Auto-saved before restore",
-      });
-    }
-    const result = await db.collection<SavedDoc>("docs").updateOne(
-      { _id: new ObjectId(docId), userId: userEmail },
-      {
-        $set: {
-          title: historyEntry.title,
-          documentType: historyEntry.documentType,
-          content: historyEntry.content,
-          version: (currentDoc?.version || 0) + 1,
-          updatedAt: new Date(),
-        },
-      },
-    );
-
-    return result.modifiedCount > 0;
-  } catch (error) {
-    return false;
-  }
-}
-
 export async function getUserHistory(
-  userEmail: string,
+  userId: string,
   page: number = 1,
   limit: number = 20,
 ) {
@@ -332,14 +286,12 @@ export async function getUserHistory(
   const [history, total] = await Promise.all([
     db
       .collection<DocHistoryEntry>("doc_history")
-      .find({ userId: userEmail })
+      .find({ userId })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .toArray(),
-    db
-      .collection<DocHistoryEntry>("doc_history")
-      .countDocuments({ userId: userEmail }),
+    db.collection<DocHistoryEntry>("doc_history").countDocuments({ userId }),
   ]);
 
   return {
@@ -353,83 +305,7 @@ export async function getUserHistory(
   };
 }
 
-// Delete old history entries (cleanup)
-export async function deleteOldHistory(
-  docId: string,
-  userEmail: string,
-  keepVersions: number = 10,
-): Promise<number> {
-  const db = await getDatabase();
-
-  try {
-    const allVersions = await db
-      .collection<DocHistoryEntry>("doc_history")
-      .find({ docId, userId: userEmail })
-      .sort({ createdAt: -1 })
-      .toArray();
-
-    if (allVersions.length <= keepVersions) {
-      return 0;
-    }
-
-    const versionsToDelete = allVersions.slice(keepVersions);
-    const idsToDelete = versionsToDelete.map((v) => v._id).filter(Boolean);
-
-    const result = await db
-      .collection<DocHistoryEntry>("doc_history")
-      .deleteMany({
-        _id: { $in: idsToDelete },
-      });
-
-    return result.deletedCount;
-  } catch (error) {
-    return 0;
-  }
-}
-
-/**
- * Delete all history entries for a specific document
- * This should be called when a document is deleted
- */
-export async function deleteDocHistory(
-  docId: string,
-  userId: string,
-): Promise<boolean> {
-  const db = await getDatabase();
-
-  try {
-    const result = await db
-      .collection<DocHistoryEntry>("doc_history")
-      .deleteMany({
-        docId: docId,
-        userId: userId,
-      });
-
-    console.log(
-      `Deleted ${result.deletedCount} history entries for document ${docId}`,
-    );
-    return true;
-  } catch (error) {
-    console.error("Error deleting document history:", error);
-    return false;
-  }
-}
-
 // ==================== GITHUB INTEGRATION FUNCTIONS ====================
-
-export interface GitHubCommit {
-  _id?: ObjectId;
-  userId: string;
-  docId: string;
-  repositoryFullName: string;
-  filePath: string;
-  commitSha: string | any;
-  commitMessage: string;
-  commitUrl: string | any;
-  pullRequestNumber?: number;
-  pullRequestUrl?: string;
-  createdAt: Date;
-}
 
 export async function saveGitHubCommit(
   data: Omit<GitHubCommit, "_id" | "createdAt">,
@@ -477,8 +353,6 @@ export async function saveDocumentationWithHistory(
   doc: Omit<SavedDoc, "_id" | "createdAt" | "version">,
 ): Promise<SavedDoc> {
   const db = await getDatabase();
-
-  // Save the document with version 1
   const docToSave = {
     ...doc,
     version: 1,
@@ -513,16 +387,6 @@ export async function saveDocumentationWithHistory(
 }
 
 // ==================== FILE UPLOAD FUNCTIONS ====================
-
-export interface UploadedFile {
-  _id?: ObjectId;
-  userId: string;
-  fileName: string;
-  fileType: string;
-  fileSize: number;
-  content: string;
-  uploadedAt: Date;
-}
 
 export async function saveUploadedFile(
   data: Omit<UploadedFile, "_id" | "uploadedAt">,

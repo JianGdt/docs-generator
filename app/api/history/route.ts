@@ -6,7 +6,7 @@ export async function GET(req: NextRequest) {
   try {
     const session = await auth();
 
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const result = await getUserHistory(session.user.email, page, limit);
+    const result = await getUserHistory(session.user.id, page, limit);
 
     return NextResponse.json(result, { status: 200 });
   } catch (error) {

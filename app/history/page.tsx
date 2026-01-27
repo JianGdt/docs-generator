@@ -34,8 +34,6 @@ export default function HistoryPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const { refetchTrigger } = useHistoryRefetch();
-
   const fetchHistory = async (showLoader = true) => {
     try {
       showLoader ? setLoading(true) : setRefreshing(true);
@@ -50,12 +48,12 @@ export default function HistoryPage() {
 
       if (res.ok) {
         const result: HistoryResponse = await res.json();
-        setData(result.documents.data || []);
+        setData(result.data.documents || []);
         setPagination({
-          page: result.documents.page,
-          limit: result.documents.limit,
-          total: result.documents.total,
-          totalPages: result.documents.totalPages,
+          page: result.data.page,
+          limit: result.data.limit,
+          total: result.data.total,
+          totalPages: result.data.totalPages,
         });
       }
     } catch (error) {
@@ -69,13 +67,6 @@ export default function HistoryPage() {
   useEffect(() => {
     fetchHistory();
   }, [currentPage]);
-
-  useEffect(() => {
-    if (refetchTrigger > 0) {
-      const timeout = setTimeout(() => fetchHistory(false), 300);
-      return () => clearTimeout(timeout);
-    }
-  }, [refetchTrigger]);
 
   const filteredData = searchQuery.trim()
     ? data.filter(
@@ -136,7 +127,7 @@ export default function HistoryPage() {
   if (loading && data.length === 0) return <SkeletonCard />;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="max-w-7xl mx-auto py-6 px-4 lg:px-8">
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className=" text-sm md:text-4xl font-bold text-black dark:text-white mb-2 flex items-center gap-3">
@@ -194,7 +185,7 @@ export default function HistoryPage() {
             </div>
             <div>
               <p className="text-sm text-black dark:text-white">Last Updated</p>
-              <p className="text-sm font-medium text-white">
+              <p className="text-sm font-medium text-black dark:text-white">
                 {data[0] ? formatDate(data[0].createdAt) : "N/A"}
               </p>
             </div>

@@ -1,6 +1,5 @@
 import { generateDocumentation } from "@/app/lib/ai";
 import { auth } from "@/app/lib/auth";
-import { saveDocumentation } from "@/app/lib/database";
 import { fetchGitHubRepo } from "@/app/lib/github";
 import { generateRequestSchema } from "@/app/lib/validators";
 import { NextRequest, NextResponse } from "next/server";
@@ -12,12 +11,17 @@ export async function POST(req: NextRequest) {
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
     const { method, data, docType } = generateRequestSchema.parse(
       await req.json(),
     );
+
     let documentation: string;
+    let metadata: { name?: string; description?: string; url?: string } = {};
+
     if (method === "github") {
       const repo = await fetchGitHubRepo(data);
+
       if (docType === "readme") {
         documentation = await generateDocumentation(repo, docType);
       } else {
@@ -30,24 +34,21 @@ export async function POST(req: NextRequest) {
         documentation = await generateDocumentation(textContext, docType);
       }
 
-      await saveDocumentation({
-        userId: session.user.id!,
-        title: `${repo.name} - ${docType}`,
-        content: documentation,
-        docType,
-      }).catch(console.warn);
+      metadata = {
+        name: repo.name,
+        description: repo.description,
+        url: data,
+      };
     } else {
       documentation = await generateDocumentation(data, docType);
-
-      await saveDocumentation({
-        userId: session.user.id!,
-        title: `${docType} Documentation`,
-        content: documentation,
-        docType,
-      }).catch(console.warn);
+      metadata = {};
     }
 
-    return NextResponse.json({ success: true, documentation });
+    return NextResponse.json({
+      success: true,
+      documentation,
+      metadata,
+    });
   } catch (error) {
     console.error("Generate documentation error:", error);
 

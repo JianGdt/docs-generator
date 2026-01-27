@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
   try {
     const session = await auth();
 
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
         { status: 401 },
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
       const content = await file.text();
 
       const savedFile = await saveUploadedFile({
-        userId: session.user.email,
+        userId: session.user.id,
         fileName: file.name,
         fileType: file.type || "text/plain",
         fileSize: file.size,

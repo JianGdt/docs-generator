@@ -29,33 +29,34 @@ export function useDocumentGeneration() {
 
     try {
       const data = getInputData();
-      
-      if (!data.trim()) {
-        throw new Error("Please provide input data");
-      }
+      if (!data.trim()) throw new Error("Please provide input data");
 
-      const response = await axios.post("/api/generate", {
+      // Generate documentation
+      const { data: generateResponse } = await axios.post("/api/generate", {
         method: inputMethod,
         data,
         docType,
       });
 
-      if (!response.data.success) {
-        throw new Error(response.data.error || "Generation failed");
+      if (!generateResponse.success) {
+        throw new Error(generateResponse.error || "Generation failed");
       }
 
-      await fetch("/api/docs", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: `My Doc - ${docType}`,
-          content: data,
-          docType,
-          repositoryUrl: githubUrl,
-        }),
+      const { documentation, metadata = {} } = generateResponse;
+      const title = metadata.name
+        ? `${metadata.name} - ${docType}`
+        : `My Doc - ${docType}`;
+
+      await axios.post("/api/docs", {
+        title,
+        content: documentation,
+        docType,
+        repositoryUrl:
+          metadata.url || (inputMethod === "github" ? githubUrl : undefined),
+        repositoryName: metadata.name,
       });
 
-      setGeneratedDocs(response.data.documentation);
+      setGeneratedDocs(documentation);
     } catch (err: any) {
       setError(err.response?.data?.error || err.message || "An error occurred");
       console.error("Error generating docs:", err);

@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@//lib/auth";
-import { saveDocumentationWithHistory, getUserDocs } from "@//lib/database";
+import {
+  saveDocumentationWithHistory,
+  getUserDocs,
+  getDatabase,
+} from "@//lib/database";
 import { z } from "zod";
+import { SavedDoc } from "@//lib/@types/docs";
 
 const saveDocSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -15,11 +20,14 @@ export async function POST(req: NextRequest) {
   try {
     const session = await auth();
 
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await req.json();
+    console.log("📝 API/DOCS POST called with title:", body.title);
+    console.log("📝 Content length:", body.content?.length);
+
     const validation = saveDocSchema.safeParse(body);
 
     if (!validation.success) {
@@ -32,8 +40,39 @@ export async function POST(req: NextRequest) {
     const { title, content, docType, repositoryUrl, repositoryName } =
       validation.data;
 
+    // ✅ Check for duplicates - prevent saving the same document twice
+    const db = await getDatabase();
+    const existingDoc = await db.collection<SavedDoc>("docs").findOne({
+      userId: session.user.id,
+      title,
+      content,
+      docType,
+    });
+
+    if (existingDoc) {
+      console.log(
+        "⚠️ Duplicate detected, returning existing document:",
+        existingDoc._id,
+      );
+      return NextResponse.json(
+        {
+          success: true,
+          message: "Document already exists",
+          document: existingDoc,
+          isDuplicate: true,
+        },
+        { status: 200 },
+      );
+    }
+
+    console.log("✅ Saving new document:", {
+      title,
+      docType,
+      userId: session.user.id,
+    });
+
     const savedDoc = await saveDocumentationWithHistory({
-      userId: session.user.email,
+      userId: session.user.id,
       title,
       content,
       docType,
@@ -41,11 +80,14 @@ export async function POST(req: NextRequest) {
       repositoryName,
     });
 
+    console.log("✅ Document saved with ID:", savedDoc._id);
+
     return NextResponse.json(
       {
         success: true,
         message: "Document saved successfully",
         document: savedDoc,
+        isDuplicate: false,
       },
       { status: 201 },
     );
@@ -62,7 +104,7 @@ export async function GET(req: NextRequest) {
   try {
     const session = await auth();
 
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -70,7 +112,7 @@ export async function GET(req: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "5");
 
-    const allDocs = await getUserDocs(session.user.email);
+    const allDocs = await getUserDocs(session.user.id);
     const total = allDocs.length;
     const totalPages = Math.ceil(total / limit);
     const startIndex = (page - 1) * limit;
@@ -79,8 +121,8 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(
       {
-        documents: {
-          data: paginatedDocs,
+        data: {
+          documents: paginatedDocs,
           page,
           limit,
           total,
