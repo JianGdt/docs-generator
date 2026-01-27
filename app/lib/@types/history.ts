@@ -11,6 +11,17 @@ export interface DocHistoryEntry {
   changeDescription?: string;
   createdAt: Date;
 }
+export interface DocHistoryEntryClient {
+  _id?: string;
+  docId: string;
+  userId: string;
+  title: string;
+  documentType: string;
+  content: string;
+  version: number;
+  changeDescription?: string;
+  createdAt: string;
+}
 
 export interface HistoryEntry {
   _id: string;
@@ -23,6 +34,18 @@ export interface HistoryEntry {
   updatedAt?: string;
 }
 
+export interface HistoryEntryClient {
+  _id?: string;
+  docId: string;
+  userId: string;
+  title: string;
+  documentType: string;
+  content: string;
+  version: number;
+  changeDescription?: string;
+  createdAt: string;
+}
+
 export interface HistoryResponse {
   data: {
     documents: HistoryEntry[];
@@ -31,4 +54,11 @@ export interface HistoryResponse {
     total: number;
     totalPages: number;
   };
+}
+
+export interface Pagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
 }

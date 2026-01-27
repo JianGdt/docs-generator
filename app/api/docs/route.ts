@@ -40,7 +40,6 @@ export async function POST(req: NextRequest) {
     const { title, content, docType, repositoryUrl, repositoryName } =
       validation.data;
 
-    // ✅ Check for duplicates - prevent saving the same document twice
     const db = await getDatabase();
     const existingDoc = await db.collection<SavedDoc>("docs").findOne({
       userId: session.user.id,

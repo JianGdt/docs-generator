@@ -27,6 +27,19 @@ export const formatDate = (dateString?: string): string => {
     return "N/A";
   }
 };
+export function formatDateHistory(dateInput: string | Date): string {
+  const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
+  const diffHours = (Date.now() - date.getTime()) / (1000 * 60 * 60);
+
+  if (diffHours < 24) return "Today";
+  if (diffHours < 48) return "Yesterday";
+
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
 
 export const formatFileSize = (bytes: number) => {
   if (bytes < 1024) return bytes + " B";

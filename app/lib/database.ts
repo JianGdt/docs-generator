@@ -190,6 +190,8 @@ export async function updateDoc(
   }
 }
 
+// documents/[docId]/route.ts
+
 export async function deleteDoc(
   docId: string,
   userId: string,
@@ -202,6 +204,27 @@ export async function deleteDoc(
     });
     return result.deletedCount > 0;
   } catch (error) {
+    return false;
+  }
+}
+
+// history/[historyId]/route.ts 
+
+export async function deleteDocHistory(
+  historyId: string,
+  userId: string,
+): Promise<boolean> {
+  const db = await getDatabase();
+  try {
+    const result = await db
+      .collection<DocHistoryEntry>("doc_history")
+      .deleteOne({
+        _id: new ObjectId(historyId),
+        userId,
+      });
+    return result.deletedCount > 0;
+  } catch (error) {
+    console.error("Error deleting history entry:", error);
     return false;
   }
 }
@@ -449,4 +472,43 @@ export async function deleteUploadedFile(
   } catch (error) {
     return false;
   }
+}
+
+export async function getUserHistoryWithSearch(
+  userId: string,
+  page: number = 1,
+  limit: number = 20,
+  searchQuery?: string,
+) {
+  const db = await getDatabase();
+  const skip = (page - 1) * limit;
+
+  const query: any = { userId };
+  if (searchQuery) {
+    query.$or = [
+      { title: { $regex: searchQuery, $options: "i" } },
+      { documentType: { $regex: searchQuery, $options: "i" } },
+    ];
+  }
+
+  const [history, total] = await Promise.all([
+    db
+      .collection<DocHistoryEntry>("doc_history")
+      .find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .toArray(),
+    db.collection<DocHistoryEntry>("doc_history").countDocuments(query),
+  ]);
+
+  return {
+    history,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
 }
