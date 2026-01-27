@@ -26,7 +26,7 @@ export function GithubInput() {
       </div>
       <InfoMessage
         icon={Sparkles}
-        message="AI will analyze your repository structure, code, and generate comprehensive documentation, check nyo nalang kung tama, ai is ai parin mga lodicakes"
+        message="AI will analyze your repository structure, code, and generate comprehensive documentation"
       />
     </div>
   );

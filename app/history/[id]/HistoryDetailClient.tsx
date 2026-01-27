@@ -26,7 +26,6 @@ export default function HistoryDetailClient({
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const router = useRouter();
   const { triggerRefetch } = useHistoryRefetch();
-  const docId = dataHistoryById.docId;
 
   const handleCopy = async () => {
     try {
@@ -61,7 +60,6 @@ export default function HistoryDetailClient({
       if (!response.ok) {
         throw new Error("Failed to delete history entry");
       }
-
       toast.success("History entry deleted successfully");
       triggerRefetch();
       router.push("/history");
@@ -154,46 +152,6 @@ export default function HistoryDetailClient({
           </CardHeader>
           <CardContent>
             <DocumentPreview content={dataHistoryById.content} />
-          </CardContent>
-        </Card>
-
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle className="text-lg">Document Information</CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Document ID
-              </p>
-              <p className="text-sm font-mono text-black dark:text-white break-all">
-                {dataHistoryById.docId}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Version
-              </p>
-              <p className="text-sm text-black dark:text-white">
-                {dataHistoryById.version}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Document Type
-              </p>
-              <p className="text-sm text-black dark:text-white">
-                {dataHistoryById.documentType}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Created At
-              </p>
-              <p className="text-sm text-black dark:text-white">
-                {formatDate(dataHistoryById.createdAt)}
-              </p>
-            </div>
           </CardContent>
         </Card>
       </div>

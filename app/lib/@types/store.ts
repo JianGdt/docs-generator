@@ -1,4 +1,5 @@
 import { DocType, InputMethod } from "./common";
+import { DocHistoryEntryClient, Pagination } from "./history";
 
 export interface UploadedFileData {
   id: string;
@@ -26,5 +27,20 @@ export interface DocsState {
   setGeneratedDocs: (docs: string) => void;
   setIsGenerating: (isGenerating: boolean) => void;
   setError: (error: string | null) => void;
+  reset: () => void;
+}
+
+export interface HistoryStore {
+  documents: DocHistoryEntryClient[];
+  pagination: Pagination;
+  searchQuery: string;
+  currentPage: number;
+  isLoading: boolean;
+
+  setDocuments: (documents: DocHistoryEntryClient[]) => void;
+  setPagination: (pagination: Pagination) => void;
+  setSearchQuery: (query: string) => void;
+  setCurrentPage: (page: number) => void;
+  setIsLoading: (loading: boolean) => void;
   reset: () => void;
 }

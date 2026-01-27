@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/form";
 import { Control } from "react-hook-form";
 import { CommitFormValues } from "@/app/lib/schema/github";
-import { Input } from "@//components/ui/input";
 import { Checkbox } from "@//components/ui/checkbox";
 
 interface PullRequestToggleProps {

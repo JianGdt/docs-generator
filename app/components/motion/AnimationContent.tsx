@@ -33,7 +33,7 @@ export function AuthContent() {
   };
 
   return (
-    <div className="flex items-center h-full flex-col lg:flex-row justify-around py-10 px-4 gap-8">
+    <div className="flex items-center h-full md:h-screen flex-col lg:flex-row justify-around py-10 px-4 gap-8">
       <AnimatedRobot />
 
       <AnimatedContainer>

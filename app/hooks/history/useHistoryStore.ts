@@ -1,21 +1,5 @@
-import { DocHistoryEntry, DocHistoryEntryClient, Pagination } from "@//lib/@types/history";
+import { HistoryStore } from "@//lib/@types/store";
 import { create } from "zustand";
-
-interface HistoryStore {
-  documents: DocHistoryEntryClient[];
-  pagination: Pagination;
-  searchQuery: string;
-  currentPage: number;
-  isLoading: boolean;
-
-  setDocuments: (documents: DocHistoryEntryClient[]) => void;
-  setPagination: (pagination: Pagination) => void;
-  setSearchQuery: (query: string) => void;
-  setCurrentPage: (page: number) => void;
-  setIsLoading: (loading: boolean) => void;
-  reset: () => void;
-}
-
 const initialState = {
   documents: [],
   pagination: {

@@ -21,7 +21,7 @@ export function GenerateButton() {
       onClick={handleGenerate}
       variant="outline"
       disabled={isDisabled}
-      className="w-full"
+      className="w-full cursor-pointer"
     >
       {isGenerating ? (
         <>

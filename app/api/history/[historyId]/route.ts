@@ -58,8 +58,7 @@ export async function DELETE(req: NextRequest, context: RouteParams) {
     }
 
     const success = await deleteDocHistory(historyId, session.user.id);
-    console.log("Delete success:", success);
-
+    
     if (!success) {
       return NextResponse.json(
         { error: "Failed to delete history entry" },

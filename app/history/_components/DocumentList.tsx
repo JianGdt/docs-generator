@@ -1,6 +1,7 @@
+"use client";
 import EmptyState from "@/components/EmptyState";
 import { DocumentCard } from "./DocumentCard";
-import { DocHistoryEntry, DocHistoryEntryClient } from "@//lib/@types/history";
+import { DocHistoryEntryClient } from "@//lib/@types/history";
 
 interface DocumentListProps {
   documents: DocHistoryEntryClient[];

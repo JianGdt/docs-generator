@@ -1,9 +1,11 @@
+"use client";
+
 import Link from "next/link";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { DocHistoryEntry, DocHistoryEntryClient } from "@//lib/@types/history";
-import { formatDate, formatDateHistory } from "@//lib/utils";
+import { DocHistoryEntryClient } from "@//lib/@types/history";
+import { formatDateHistory } from "@//lib/utils";
 
 interface DocumentCardProps {
   document: DocHistoryEntryClient;

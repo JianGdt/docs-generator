@@ -87,59 +87,7 @@ export async function getUserById(id: string): Promise<User | null> {
   }
 }
 
-export async function updateUser(
-  id: string,
-  data: Partial<Omit<User, "_id" | "createdAt">>,
-): Promise<boolean> {
-  const db = await getDatabase();
-  try {
-    const result = await db.collection<User>("users").updateOne(
-      { _id: new ObjectId(id) },
-      {
-        $set: {
-          ...data,
-          updatedAt: new Date(),
-        },
-      },
-    );
-    return result.modifiedCount > 0;
-  } catch (error) {
-    return false;
-  }
-}
-
 // ==================== DOCUMENT FUNCTIONS ====================
-
-export async function saveDocumentation(
-  doc: Omit<SavedDoc, "_id" | "createdAt">,
-): Promise<SavedDoc> {
-  const db = await getDatabase();
-  const result = await db.collection<SavedDoc>("docs").insertOne({
-    ...doc,
-    version: 1, // Initialize version
-    createdAt: new Date(),
-  } as SavedDoc);
-
-  const savedDoc = await db.collection<SavedDoc>("docs").findOne({
-    _id: result.insertedId,
-  });
-
-  if (!savedDoc) {
-    throw new Error("Failed to save documentation");
-  }
-
-  return savedDoc;
-}
-
-export async function getRecentDocs(userId: string, limit: number = 10) {
-  const db = await getDatabase();
-  return db
-    .collection<SavedDoc>("docs")
-    .find({ userId })
-    .sort({ createdAt: -1 })
-    .limit(limit)
-    .toArray();
-}
 
 export async function getUserDocs(userId: string) {
   const db = await getDatabase();
@@ -208,7 +156,7 @@ export async function deleteDoc(
   }
 }
 
-// history/[historyId]/route.ts 
+// history/[historyId]/route.ts
 
 export async function deleteDocHistory(
   historyId: string,
@@ -227,39 +175,6 @@ export async function deleteDocHistory(
     console.error("Error deleting history entry:", error);
     return false;
   }
-}
-
-export async function getDocHistory(
-  docId: string,
-  userId: string,
-  page: number = 1,
-  limit: number = 10,
-) {
-  const db = await getDatabase();
-  const skip = (page - 1) * limit;
-
-  const [history, total] = await Promise.all([
-    db
-      .collection<DocHistoryEntry>("doc_history")
-      .find({ docId, userId })
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .toArray(),
-    db
-      .collection<DocHistoryEntry>("doc_history")
-      .countDocuments({ docId, userId }),
-  ]);
-
-  return {
-    history,
-    pagination: {
-      page,
-      limit,
-      total,
-      totalPages: Math.ceil(total / limit),
-    },
-  };
 }
 
 export async function saveDocHistory(
@@ -363,15 +278,6 @@ export async function getGitHubCommitsByUser(
     .toArray();
 }
 
-export async function getGitHubCommitsByDoc(docId: string, userId: string) {
-  const db = await getDatabase();
-  return db
-    .collection<GitHubCommit>("github_commits")
-    .find({ docId, userId })
-    .sort({ createdAt: -1 })
-    .toArray();
-}
-
 export async function saveDocumentationWithHistory(
   doc: Omit<SavedDoc, "_id" | "createdAt" | "version">,
 ): Promise<SavedDoc> {
@@ -431,48 +337,7 @@ export async function saveUploadedFile(
   return file;
 }
 
-export async function getUserUploadedFiles(userId: string, limit: number = 50) {
-  const db = await getDatabase();
-  return db
-    .collection<UploadedFile>("uploaded_files")
-    .find({ userId })
-    .sort({ uploadedAt: -1 })
-    .limit(limit)
-    .toArray();
-}
 
-export async function getUploadedFileById(
-  fileId: string,
-  userId: string,
-): Promise<UploadedFile | null> {
-  const db = await getDatabase();
-  try {
-    return db.collection<UploadedFile>("uploaded_files").findOne({
-      _id: new ObjectId(fileId),
-      userId,
-    });
-  } catch (error) {
-    return null;
-  }
-}
-
-export async function deleteUploadedFile(
-  fileId: string,
-  userId: string,
-): Promise<boolean> {
-  const db = await getDatabase();
-  try {
-    const result = await db
-      .collection<UploadedFile>("uploaded_files")
-      .deleteOne({
-        _id: new ObjectId(fileId),
-        userId,
-      });
-    return result.deletedCount > 0;
-  } catch (error) {
-    return false;
-  }
-}
 
 export async function getUserHistoryWithSearch(
   userId: string,

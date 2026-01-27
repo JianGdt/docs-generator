@@ -5,16 +5,7 @@ import {
   getUserDocs,
   getDatabase,
 } from "@//lib/database";
-import { z } from "zod";
-import { SavedDoc } from "@//lib/@types/docs";
-
-const saveDocSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  content: z.string().min(1, "Content is required"),
-  docType: z.enum(["readme", "api", "guide", "contributing"]),
-  repositoryUrl: z.string().optional(),
-  repositoryName: z.string().optional(),
-});
+import { saveDocSchema } from "@//lib/schema/documents";
 
 export async function POST(req: NextRequest) {
   try {
@@ -25,8 +16,6 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    console.log("📝 API/DOCS POST called with title:", body.title);
-    console.log("📝 Content length:", body.content?.length);
 
     const validation = saveDocSchema.safeParse(body);
 
@@ -40,36 +29,6 @@ export async function POST(req: NextRequest) {
     const { title, content, docType, repositoryUrl, repositoryName } =
       validation.data;
 
-    const db = await getDatabase();
-    const existingDoc = await db.collection<SavedDoc>("docs").findOne({
-      userId: session.user.id,
-      title,
-      content,
-      docType,
-    });
-
-    if (existingDoc) {
-      console.log(
-        "⚠️ Duplicate detected, returning existing document:",
-        existingDoc._id,
-      );
-      return NextResponse.json(
-        {
-          success: true,
-          message: "Document already exists",
-          document: existingDoc,
-          isDuplicate: true,
-        },
-        { status: 200 },
-      );
-    }
-
-    console.log("✅ Saving new document:", {
-      title,
-      docType,
-      userId: session.user.id,
-    });
-
     const savedDoc = await saveDocumentationWithHistory({
       userId: session.user.id,
       title,
@@ -79,14 +38,11 @@ export async function POST(req: NextRequest) {
       repositoryName,
     });
 
-    console.log("✅ Document saved with ID:", savedDoc._id);
-
     return NextResponse.json(
       {
         success: true,
         message: "Document saved successfully",
         document: savedDoc,
-        isDuplicate: false,
       },
       { status: 201 },
     );

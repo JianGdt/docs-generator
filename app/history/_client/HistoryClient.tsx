@@ -6,17 +6,9 @@ import { SearchBar } from "../_components/SearchBar";
 import { StatsGrid } from "../_components/StatsGrid";
 import { DocumentList } from "../_components/DocumentList";
 import { HistoryPagination } from "../_components/HistoryPagination";
-import { DocHistoryEntryClient, Pagination } from "@//lib/@types/history";
+import { HistoryClientProps } from "@//lib/@types/history";
 import { useHistoryStore } from "@//hooks/history/useHistoryStore";
 import { useHistoryNavigation } from "@//hooks/history/useHistoryNavigation";
-
-interface HistoryClientProps {
-  initialData: DocHistoryEntryClient[];
-  initialPagination: Pagination;
-  initialPage: number;
-  initialSearch: string;
-  userId: string;
-}
 
 export default function HistoryClient({
   initialData,
@@ -60,7 +52,7 @@ export default function HistoryClient({
       <div className="mb-6">
         <SearchBar value={searchQuery} onChange={handleSearch} />
       </div>
-      
+
       <StatsGrid
         totalDocuments={pagination.total}
         lastUpdated={documents?.[0]?.createdAt.toString() || ""}

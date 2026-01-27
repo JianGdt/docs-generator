@@ -89,13 +89,6 @@ export default function Header({ user }: HeaderProps) {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/history" className="cursor-pointer">
-                    <History className="mr-2 h-4 w-4" />
-                    <span>Version History</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="cursor-pointer text-red-600"
                   onClick={() => signOut({ callbackUrl: "/login" })}

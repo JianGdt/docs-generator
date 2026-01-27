@@ -14,10 +14,6 @@ export const INPUT_METHODS = {
   upload: "Upload Files",
 } as const;
 
-export const EXAMPLE_GITHUB_URL = "https://github.com/~~~~";
-
-export const EXAMPLE_CODE = `example code nyo langs`;
-
 export const ENV = {
   GROQ_API_KEY: process.env.GROQ_API_KEY,
   MONGODB_URI: process.env.MONGODB_URL,

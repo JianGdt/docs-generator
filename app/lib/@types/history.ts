@@ -62,3 +62,11 @@ export interface Pagination {
   total: number;
   totalPages: number;
 }
+
+export interface HistoryClientProps {
+  initialData: DocHistoryEntryClient[];
+  initialPagination: Pagination;
+  initialPage: number;
+  initialSearch: string;
+  userId: string;
+}
