@@ -1,28 +1,17 @@
-/**
- * Documentation Generation Service
- *
- * Handles all documentation generation logic
- */
-
 import { getGroqClient } from "./client";
 import { GROQ_CONFIG } from "./config";
 import { DocType, RepoContext } from "../../@types/common";
 import { validateContextData, validateDocType, withRetry } from "../../utils";
 import { buildAnalysisPrompt, buildSystemPrompt } from "./prompt";
 
-/**
- * Generate documentation for a repository or code snippet
- */
 export async function generateDocumentation(
   contextData: string | RepoContext,
   docType: DocType,
 ): Promise<string> {
   try {
-    // Validate inputs
     validateDocType(docType);
     validateContextData(contextData);
 
-    // Build prompts
     const systemPrompt = buildSystemPrompt(docType);
     let userPrompt: string;
 
@@ -32,7 +21,6 @@ export async function generateDocumentation(
       userPrompt = `Analyze the following code and generate ${docType} documentation:\n\n${contextData}`;
     }
 
-    // Generate documentation with retry logic
     const documentation = await withRetry(async () => {
       const groq = getGroqClient();
 
@@ -70,7 +58,6 @@ export async function generateDocumentation(
       contextType: typeof contextData,
     });
 
-    // Provide user-friendly error messages
     if (error.message?.includes("rate_limit")) {
       throw new Error(
         "Rate limit exceeded. Please try again in a moment. If this persists, consider upgrading your Groq API plan.",
