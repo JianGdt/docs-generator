@@ -1,7 +1,7 @@
 import { Repository } from "../@types/github";
 import { DocReview } from "../@types/review";
 import { UploadedFileData } from "../@types/store";
-import { api } from "./client";
+import { api } from "./axiosclient";
 
 export const endpoints = {
   // Auth

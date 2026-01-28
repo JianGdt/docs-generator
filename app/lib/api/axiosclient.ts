@@ -3,8 +3,7 @@ import { ENV } from "../constants";
 import { ApiError, ApiResponse } from "../@types/api";
 
 const apiClient: AxiosInstance = axios.create({
-  baseURL: ENV.APP_URL,
-  timeout: 30000,
+  baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
   withCredentials: true,
 });
 
