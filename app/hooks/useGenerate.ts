@@ -1,7 +1,7 @@
 "use client";
 
-import axios from "axios";
-import { useDocsStore } from "@//lib/store/useDocStore";
+import { endpoints } from "../lib/api/endpoints";
+import { useDocsStore } from "../lib/store/useDocStore";
 
 export function useDocumentGeneration() {
   const {
@@ -31,23 +31,22 @@ export function useDocumentGeneration() {
       const data = getInputData();
       if (!data.trim()) throw new Error("Please provide input data");
 
-      // Generate documentation
-      const { data: generateResponse } = await axios.post("/api/generate", {
+      const generateResponse = await endpoints.generateDocs({
         method: inputMethod,
         data,
         docType,
       });
 
-      if (!generateResponse.success) {
-        throw new Error(generateResponse.error || "Generation failed");
+      if (!generateResponse.success || !generateResponse.data) {
+        throw new Error(generateResponse.error?.message || "Generation failed");
       }
 
-      const { documentation, metadata = {} } = generateResponse;
+      const { documentation, metadata = {} } = generateResponse.data;
       const title = metadata.name
         ? `${metadata.name} - ${docType}`
         : `My Doc - ${docType}`;
 
-      await axios.post("/api/docs", {
+      const saveResponse = await endpoints.saveDocs({
         title,
         content: documentation,
         docType,
@@ -56,9 +55,15 @@ export function useDocumentGeneration() {
         repositoryName: metadata.name,
       });
 
+      if (!saveResponse.success) {
+        throw new Error(
+          saveResponse.error?.message || "Failed to save document",
+        );
+      }
+
       setGeneratedDocs(documentation);
     } catch (err: any) {
-      setError(err.response?.data?.error || err.message || "An error occurred");
+      setError(err.message || "An error occurred");
       console.error("Error generating docs:", err);
     } finally {
       setIsGenerating(false);

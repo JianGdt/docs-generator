@@ -15,7 +15,6 @@ import { PullRequestFields } from "../_components/PullRequestFields";
 import { StatusAlert } from "../_components/StatusAlert";
 import { SubmitButton } from "../_components/SubmitButton";
 import { GitHubSignInCard } from "../_components/GitHubSignInCard";
-import type { Session } from "next-auth";
 import { useGitHubRepositories } from "@//hooks/github/useGitHubRepo";
 import { useGitHubCommit } from "@//hooks/github/useGitHubCommit";
 import { GitHubIntegrationProps } from "@//lib/@types/github";

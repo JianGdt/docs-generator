@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
 import { Repository } from "@//lib/@types/github";
+import { endpoints } from "@//lib/api/endpoints";
+import { useState, useEffect } from "react";
 
 export function useGitHubRepositories(accessToken?: string) {
   const [repositories, setRepositories] = useState<Repository[]>([]);
@@ -11,18 +11,28 @@ export function useGitHubRepositories(accessToken?: string) {
     try {
       setLoading(true);
       setError(null);
-      const { data } = await axios.get("/api/github/repositories");
 
-      if (data.repositories && Array.isArray(data.repositories)) {
-        setRepositories(data.repositories);
+      const response = await endpoints.getRepositories();
+
+      if (!response.success || !response.data) {
+        throw new Error(
+          response.error?.message || "Failed to fetch repositories",
+        );
+      }
+
+      if (
+        response.data.repositories &&
+        Array.isArray(response.data.repositories)
+      ) {
+        setRepositories(response.data.repositories);
       } else {
         throw new Error("Invalid response format");
       }
     } catch (err: any) {
       console.error("Failed to fetch repositories:", err);
       setError(
-        err.response?.data?.error ||
-          "Failed to fetch repositories. Please try reconnecting your GitHub account."
+        err.message ||
+          "Failed to fetch repositories. Please try reconnecting your GitHub account.",
       );
     } finally {
       setLoading(false);

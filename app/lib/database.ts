@@ -4,6 +4,7 @@ import { User } from "./@types/user";
 import { SavedDoc } from "./@types/docs";
 import { DocHistoryEntry } from "./@types/history";
 import { GitHubCommit, UploadedFile } from "./@types/database";
+import { DocReview, DocReviewInsert } from "./@types/review";
 
 let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
@@ -337,8 +338,6 @@ export async function saveUploadedFile(
   return file;
 }
 
-
-
 export async function getUserHistoryWithSearch(
   userId: string,
   page: number = 1,
@@ -376,4 +375,40 @@ export async function getUserHistoryWithSearch(
       totalPages: Math.ceil(total / limit),
     },
   };
+}
+
+// DOCUMENT REVIEW FUNC
+
+export async function saveDocReview(data: DocReviewInsert): Promise<DocReview> {
+  const db = await getDatabase();
+
+  const review: DocReview = {
+    _id: new ObjectId().toString(),
+    ...data,
+    createdAt: new Date().toISOString(),
+  };
+
+  await db.collection("doc_reviews").insertOne({
+    ...review,
+    _id: new ObjectId(review._id),
+  });
+
+  return review;
+}
+
+export async function getLatestDocReview(
+  userId: string,
+  docId?: string,
+): Promise<DocReview | null> {
+  const db = await getDatabase();
+
+  return db.collection<DocReview>("doc_reviews").findOne(
+    {
+      userId,
+      ...(docId ? { docId } : {}),
+    },
+    {
+      sort: { createdAt: -1 },
+    },
+  );
 }

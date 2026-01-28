@@ -1,7 +1,8 @@
+// hooks/useGitHubCommit.ts
 import { useState } from "react";
-import axios from "axios";
 import { CommitFormValues } from "@/app/lib/schema/github";
 import { Repository } from "@//lib/@types/github";
+import { endpoints } from "@//lib/api/endpoints";
 
 export function useGitHubCommit() {
   const [loading, setLoading] = useState(false);
@@ -28,7 +29,7 @@ export function useGitHubCommit() {
 
       if (values.createPR) {
         const branchName = `docs/${Date.now()}`;
-        const { data } = await axios.post("/api/github/pull-request", {
+        const response = await endpoints.createPullRequest({
           owner: selectedRepo.owner,
           repo: selectedRepo.name,
           path: values.path,
@@ -40,11 +41,15 @@ export function useGitHubCommit() {
           head: branchName,
         });
 
+        if (!response.success || !response.data) {
+          throw new Error(response.error?.message || "Failed to create PR");
+        }
+
         setSuccess(
-          `Pull request created successfully! PR #${data.pullRequest.number}`,
+          `Pull request created successfully! PR #${response.data.pullRequest.number}`,
         );
       } else {
-        const { data } = await axios.post("/api/github/commit", {
+        const response = await endpoints.createCommit({
           owner: selectedRepo.owner,
           repo: selectedRepo.name,
           path: values.path,
@@ -53,14 +58,16 @@ export function useGitHubCommit() {
           branch: selectedRepo.defaultBranch,
         });
 
-        setSuccess(`Documentation committed #${data} successfully!`);
+        if (!response.success) {
+          throw new Error(response.error?.message || "Failed to commit");
+        }
+
+        setSuccess(`Documentation committed successfully!`);
       }
     } catch (err: any) {
       console.error("Error pushing documentation:", err);
       setError(
-        err.response?.data?.error ||
-          err.message ||
-          "Failed to push documentation. Please try again.",
+        err.message || "Failed to push documentation. Please try again.",
       );
     } finally {
       setLoading(false);

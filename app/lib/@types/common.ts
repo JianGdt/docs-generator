@@ -44,3 +44,18 @@ export interface RepoContext {
   fileStructure: string[];
   files: Array<{ path: string; content: string }>;
 }
+
+export interface ReviewResult {
+  score: number;
+  summary: string;
+  missingSections: string[];
+  outdatedWarnings: string[];
+  improvements: string[];
+  positives: string[];
+}
+
+export interface RetryOptions {
+  maxRetries: number;
+  initialDelay: number;
+  maxDelay: number;
+}

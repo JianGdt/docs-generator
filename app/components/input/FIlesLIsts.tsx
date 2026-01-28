@@ -21,7 +21,7 @@ export function UploadedFilesList({ files }: UploadedFilesListProps) {
 
   return (
     <div className="space-y-2">
-      <p className="text-sm font-medium text-black dark:text-white">
+      <p className="text-sm font-medium text-slate-300">
         Uploaded Files ({files.length})
       </p>
       {files.map((file, index) => (
@@ -32,8 +32,8 @@ export function UploadedFilesList({ files }: UploadedFilesListProps) {
           <div className="flex items-center space-x-3">
             <File className="w-5 h-5 text-blue-400" />
             <div>
-              <p className="text-black dark:text-white text-sm font-medium">{file.fileName}</p>
-              <p className="text-black dark:text-white/50 text-xs">
+              <p className="text-white text-sm font-medium">{file.fileName}</p>
+              <p className="text-slate-500 text-xs">
                 {formatFileSize(file.fileSize)}
               </p>
             </div>

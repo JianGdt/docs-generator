@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import axios from "axios";
-import { useDocsStore } from "@//lib/store/useDocStore";
+import { useDocsStore } from "../lib/store/useDocStore";
+import { endpoints } from "../lib/api/endpoints";
 
 export function useFileUpload() {
   const { setUploadedFiles, setError } = useDocsStore();
@@ -20,20 +20,15 @@ export function useFileUpload() {
         formData.append("files", file);
       });
 
-      const response = await axios.post("/api/upload", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await endpoints.uploadFiles(formData);
 
-      if (response.data.success) {
-        setUploadedFiles(response.data.files);
-      } else {
-        throw new Error(response.data.error || "Upload failed");
+      if (!response.success || !response.data) {
+        throw new Error(response.error?.message || "Upload failed");
       }
+
+      setUploadedFiles(response.data.files);
     } catch (err: any) {
-      const errorMessage =
-        err.response?.data?.error || err.message || "Upload failed";
+      const errorMessage = err.message || "Upload failed";
       setError(errorMessage);
       console.error("Upload error:", err);
     } finally {

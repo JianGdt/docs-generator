@@ -24,6 +24,7 @@ import { PasswordInput } from "../input/PasswordInput";
 import { OAuthButtons } from "../OAuthBtn";
 import Link from "next/link";
 import { toast } from "sonner";
+import { endpoints } from "@//lib/api/endpoints";
 
 interface RegisterFormProps {
   onSwitchToLogin?: () => void;
@@ -46,21 +47,19 @@ export default function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
   const onSubmit = async (values: RegisterFormValues) => {
     setError("");
     try {
-      const response = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: values.username,
-          email: values.email,
-          password: values.password,
-        }),
+      const response = await endpoints.register({
+        username: values.username,
+        email: values.email,
+        password: values.password,
       });
 
-      const data = await response.json();
-      if (!response.ok) {
-        setError(data.error || "Registration failed. Please try again.");
+      if (!response.success) {
+        setError(
+          response.error?.message || "Registration failed. Please try again.",
+        );
         return;
       }
+
       const signInResult = await signIn("credentials", {
         identifier: values.username,
         password: values.password,
@@ -74,9 +73,9 @@ export default function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
         router.push("/");
         router.refresh();
       }
-    } catch (error) {
+    } catch (error: any) {
       toast.error("Registration failed. Please try again.");
-      setError("An error occurred. Please try again.");
+      setError(error.message || "An error occurred. Please try again.");
     }
   };
 

@@ -13,6 +13,7 @@ import { HistoryEntryClient } from "@//lib/@types/history";
 import { useHistoryRefetch } from "@//hooks/useHistoryRefetch";
 import { formatDate } from "@//lib/utils";
 import DialogAlert from "../_components/DialogAlert";
+import { endpoints } from "@//lib/api/endpoints";
 
 interface HistoryDetailClientProps {
   dataHistoryById: HistoryEntryClient;
@@ -50,27 +51,27 @@ export default function HistoryDetailClient({
     URL.revokeObjectURL(url);
   };
 
-  const handleDelete = async () => {
-    try {
-      setIsDeleting(true);
-      const response = await fetch(`/api/history/${dataHistoryById._id}`, {
-        method: "DELETE",
-      });
+  // Update only the handleDelete function in HistoryDetailClient component
+const handleDelete = async () => {
+  try {
+    setIsDeleting(true);
+    const response = await endpoints.deleteHistory(dataHistoryById._id?.toString() || "");
 
-      if (!response.ok) {
-        throw new Error("Failed to delete history entry");
-      }
-      toast.success("History entry deleted successfully");
-      triggerRefetch();
-      router.push("/history");
-    } catch (error) {
-      console.error("Error deleting history entry:", error);
-      toast.error("Failed to delete history entry");
-    } finally {
-      setIsDeleting(false);
-      setShowDeleteDialog(false);
+    if (!response.success) {
+      throw new Error(response.error?.message || "Failed to delete history entry");
     }
-  };
+
+    toast.success("History entry deleted successfully");
+    triggerRefetch();
+    router.push("/history");
+  } catch (error: any) {
+    console.error("Error deleting history entry:", error);
+    toast.error(error.message || "Failed to delete history entry");
+  } finally {
+    setIsDeleting(false);
+    setShowDeleteDialog(false);
+  }
+};
 
   return (
     <>

@@ -1,9 +1,9 @@
-import { generateDocumentation } from "@/app/lib/ai";
 import { auth } from "@/app/lib/auth";
 import { fetchGitHubRepo } from "@/app/lib/github";
 import { generateRequestSchema } from "@/app/lib/validators";
 import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
+import { generateDocumentation } from "../../lib/services/groq/generate";
 
 export async function POST(req: NextRequest) {
   try {

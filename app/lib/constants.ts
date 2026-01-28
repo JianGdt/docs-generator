@@ -23,15 +23,6 @@ export const ENV = {
   NODE_ENV: process.env.NODE_ENV,
 } as const;
 
-if (typeof window === "undefined") {
-  if (!ENV.GROQ_API_KEY) {
-    console.error("❌ GROQ_API_KEY is missing");
-  }
-  if (!ENV.MONGODB_URI) {
-    console.error("❌ MONGODB_URI is missing");
-  }
-}
-
 export const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 export const ALLOWED_EXTENSIONS = [
