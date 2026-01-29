@@ -7,23 +7,6 @@ const apiClient: AxiosInstance = axios.create({
   withCredentials: true,
 });
 
-apiClient.interceptors.request.use(
-  (config) => {
-    config.headers["X-Request-Time"] = new Date().toISOString();
-    if (ENV.NODE_ENV === "development") {
-      console.log(
-        `[API Request] ${config.method?.toUpperCase()} ${config.url}`,
-      );
-    }
-
-    return config;
-  },
-  (error) => {
-    console.error("[API Request Error]", error);
-    return Promise.reject(error);
-  },
-);
-
 apiClient.interceptors.response.use(
   (response) => {
     if (ENV.NODE_ENV === "development") {
@@ -43,6 +26,7 @@ apiClient.interceptors.response.use(
       switch (error.response.status) {
         case 401:
           // Unauthorized
+          window.location.href = "/login";
           break;
         case 403:
           // Forbidden

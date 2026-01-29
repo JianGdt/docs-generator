@@ -2,7 +2,7 @@ import { auth } from "@/app/lib/auth";
 import { GitHubService } from "@/app/lib/github";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const session = await auth();
 

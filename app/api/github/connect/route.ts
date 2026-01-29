@@ -1,18 +1,18 @@
 import { auth } from "@/app/lib/auth";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const session = await auth();
 
     if (!session) {
       return NextResponse.json(
         { connected: false, message: "Not authenticated" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
-    const isGitHubConnected = 
+    const isGitHubConnected =
       session.provider === "github" && !!session.accessToken;
 
     return NextResponse.json({
@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
     console.error("GitHub connect check error:", error);
     return NextResponse.json(
       { error: "Failed to check GitHub connection" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
