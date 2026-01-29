@@ -1,17 +1,23 @@
 import { Repository } from "@//lib/@types/github";
 import { endpoints } from "@//lib/api/endpoints";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useSession } from "next-auth/react";
 
-export function useGitHubRepositories(accessToken?: string) {
+export function useGitHubRepositories() {
+  const { data: session } = useSession();
   const [repositories, setRepositories] = useState<Repository[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const hasFetchedRef = useRef(false);
 
   const fetchRepositories = async () => {
+    if (session?.provider !== "github") {
+      console.log("Not logged in via GitHub, skipping repository fetch");
+      return;
+    }
     try {
       setLoading(true);
       setError(null);
-
       const response = await endpoints.getRepositories();
 
       if (!response.success || !response.data) {
@@ -19,7 +25,6 @@ export function useGitHubRepositories(accessToken?: string) {
           response.error?.message || "Failed to fetch repositories",
         );
       }
-
       if (
         response.data.repositories &&
         Array.isArray(response.data.repositories)
@@ -40,10 +45,21 @@ export function useGitHubRepositories(accessToken?: string) {
   };
 
   useEffect(() => {
-    if (accessToken) {
+    if (
+      session?.provider === "github" &&
+      session?.accessToken &&
+      !hasFetchedRef.current
+    ) {
+      hasFetchedRef.current = true;
       fetchRepositories();
     }
-  }, [accessToken]);
+  }, [session?.provider, session?.accessToken]);
 
-  return { repositories, loading, error, refetch: fetchRepositories };
+  return {
+    repositories,
+    loading,
+    error,
+    refetch: fetchRepositories,
+    isGitHubUser: session?.provider === "github",
+  };
 }
