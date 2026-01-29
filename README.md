@@ -3,7 +3,7 @@
 
 ---  
 
-<div align="center">
+<div align="flex">
 
 [![Next.js 16](https://img.shields.io/badge/Next.js-16.1.1-000000?logo=nextdotjs&logoColor=white)](https://nextjs.org/)  
 [![React 19](https://img.shields.io/badge/React-19.2.3-61DAFB?logo=react)](https://react.dev/)  
