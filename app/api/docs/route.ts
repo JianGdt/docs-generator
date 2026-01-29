@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@//lib/auth";
-import {
-  saveDocumentationWithHistory,
-  getUserDocs,
-  getDatabase,
-} from "@//lib/database";
+import { saveDocumentationWithHistory, getUserDocs } from "@//lib/database";
 import { saveDocSchema } from "@//lib/schema/documents";
 
 export async function POST(req: NextRequest) {

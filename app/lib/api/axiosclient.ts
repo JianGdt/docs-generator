@@ -43,7 +43,6 @@ apiClient.interceptors.response.use(
       switch (error.response.status) {
         case 401:
           // Unauthorized
-          window.location.href = "/login";
           break;
         case 403:
           // Forbidden

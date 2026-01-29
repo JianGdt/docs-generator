@@ -38,7 +38,6 @@ export async function generateDocumentation(
         model: GROQ_CONFIG.model,
         temperature: GROQ_CONFIG.temperature,
         max_tokens: GROQ_CONFIG.maxTokens,
-        top_p: GROQ_CONFIG.topP,
       });
 
       const content = completion.choices[0]?.message?.content;
@@ -57,13 +56,6 @@ export async function generateDocumentation(
       docType,
       contextType: typeof contextData,
     });
-
-    if (error.message?.includes("rate_limit")) {
-      throw new Error(
-        "Rate limit exceeded. Please try again in a moment. If this persists, consider upgrading your Groq API plan.",
-      );
-    }
-
     if (error.message?.includes("context_length")) {
       throw new Error(
         "Repository is too large for processing. Try with fewer files or reduce file sizes.",

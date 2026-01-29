@@ -3,32 +3,9 @@ import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import GitHub from "next-auth/providers/github";
 import bcrypt from "bcryptjs";
-import { Ratelimit } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis";
 import { getUserByEmailOrUsername, createUser } from "./database";
 import { DUMMY_HASH } from "./constants";
-
-const redis = Redis.fromEnv();
-const loginRateLimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(5, "15 m"),
-  analytics: true,
-  prefix: "ratelimit:login",
-});
-
-async function checkRateLimit(identifier: string) {
-  const key = `login:${identifier.toLowerCase()}`;
-  const { success, reset } = await loginRateLimit.limit(key);
-
-  if (!success) {
-    const minutes = Math.ceil((reset - Date.now()) / 1000 / 60);
-    throw new Error(
-      `Too many login attempts. Try again in ${minutes} minute${
-        minutes !== 1 ? "s" : ""
-      }.`,
-    );
-  }
-}
+import { checkRateLimit } from "./rate-limit";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [

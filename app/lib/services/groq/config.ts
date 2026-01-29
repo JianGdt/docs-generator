@@ -1,16 +1,14 @@
 export const GROQ_CONFIG = {
-  model: "llama-3.3-70b-versatile",
-  temperature: 0.3,
-  maxTokens: 8000,
-  topP: 0.9,
-  timeout: 30000,
+  model: "openai/gpt-oss-120b",
+  temperature: 0.2,
+  maxTokens: 4000,
 } as const;
 
 export const CONTENT_LIMITS = {
-  config: 2000,
+  config: 1500,
   auth: 1500,
   api: 1500,
-  other: 1200,
+  other: 1500,
 } as const;
 
 export const VALID_DOC_TYPES = [
