@@ -21,13 +21,10 @@ export default function ReviewTab() {
   const { generatedDocs } = useDocsStore();
   const { review, reviewDocs, loading, error, progress } = useDocReviewStore();
 
-  // No docs generated state
   if (!generatedDocs) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
-        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center mb-6 shadow-lg">
-          <FileText className="w-10 h-10 text-muted-foreground" />
-        </div>
+        <FileText className="w-10 h-10 text-muted-foreground" />
         <h3 className="text-2xl font-bold mb-3">No Documentation Found</h3>
         <p className="text-muted-foreground text-center max-w-md mb-6">
           You need to generate documentation first before running a review. Head
@@ -44,7 +41,6 @@ export default function ReviewTab() {
     reviewDocs(generatedDocs);
   };
 
-  // Loading state with dynamic progress
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-16">
@@ -80,7 +76,6 @@ export default function ReviewTab() {
     );
   }
 
-  // Error state
   if (error) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-16">
@@ -100,7 +95,6 @@ export default function ReviewTab() {
     );
   }
 
-  // Empty state - Ready to review
   if (!review) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-12">
