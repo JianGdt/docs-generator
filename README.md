@@ -131,7 +131,6 @@ Open <http://localhost:3000> – you should see the landing page with a “Gener
 |---|---|---|
 | `NEXTAUTH_URL` | Base URL for NextAuth callbacks (e.g., `http://localhost:3000`). | `http://localhost:3000` |
 | `NEXTAUTH_SECRET` | Random string used to encrypt session tokens. | `a1b2c3d4e5f6...` |
-| `MONGODB_URI` | MongoDB connection string (Atlas or local). | `mongodb+srv://user:pwd@cluster0.mongodb.net/ai-docs?retryWrites=true&w=majority` |
 | `GROQ_API_KEY` | API key for the Groq LLM service (or OpenAI key). | `gsk_XXXXXXXXXXXXXXXX` |
 | `GITHUB_APP_ID` / `GITHUB_PRIVATE_KEY` | (Optional) GitHub App credentials for repo access. | `12345` / `-----BEGIN PRIVATE KEY-----...` |
 | `UPSTASH_REDIS_REST_URL` | Upstash Redis endpoint for rate limiting. | `https://my-redis.upstash.io` |
