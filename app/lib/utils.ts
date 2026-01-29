@@ -162,71 +162,29 @@ export function formatFileSize(bytes: number): string {
   return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
 }
 
-export function validateDocType(docType: DocType): void {
-  const validTypes: DocType[] = ["readme", "api", "guide", "contributing"];
-
-  if (!validTypes.includes(docType)) {
+export function validateDocType(docType: DocType): asserts docType is DocType {
+  if (!VALID_DOC_TYPES.includes(docType as any)) {
     throw new Error(
-      `Invalid document type: ${docType}. Must be one of: ${validTypes.join(", ")}`,
+      `Invalid docType: ${docType}. Valid types are: ${VALID_DOC_TYPES.join(", ")}`,
     );
   }
 }
 
 export function validateContextData(contextData: string | RepoContext): void {
   if (!contextData) {
-    throw new Error("Context data is required");
+    throw new Error("contextData cannot be empty");
   }
 
-  if (typeof contextData === "string") {
-    if (contextData.trim().length === 0) {
-      throw new Error("Context data cannot be empty");
-    }
-
-    if (contextData.length < 10) {
-      throw new Error(
-        "Context data is too short to generate meaningful documentation",
-      );
-    }
-
-    return;
+  if (typeof contextData === "string" && contextData.trim().length === 0) {
+    throw new Error("contextData string cannot be empty or whitespace only");
   }
 
-  // Validate RepoContext object
   if (typeof contextData === "object") {
-    if (!contextData.name) {
-      throw new Error("Repository name is required");
+    if (!contextData.repoName || !contextData.owner) {
+      throw new Error("RepoContext must have repoName and owner");
     }
-
-    if (!contextData.files || !Array.isArray(contextData.files)) {
-      throw new Error("Repository files must be an array");
-    }
-
-    if (contextData.files.length === 0) {
+    if (!contextData.files || contextData.files.length === 0) {
       throw new Error("RepoContext must have at least one file");
     }
-
-    // Validate that files have required properties
-    const invalidFiles = contextData.files.filter(
-      (file) => !file.path || !file.content,
-    );
-
-    if (invalidFiles.length > 0) {
-      throw new Error(
-        `Invalid files detected: ${invalidFiles.length} files missing path or content`,
-      );
-    }
-
-    // Check if all files are empty
-    const hasContent = contextData.files.some(
-      (file) => file.content && file.content.trim().length > 0,
-    );
-
-    if (!hasContent) {
-      throw new Error("All repository files are empty");
-    }
-
-    return;
   }
-
-  throw new Error("Context data must be a string or RepoContext object");
 }
