@@ -59,7 +59,7 @@ export default function Header({ user }: HeaderProps) {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="relative h-10 w-10 rounded-full"
+                  className="relative h-10 w-10 cursor-pointer rounded-full"
                 >
                   <Avatar className="h-10 w-10">
                     <AvatarImage

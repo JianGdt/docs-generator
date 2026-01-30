@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
-import { Geist_Mono } from "next/font/google";
+import { Geist_Mono, Geist } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "./components/ui/sonner";
 import { SessionProvider } from "./providers/SessionProvider";
 import BreadcumbLayout from "./components/layout/Breadcrumb";
 import { ThemeProvider } from "./providers/ThemeProvider";
 
-const inter = Geist_Mono({
+const inter = Geist({
+  variable: "--font-geist-sans",
   subsets: ["latin"],
   display: "swap",
 });
@@ -14,7 +15,6 @@ const inter = Geist_Mono({
 export const metadata: Metadata = {
   title: "AI Docs Generator - Free Documentation Tool",
   description: "Generate professional documentation assisted with AI",
-  metadataBase: new URL("https://ai-docs-generator.vercel.app"),
 };
 
 export default function RootLayout({
@@ -24,7 +24,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className} suppressHydrationWarning>
+      <body
+        className={`${inter.variable}  antialiased`}
+        suppressHydrationWarning
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

@@ -1,35 +1,25 @@
 import { auth } from "./lib/auth";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export default auth((req) => {
-  const { nextUrl } = req;
-  const isLoggedIn = !!req.auth;
-  const path = nextUrl.pathname;
+export default async function proxy(request: NextRequest) {
+  const session = await auth();
+
+  const isLoginPage = request.nextUrl.pathname.startsWith("/login");
+  const isRegisterPage = request.nextUrl.pathname.startsWith("/register");
 
   if (
-    path.startsWith("/api") ||
-    path.startsWith("/_next") ||
-    path.includes(".")
+    ["/login", "/register"].includes(request.nextUrl.pathname) &&
+    session?.user
   ) {
-    return NextResponse.next();
+    return NextResponse.redirect(new URL("/", request.nextUrl));
   }
 
-  if (["/login", "/register"].includes(path) && isLoggedIn) {
-    return NextResponse.redirect(new URL("/", nextUrl));
-  }
-
-  if (path.startsWith("/") && !isLoggedIn) {
-    const loginUrl = new URL("/", nextUrl);
-    loginUrl.searchParams.set("callbackUrl", path);
-    return NextResponse.redirect(loginUrl);
-  }
-
-  if (path === "/" && isLoggedIn) {
-    return NextResponse.redirect(new URL("/", nextUrl));
+  if ((isLoginPage || isRegisterPage) && !session?.user) {
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: [

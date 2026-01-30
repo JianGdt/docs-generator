@@ -3,6 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import GitHub from "next-auth/providers/github";
 import bcrypt from "bcryptjs";
+import { headers } from "next/headers";
 import { getUserByEmailOrUsername, createUser } from "./database";
 import { DUMMY_HASH } from "./constants";
 import { checkRateLimit } from "./rate-limit";
@@ -21,13 +22,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         const identifier = String(credentials.identifier).trim();
         const password = String(credentials.password);
-
         if (identifier.length < 3 || password.length < 6) {
           return null;
         }
 
         try {
-          await checkRateLimit(identifier);
+          const headersList = await headers();
+          const ip =
+            headersList.get("x-forwarded-for")?.split(",")[0] ||
+            headersList.get("x-real-ip") ||
+            "unknown";
+          await checkRateLimit(identifier, ip);
 
           const user = await getUserByEmailOrUsername(identifier);
 
@@ -48,8 +53,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             username: user.username,
           };
         } catch (error) {
+          // Handle rate limit errors
           if (error instanceof Error && error.message.includes("Too many")) {
-            console.error(`Rate limit: ${error.message}`);
+            console.error(`Rate limit exceeded: ${identifier}`);
           }
           throw error;
         }
@@ -66,7 +72,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       clientSecret: process.env.GITHUB_SECRET!,
       authorization: {
         params: {
-          scope: "read:user user:email repo",
+          scope: "read:user user:email",
         },
       },
     }),
@@ -74,7 +80,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
   callbacks: {
     async signIn({ user, account }) {
-      if (account?.provider !== "google" && account?.provider !== "github") {
+      if (account?.provider === "credentials") {
         return true;
       }
 
@@ -111,11 +117,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, user, account, profile }) {
       if (user) {
         token.id = user.id;
-        token.username = user.username || user.name || undefined;
-        token.email = user.email || undefined;
+        token.username = user.username || user.name;
+        token.email = user.email;
       }
 
-      // Store OAuth tokens
+      // Store OAuth metadata
       if (account) {
         token.provider = account.provider;
 
@@ -131,12 +137,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
 
     async session({ session, token }) {
+      // Attach user data to session
       if (session.user) {
         session.user.id = token.id as string;
         session.user.name = token.username as string;
         session.user.email = token.email as string;
       }
 
+      // Attach OAuth metadata
       session.accessToken = token.accessToken as string;
       session.provider = token.provider as string;
       session.githubId = token.githubId as string;

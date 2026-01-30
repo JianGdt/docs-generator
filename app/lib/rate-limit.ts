@@ -13,16 +13,21 @@ const loginRateLimit = new Ratelimit({
   prefix: "ratelimit:login",
 });
 
-export async function checkRateLimit(identifier: string) {
-  const key = `login:${identifier.toLowerCase()}`;
-  const { success, reset } = await loginRateLimit.limit(key);
+export async function checkRateLimit(identifier: string, ipAddrs?: string) {
+  const identifierKey = `rate-limit:${identifier}`;
+  const ipKey = ipAddrs ? `rate-limit-ip:${ipAddrs}` : null;
 
-  if (!success) {
-    const minutes = Math.ceil((reset - Date.now()) / 1000 / 60);
-    throw new Error(
-      `Too many login attempts. Try again in ${minutes} minute${
-        minutes !== 1 ? "s" : ""
-      }.`,
-    );
+  const { success, reset } = await loginRateLimit.limit(identifierKey);
+
+  if (!success && ipKey) {
+    const { success: ipSuccess } = await loginRateLimit.limit(ipKey);
+    if (!ipSuccess) {
+      const minutes = Math.ceil((reset - Date.now()) / 1000 / 60);
+      throw new Error(
+        `Too many login attempts. Try again in ${minutes} minute${
+          minutes !== 1 ? "s" : ""
+        }.`,
+      );
+    }
   }
 }
