@@ -30,8 +30,6 @@ export async function POST(req: NextRequest) {
       title,
       content,
       docType,
-      repositoryUrl,
-      repositoryName,
     });
 
     return NextResponse.json(

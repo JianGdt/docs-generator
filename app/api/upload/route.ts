@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/app/lib/auth";
 import { saveUploadedFile } from "@/app/lib/database";
-import { ALLOWED_EXTENSIONS, MAX_FILE_SIZE } from "@//lib/constants";
+import { ALLOWED_EXTENSIONS, MAX_FILE_SIZE } from "@/app/lib/constants";
 
 export async function POST(req: NextRequest) {
   try {
@@ -57,19 +57,25 @@ export async function POST(req: NextRequest) {
 
       const content = await file.text();
 
+      const timestamp = Date.now();
+      const uniqueFilename = `${timestamp}-${file.name}`;
+
       const savedFile = await saveUploadedFile({
         userId: session.user.id,
-        fileName: file.name,
-        fileType: file.type || "text/plain",
-        fileSize: file.size,
+        filename: uniqueFilename,
+        originalName: file.name,
+        mimeType: file.type || "text/plain",
+        size: file.size,
         content: content,
       });
 
       uploadedFiles.push({
         id: savedFile._id?.toString(),
-        fileName: savedFile.fileName,
-        fileSize: savedFile.fileSize,
-        content: savedFile.content,
+        filename: savedFile.filename,
+        originalName: savedFile.originalName,
+        mimeType: savedFile.mimeType,
+        size: savedFile.size,
+        uploadedAt: savedFile.createdAt,
       });
     }
 

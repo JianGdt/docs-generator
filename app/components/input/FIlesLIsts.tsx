@@ -32,9 +32,9 @@ export function UploadedFilesList({ files }: UploadedFilesListProps) {
           <div className="flex items-center space-x-3">
             <File className="w-5 h-5 text-blue-400" />
             <div>
-              <p className="text-white text-sm font-medium">{file.fileName}</p>
+              <p className="text-white text-sm font-medium">{file.originalName}</p>
               <p className="text-slate-500 text-xs">
-                {formatFileSize(file.fileSize)}
+                {formatFileSize(file.size)}
               </p>
             </div>
           </div>

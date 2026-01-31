@@ -59,7 +59,7 @@ type UploadedFileCreateData = {
   originalName: string;
   mimeType: string;
   size: number;
-  path: string;
+  content: string;
 };
 
 type DocReviewCreateData = {

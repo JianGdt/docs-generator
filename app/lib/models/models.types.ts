@@ -94,7 +94,7 @@ export type UploadedFileData = {
   originalName: string;
   mimeType: string;
   size: number;
-  path: string;
+  content: string;
 };
 
 export interface IUploadedFile extends Document {
@@ -103,7 +103,7 @@ export interface IUploadedFile extends Document {
   originalName: string;
   mimeType: string;
   size: number;
-  path: string;
+  content: string;
   createdAt: Date;
   updatedAt: Date;
 }

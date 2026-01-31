@@ -4,6 +4,9 @@ import { DocHistoryEntryClient, Pagination } from "./history";
 export interface UploadedFileData {
   id: string;
   fileName: string;
+  size: number;
+  mimeType: string;
+  originalName: string;
   fileSize: number;
   content: string;
 }

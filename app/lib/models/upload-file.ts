@@ -24,7 +24,7 @@ const UploadedFileSchema = new Schema<IUploadedFile>(
       type: Number,
       required: true,
     },
-    path: {
+    content: {
       type: String,
       required: true,
     },
