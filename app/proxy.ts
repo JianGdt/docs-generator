@@ -7,13 +7,6 @@ export default async function proxy(request: NextRequest) {
   const isLoginPage = request.nextUrl.pathname.startsWith("/login");
   const isRegisterPage = request.nextUrl.pathname.startsWith("/register");
 
-  if (
-    ["/login", "/register"].includes(request.nextUrl.pathname) &&
-    session?.user
-  ) {
-    return NextResponse.redirect(new URL("/", request.nextUrl));
-  }
-
   if ((isLoginPage || isRegisterPage) && !session?.user) {
     return NextResponse.redirect(new URL("/", request.url));
   }

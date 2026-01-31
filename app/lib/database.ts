@@ -1,88 +1,124 @@
-import { MongoClient, Db, ObjectId } from "mongodb";
-import { ENV } from "./constants";
-import { User } from "./@types/user";
-import { SavedDoc } from "./@types/docs";
-import { DocHistoryEntry } from "./@types/history";
-import { GitHubCommit, UploadedFile } from "./@types/database";
-import { DocReview, DocReviewInsert } from "./@types/review";
+import {
+  DocHistory,
+  DocReview,
+  GitHubCommit,
+  SavedDoc,
+  UploadedFile,
+  User,
+} from "./models";
+import {
+  IDocHistory,
+  IDocReview,
+  IGitHubCommit,
+  ISavedDoc,
+  IUploadedFile,
+  IUser,
+} from "./models/models.types";
+import { connectDB } from "./mongoose";
 
-let client: MongoClient;
-let clientPromise: Promise<MongoClient>;
+// ==================== TYPE DEFINITIONS ====================
 
-if (process.env.NODE_ENV === "development") {
-  const globalWithMongo = global as typeof globalThis & {
-    _mongoClientPromise?: Promise<MongoClient>;
-  };
-
-  if (!globalWithMongo._mongoClientPromise) {
-    client = new MongoClient(ENV.MONGODB_URI!);
-    globalWithMongo._mongoClientPromise = client.connect();
-  }
-  clientPromise = globalWithMongo._mongoClientPromise;
-} else {
-  client = new MongoClient(ENV.MONGODB_URI!);
-  clientPromise = client.connect();
-}
-
-export async function getDatabase(): Promise<Db> {
-  const client = await clientPromise;
-  return client.db("ai-docs-generator");
-}
-
-// ==================== USER FUNCTIONS ====================
-
-export async function createUser(data: {
+type UserCreateData = {
   username: string;
   email: string;
   password: string;
-}): Promise<User> {
-  const db = await getDatabase();
-  const now = new Date();
+};
 
-  const result = await db.collection<User>("users").insertOne({
+type SavedDocCreateData = {
+  userId: string;
+  title: string;
+  content: string;
+  docType: string;
+  version?: number;
+};
+
+type DocHistoryCreateData = {
+  docId: string;
+  userId: string;
+  title: string;
+  documentType: string;
+  content: string;
+  version: number;
+  changeDescription?: string;
+};
+
+type GitHubCommitCreateData = {
+  userId: string;
+  commitSha: string;
+  commitMessage: string;
+  repoName: string;
+  repoOwner: string;
+  branchName: string;
+  filesPushed: string[];
+  commitUrl?: string;
+};
+
+type UploadedFileCreateData = {
+  userId: string;
+  filename: string;
+  originalName: string;
+  mimeType: string;
+  size: number;
+  path: string;
+};
+
+type DocReviewCreateData = {
+  userId: string;
+  docId?: string;
+  reviewType: string;
+  feedback: string;
+  suggestions?: string[];
+  rating?: number;
+};
+
+// ==================== USER FUNCTIONS ====================
+
+export async function createUser(data: UserCreateData): Promise<IUser> {
+  await connectDB();
+
+  const user = await User.create({
     ...data,
-    createdAt: now,
-  } as User);
+    username: data.username.toLowerCase(),
+    email: data.email.toLowerCase(),
+  });
 
-  const user = await db
-    .collection<User>("users")
-    .findOne({ _id: result.insertedId });
-  if (!user) {
-    throw new Error("Failed to create user");
-  }
-
-  return user;
+  return user.toObject();
 }
 
-export async function getUserByEmail(email: string): Promise<User | null> {
-  const db = await getDatabase();
-  return db.collection<User>("users").findOne({ email: email.toLowerCase() });
+export async function getUserByEmail(email: string): Promise<IUser | null> {
+  await connectDB();
+  const user = await User.findOne({ email: email.toLowerCase() }).lean();
+  return user;
 }
 
 export async function getUserByUsername(
   username: string,
-): Promise<User | null> {
-  const db = await getDatabase();
-  return db
-    .collection<User>("users")
-    .findOne({ username: username.toLowerCase() });
+): Promise<IUser | null> {
+  await connectDB();
+  const user = await User.findOne({
+    username: username.toLowerCase(),
+  }).lean();
+  return user;
 }
 
 export async function getUserByEmailOrUsername(
   identifier: string,
-): Promise<User | null> {
-  const db = await getDatabase();
+): Promise<IUser | null> {
+  await connectDB();
   const lowerIdentifier = identifier.toLowerCase();
 
-  return db.collection<User>("users").findOne({
+  const user = await User.findOne({
     $or: [{ email: lowerIdentifier }, { username: lowerIdentifier }],
-  });
+  }).lean();
+
+  return user;
 }
 
-export async function getUserById(id: string): Promise<User | null> {
-  const db = await getDatabase();
+export async function getUserById(id: string): Promise<IUser | null> {
+  await connectDB();
   try {
-    return db.collection<User>("users").findOne({ _id: new ObjectId(id) });
+    const user = await User.findById(id).lean();
+    return user;
   } catch (error) {
     return null;
   }
@@ -91,24 +127,22 @@ export async function getUserById(id: string): Promise<User | null> {
 // ==================== DOCUMENT FUNCTIONS ====================
 
 export async function getUserDocs(userId: string) {
-  const db = await getDatabase();
-  return db
-    .collection<SavedDoc>("docs")
-    .find({ userId })
-    .sort({ createdAt: -1 })
-    .toArray();
+  await connectDB();
+  return SavedDoc.find({ userId }).sort({ createdAt: -1 }).lean().exec();
 }
 
 export async function getDocById(
   docId: string,
   userId: string,
-): Promise<SavedDoc | null> {
-  const db = await getDatabase();
+): Promise<ISavedDoc | null> {
+  await connectDB();
   try {
-    return db.collection<SavedDoc>("docs").findOne({
-      _id: new ObjectId(docId),
+    return SavedDoc.findOne({
+      _id: docId,
       userId,
-    });
+    })
+      .lean()
+      .exec();
   } catch (error) {
     return null;
   }
@@ -117,20 +151,19 @@ export async function getDocById(
 export async function updateDoc(
   docId: string,
   userId: string,
-  data: Partial<Omit<SavedDoc, "_id" | "createdAt" | "userId">>,
+  data: Partial<
+    Pick<SavedDocCreateData, "title" | "content" | "docType" | "version">
+  >,
 ): Promise<boolean> {
-  const db = await getDatabase();
+  await connectDB();
   try {
-    const result = await db.collection<SavedDoc>("docs").updateOne(
+    const result = await SavedDoc.updateOne(
       {
-        _id: new ObjectId(docId),
+        _id: docId,
         userId,
       },
       {
-        $set: {
-          ...data,
-          updatedAt: new Date(),
-        },
+        $set: data,
       },
     );
     return result.modifiedCount > 0;
@@ -139,16 +172,14 @@ export async function updateDoc(
   }
 }
 
-// documents/[docId]/route.ts
-
 export async function deleteDoc(
   docId: string,
   userId: string,
 ): Promise<boolean> {
-  const db = await getDatabase();
+  await connectDB();
   try {
-    const result = await db.collection<SavedDoc>("docs").deleteOne({
-      _id: new ObjectId(docId),
+    const result = await SavedDoc.deleteOne({
+      _id: docId,
       userId,
     });
     return result.deletedCount > 0;
@@ -157,20 +188,18 @@ export async function deleteDoc(
   }
 }
 
-// history/[historyId]/route.ts
+// ==================== HISTORY FUNCTIONS ====================
 
 export async function deleteDocHistory(
   historyId: string,
   userId: string,
 ): Promise<boolean> {
-  const db = await getDatabase();
+  await connectDB();
   try {
-    const result = await db
-      .collection<DocHistoryEntry>("doc_history")
-      .deleteOne({
-        _id: new ObjectId(historyId),
-        userId,
-      });
+    const result = await DocHistory.deleteOne({
+      _id: historyId,
+      userId,
+    });
     return result.deletedCount > 0;
   } catch (error) {
     console.error("Error deleting history entry:", error);
@@ -179,36 +208,26 @@ export async function deleteDocHistory(
 }
 
 export async function saveDocHistory(
-  data: Omit<DocHistoryEntry, "_id" | "createdAt">,
-): Promise<DocHistoryEntry> {
-  const db = await getDatabase();
+  data: DocHistoryCreateData,
+): Promise<IDocHistory> {
+  await connectDB();
 
-  const result = await db.collection<DocHistoryEntry>("doc_history").insertOne({
-    ...data,
-    createdAt: new Date(),
-  } as DocHistoryEntry);
-
-  const historyEntry = await db
-    .collection<DocHistoryEntry>("doc_history")
-    .findOne({ _id: result.insertedId });
-
-  if (!historyEntry) {
-    throw new Error("Failed to save doc history");
-  }
-
-  return historyEntry;
+  const historyEntry = await DocHistory.create(data);
+  return historyEntry.toObject();
 }
 
 export async function getHistoryVersion(
   historyId: string,
   userId: string,
-): Promise<DocHistoryEntry | null> {
-  const db = await getDatabase();
+): Promise<IDocHistory | null> {
+  await connectDB();
   try {
-    return db.collection<DocHistoryEntry>("doc_history").findOne({
-      _id: new ObjectId(historyId),
+    return DocHistory.findOne({
+      _id: historyId,
       userId,
-    });
+    })
+      .lean()
+      .exec();
   } catch (error) {
     return null;
   }
@@ -219,18 +238,55 @@ export async function getUserHistory(
   page: number = 1,
   limit: number = 20,
 ) {
-  const db = await getDatabase();
+  await connectDB();
   const skip = (page - 1) * limit;
 
   const [history, total] = await Promise.all([
-    db
-      .collection<DocHistoryEntry>("doc_history")
-      .find({ userId })
+    DocHistory.find({ userId })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .toArray(),
-    db.collection<DocHistoryEntry>("doc_history").countDocuments({ userId }),
+      .lean()
+      .exec(),
+    DocHistory.countDocuments({ userId }),
+  ]);
+
+  return {
+    history,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+}
+
+export async function getUserHistoryWithSearch(
+  userId: string,
+  page: number = 1,
+  limit: number = 20,
+  searchQuery?: string,
+) {
+  await connectDB();
+  const skip = (page - 1) * limit;
+
+  const query: any = { userId };
+  if (searchQuery) {
+    query.$or = [
+      { title: { $regex: searchQuery, $options: "i" } },
+      { documentType: { $regex: searchQuery, $options: "i" } },
+    ];
+  }
+
+  const [history, total] = await Promise.all([
+    DocHistory.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean()
+      .exec(),
+    DocHistory.countDocuments(query),
   ]);
 
   return {
@@ -247,57 +303,37 @@ export async function getUserHistory(
 // ==================== GITHUB INTEGRATION FUNCTIONS ====================
 
 export async function saveGitHubCommit(
-  data: Omit<GitHubCommit, "_id" | "createdAt">,
-): Promise<GitHubCommit> {
-  const db = await getDatabase();
-  const result = await db.collection<GitHubCommit>("github_commits").insertOne({
-    ...data,
-    createdAt: new Date(),
-  } as GitHubCommit);
+  data: GitHubCommitCreateData,
+): Promise<IGitHubCommit> {
+  await connectDB();
 
-  const commit = await db.collection<GitHubCommit>("github_commits").findOne({
-    _id: result.insertedId,
-  });
-
-  if (!commit) {
-    throw new Error("Failed to save GitHub commit");
-  }
-
-  return commit;
+  const commit = await GitHubCommit.create(data);
+  return commit.toObject();
 }
 
 export async function getGitHubCommitsByUser(
   userId: string,
   limit: number = 20,
 ) {
-  const db = await getDatabase();
-  return db
-    .collection<GitHubCommit>("github_commits")
-    .find({ userId })
+  await connectDB();
+  return GitHubCommit.find({ userId })
     .sort({ createdAt: -1 })
     .limit(limit)
-    .toArray();
+    .lean()
+    .exec();
 }
 
+// ==================== DOCUMENT WITH HISTORY ====================
+
 export async function saveDocumentationWithHistory(
-  doc: Omit<SavedDoc, "_id" | "createdAt" | "version">,
-): Promise<SavedDoc> {
-  const db = await getDatabase();
-  const docToSave = {
+  doc: Omit<SavedDocCreateData, "version">,
+): Promise<ISavedDoc> {
+  await connectDB();
+
+  const savedDoc = await SavedDoc.create({
     ...doc,
     version: 1,
-    createdAt: new Date(),
-  } as SavedDoc;
-
-  const result = await db.collection<SavedDoc>("docs").insertOne(docToSave);
-
-  const savedDoc = await db.collection<SavedDoc>("docs").findOne({
-    _id: result.insertedId,
   });
-
-  if (!savedDoc) {
-    throw new Error("Failed to save documentation");
-  }
 
   try {
     await saveDocHistory({
@@ -313,102 +349,42 @@ export async function saveDocumentationWithHistory(
     console.error("Failed to save initial history:", error);
   }
 
-  return savedDoc;
+  return savedDoc.toObject();
 }
 
 // ==================== FILE UPLOAD FUNCTIONS ====================
 
 export async function saveUploadedFile(
-  data: Omit<UploadedFile, "_id" | "uploadedAt">,
-): Promise<UploadedFile> {
-  const db = await getDatabase();
-  const result = await db.collection<UploadedFile>("uploaded_files").insertOne({
-    ...data,
-    uploadedAt: new Date(),
-  } as UploadedFile);
+  data: UploadedFileCreateData,
+): Promise<IUploadedFile> {
+  await connectDB();
 
-  const file = await db
-    .collection<UploadedFile>("uploaded_files")
-    .findOne({ _id: result.insertedId });
-
-  if (!file) {
-    throw new Error("Failed to save uploaded file");
-  }
-
-  return file;
+  const file = await UploadedFile.create(data);
+  return file.toObject();
 }
 
-export async function getUserHistoryWithSearch(
-  userId: string,
-  page: number = 1,
-  limit: number = 20,
-  searchQuery?: string,
-) {
-  const db = await getDatabase();
-  const skip = (page - 1) * limit;
+// ==================== DOCUMENT REVIEW FUNCTIONS ====================
 
-  const query: any = { userId };
-  if (searchQuery) {
-    query.$or = [
-      { title: { $regex: searchQuery, $options: "i" } },
-      { documentType: { $regex: searchQuery, $options: "i" } },
-    ];
-  }
+export async function saveDocReview(
+  data: DocReviewCreateData,
+): Promise<IDocReview> {
+  await connectDB();
 
-  const [history, total] = await Promise.all([
-    db
-      .collection<DocHistoryEntry>("doc_history")
-      .find(query)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .toArray(),
-    db.collection<DocHistoryEntry>("doc_history").countDocuments(query),
-  ]);
-
-  return {
-    history,
-    pagination: {
-      page,
-      limit,
-      total,
-      totalPages: Math.ceil(total / limit),
-    },
-  };
-}
-
-// DOCUMENT REVIEW FUNC
-
-export async function saveDocReview(data: DocReviewInsert): Promise<DocReview> {
-  const db = await getDatabase();
-
-  const review: DocReview = {
-    _id: new ObjectId().toString(),
-    ...data,
-    createdAt: new Date().toISOString(),
-  };
-
-  await db.collection("doc_reviews").insertOne({
-    ...review,
-    _id: new ObjectId(review._id),
-  });
-
-  return review;
+  const review = await DocReview.create(data);
+  return review.toObject();
 }
 
 export async function getLatestDocReview(
   userId: string,
   docId?: string,
-): Promise<DocReview | null> {
-  const db = await getDatabase();
+): Promise<IDocReview | null> {
+  await connectDB();
 
-  return db.collection<DocReview>("doc_reviews").findOne(
-    {
-      userId,
-      ...(docId ? { docId } : {}),
-    },
-    {
-      sort: { createdAt: -1 },
-    },
-  );
+  return DocReview.findOne({
+    userId,
+    ...(docId ? { docId } : {}),
+  })
+    .sort({ createdAt: -1 })
+    .lean()
+    .exec();
 }

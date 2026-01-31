@@ -29,6 +29,7 @@ export const formatDate = (dateString?: string): string => {
     return "N/A";
   }
 };
+
 export function formatDateHistory(dateInput: string | Date): string {
   const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
   const diffHours = (Date.now() - date.getTime()) / (1000 * 60 * 60);
@@ -61,13 +62,131 @@ export const openInNewTab = (content: string): void => {
   window.open(url, "_blank");
 };
 
+/**
+ * Safely parse JSON from AI response, handling malformed strings and edge cases
+ */
 export function safeParseJSON(raw: string) {
-  const match = raw.match(/\{[\s\S]*\}/);
-  if (!match) {
-    console.error("RAW AI RESPONSE:", raw);
-    throw new Error("No JSON object found in AI response");
+  try {
+    // First, try to find JSON object in the response
+    const match = raw.match(/\{[\s\S]*\}/);
+    if (!match) {
+      console.error("RAW AI RESPONSE:", raw);
+      throw new Error("No JSON object found in AI response");
+    }
+
+    let jsonStr = match[0];
+
+    // Fix common JSON issues
+    jsonStr = fixCommonJSONIssues(jsonStr);
+
+    // Try to parse
+    return JSON.parse(jsonStr);
+  } catch (error: any) {
+    console.error("JSON Parse Error:", error.message);
+    console.error("Attempted to parse:", raw.substring(0, 500));
+
+    // If parsing still fails, try more aggressive fixes
+    try {
+      const cleaned = aggressiveJSONClean(raw);
+      return JSON.parse(cleaned);
+    } catch (secondError: any) {
+      throw new Error(
+        `AI returned invalid JSON: ${error.message}. Response preview: ${raw.substring(0, 200)}...`,
+      );
+    }
   }
-  return JSON.parse(match[0]);
+}
+
+/**
+ * Fix common JSON formatting issues from AI responses
+ */
+function fixCommonJSONIssues(jsonStr: string): string {
+  // Remove any trailing commas before closing braces/brackets
+  jsonStr = jsonStr.replace(/,(\s*[}\]])/g, "$1");
+
+  // Fix unescaped quotes in strings (basic attempt)
+  // This is tricky and may not catch all cases
+  jsonStr = jsonStr.replace(/([^\\])"([^"]*[^\\])"([^:])/g, '$1\\"$2\\"$3');
+
+  // Remove any control characters
+  jsonStr = jsonStr.replace(/[\x00-\x1F\x7F]/g, "");
+
+  // Fix newlines in strings
+  jsonStr = jsonStr.replace(/\n/g, "\\n");
+  jsonStr = jsonStr.replace(/\r/g, "\\r");
+  jsonStr = jsonStr.replace(/\t/g, "\\t");
+
+  return jsonStr;
+}
+
+/**
+ * More aggressive JSON cleaning for severely malformed responses
+ */
+function aggressiveJSONClean(raw: string): string {
+  // Extract everything between first { and last }
+  const firstBrace = raw.indexOf("{");
+  const lastBrace = raw.lastIndexOf("}");
+
+  if (firstBrace === -1 || lastBrace === -1) {
+    throw new Error("No valid JSON object boundaries found");
+  }
+
+  let jsonStr = raw.substring(firstBrace, lastBrace + 1);
+
+  // Try to find and fix unterminated strings
+  jsonStr = fixUnterminatedStrings(jsonStr);
+
+  // Apply basic fixes
+  jsonStr = fixCommonJSONIssues(jsonStr);
+
+  return jsonStr;
+}
+
+/**
+ * Attempt to fix unterminated strings in JSON
+ */
+function fixUnterminatedStrings(jsonStr: string): string {
+  const lines = jsonStr.split("\n");
+  const fixed: string[] = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i];
+
+    // Count quotes in the line
+    const quoteCount = (line.match(/"/g) || []).length;
+
+    // If odd number of quotes, try to close the string
+    if (quoteCount % 2 !== 0) {
+      // Check if this is a value line (has a colon)
+      if (line.includes(":")) {
+        // Add closing quote before comma or closing brace
+        if (line.includes(",")) {
+          line = line.replace(/,\s*$/, '",');
+        } else if (
+          i === lines.length - 1 ||
+          lines[i + 1].trim().startsWith("}")
+        ) {
+          line = line + '"';
+        }
+      }
+    }
+
+    fixed.push(line);
+  }
+
+  return fixed.join("\n");
+}
+
+/**
+ * Safely parse JSON with automatic retry and fallback
+ */
+export function safeParseJSONWithFallback<T>(raw: string, fallback: T): T {
+  try {
+    return safeParseJSON(raw) as T;
+  } catch (error) {
+    console.error("Failed to parse JSON, using fallback:", error);
+    return fallback;
+  }
 }
 
 export async function withRetry<T>(

@@ -23,5 +23,3 @@ export interface UploadedFile {
   content: string;
   uploadedAt: Date;
 }
-
-
