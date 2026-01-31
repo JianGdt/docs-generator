@@ -25,14 +25,13 @@ export default function ReviewTab() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
         <FileText className="w-10 h-10 text-muted-foreground" />
-        <h3 className="text-2xl font-bold mb-3">No Documentation Found</h3>
-        <p className="text-muted-foreground text-center max-w-md mb-6">
+        <h3 className="text-md md:text-lg text-black dark:text-white font-bold mb-3">
+          No Documentation Found
+        </h3>
+        <p className="text-md md:text-lg text-black dark:text-white max-w-md text-center mb-6">
           You need to generate documentation first before running a review. Head
           over to the Generate tab to get started.
         </p>
-        <Button variant="outline" size="lg">
-          Go to Generate Tab
-        </Button>
       </div>
     );
   }
@@ -44,7 +43,7 @@ export default function ReviewTab() {
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-16">
-        <Card className="border-2 border-dashed">
+        <Card>
           <div className="flex flex-col items-center justify-center p-16 text-center">
             <div className="relative mb-8">
               <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
@@ -105,10 +104,10 @@ export default function ReviewTab() {
               <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-green-500 border-4 border-background" />
             </div>
 
-            <h2 className="text-3xl font-bold mb-4">
+            <h2 className="text-lg md:text-2xl text-center font-bold mb-4">
               Ready to Review Your Documentation
             </h2>
-            <p className="text-muted-foreground mb-8 max-w-2xl text-lg">
+            <p className="text-lg md:text-xl text-start md:text-center mb-8 max-w-2xl ">
               Our AI will thoroughly analyze your documentation, checking for
               completeness, accuracy, and adherence to best practices.
             </p>

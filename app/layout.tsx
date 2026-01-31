@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist_Mono, Geist } from "next/font/google";
+import { Geist } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "./components/ui/sonner";
 import { SessionProvider } from "./providers/SessionProvider";
@@ -13,7 +13,7 @@ const inter = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "AI Docs Generator - Free Documentation Tool",
+  title: "Docs Generator - Free Documentation Tool",
   description: "Generate professional documentation assisted with AI",
 };
 

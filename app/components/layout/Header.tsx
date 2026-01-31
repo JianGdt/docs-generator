@@ -41,7 +41,7 @@ export default function Header({ user }: HeaderProps) {
           <Link href="/" className="flex items-center gap-2">
             <FileCode className="h-8 hidden md:flex w-8 text-black dark:text-white" />
             <span className="text-sm md:text-xl text-black dark:text-white px-2 py-2 font-bold">
-              AI Docs Generator
+              Docs Generator
             </span>
           </Link>
 
