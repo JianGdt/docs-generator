@@ -6,11 +6,11 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+} from "../../../components/ui/form";
+import { Input } from "../../../components/ui/input";
+import { Textarea } from "../../../components/ui/textarea";
 import { Control } from "react-hook-form";
-import { CommitFormValues } from "@/app/lib/schema/github";
+import { CommitFormValues } from "@/lib/schema/github";
 
 interface PullRequestFieldsProps {
   control: Control<CommitFormValues>;

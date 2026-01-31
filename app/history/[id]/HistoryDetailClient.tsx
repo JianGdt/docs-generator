@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { FileText, Clock, Download, Copy, Check, Trash2 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import DocumentPreview from "@/components/preview/DocsPreview";
-import { Separator } from "@/components/ui/separator";
+import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card";
+import { Button } from "../../../components/ui/button";
+import { Badge } from "../../../components/ui/badge";
+import DocumentPreview from "../../../components/preview/DocsPreview";
+import { Separator } from "../../../components/ui/separator";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { HistoryEntryClient } from "@//lib/@types/history";

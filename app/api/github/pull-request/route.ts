@@ -1,5 +1,5 @@
-import { auth } from "@/app/lib/auth";
-import { GitHubService } from "@/app/lib/github";
+import { auth } from "@/lib/auth";
+import { GitHubService } from "@/lib/github";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
     if (!session?.accessToken || session?.provider !== "github") {
       return NextResponse.json(
         { error: "Unauthorized - GitHub authentication required" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     if (!owner || !repo || !path || !content || !message || !title) {
       return NextResponse.json(
         { error: "Missing required fields" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
     console.error("Error creating pull request:", error);
     return NextResponse.json(
       { error: error.message || "Failed to create pull request" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

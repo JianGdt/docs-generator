@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import { auth } from "../lib/auth";
-import { getUserHistoryWithSearch } from "../lib/database";
+import { auth } from "../../lib/auth";
+import { getUserHistoryWithSearch } from "../../lib/database";
 import HistoryClient from "./_client/HistoryClient";
 
 export const dynamic = "force-dynamic";

@@ -5,10 +5,10 @@ import {
   FormField,
   FormItem,
   FormLabel,
-} from "@/components/ui/form";
+} from "../../../components/ui/form";
 import { Control } from "react-hook-form";
-import { CommitFormValues } from "@/app/lib/schema/github";
-import { Checkbox } from "@//components/ui/checkbox";
+import { CommitFormValues } from "@/lib/schema/github";
+import { Checkbox } from "../../../components/ui/checkbox";
 
 interface PullRequestToggleProps {
   control: Control<CommitFormValues>;

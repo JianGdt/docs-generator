@@ -4,7 +4,7 @@ import {
   createUser,
   getUserByEmail,
   getUserByUsername,
-} from "@/app/lib/database";
+} from "@/lib/database";
 
 export async function POST(request: NextRequest) {
   try {

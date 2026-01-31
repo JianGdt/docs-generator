@@ -1,7 +1,7 @@
 "use client";
 
 import { Clock, RefreshCw } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "../../../components/ui/button";
 
 interface PageHeaderProps {
   onRefresh: () => void;

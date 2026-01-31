@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { reviewDocumentation } from "../../lib/services/groq/reviewer";
+import { reviewDocumentation } from "../../../lib/services/groq/reviewer";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

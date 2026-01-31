@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription } from "../../../components/ui/alert";
 import { AlertCircle, CheckCircle } from "lucide-react";
 
 interface StatusAlertProps {

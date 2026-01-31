@@ -1,14 +1,14 @@
 "use client";
 
-import Header from "@/components/layout/Header";
-import InputSection from "@/components/InputSection";
-import PreviewSection from "@/components/PreviewSection";
+import Header from "../../../components/layout/Header";
+import InputSection from "../../../components/InputSection";
+import PreviewSection from "../../../components/PreviewSection";
 import GitHubIntegration from "./GithubConnection";
 
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { DocsGeneratorProps } from "@//lib/@types/components";
-import { useDocsStore } from "@//lib/store/useDocStore";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../../components/ui/tabs";
 import ReviewTab from "./ReviewTab";
+import { DocsGeneratorProps } from "@/lib/@types/components";
+import { useDocsStore } from "@/lib/store/useDocStore";
 
 export default function DocsGenerator({ user, session }: DocsGeneratorProps) {
   const { generatedDocs, docType } = useDocsStore();

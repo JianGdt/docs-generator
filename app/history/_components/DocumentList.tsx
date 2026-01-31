@@ -1,5 +1,5 @@
 "use client";
-import EmptyState from "@/components/EmptyState";
+import EmptyState from "../../../components/EmptyState";
 import { DocumentCard } from "./DocumentCard";
 import { DocHistoryEntryClient } from "@//lib/@types/history";
 

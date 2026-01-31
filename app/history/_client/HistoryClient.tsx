@@ -6,9 +6,9 @@ import { SearchBar } from "../_components/SearchBar";
 import { StatsGrid } from "../_components/StatsGrid";
 import { DocumentList } from "../_components/DocumentList";
 import { HistoryPagination } from "../_components/HistoryPagination";
-import { HistoryClientProps } from "@//lib/@types/history";
-import { useHistoryStore } from "@//hooks/history/useHistoryStore";
-import { useHistoryNavigation } from "@//hooks/history/useHistoryNavigation";
+import { HistoryClientProps } from "@/lib/@types/history";
+import { useHistoryStore } from "@/hooks/history/useHistoryStore";
+import { useHistoryNavigation } from "@/hooks/history/useHistoryNavigation";
 
 export default function HistoryClient({
   initialData,

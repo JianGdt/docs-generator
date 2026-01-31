@@ -1,11 +1,9 @@
 "use client";
-import { useDocReviewStore } from "@//lib/store/useDocReviewStore";
-import { useDocsStore } from "@//lib/store/useDocStore";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "../../../components/ui/button";
+import { Card } from "../../../components/ui/card";
+import { Progress } from "../../../components/ui/progress";
+import { Separator } from "../../../components/ui/separator";
+import { Alert, AlertDescription } from "../../../components/ui/alert";
 import {
   Sparkles,
   FileText,
@@ -14,8 +12,10 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { ReviewResult } from "../_components/review/Result";
-import { formatDate } from "@//lib/utils";
-import { Badge } from "@//components/ui/badge";
+import { Badge } from "../../../components/ui/badge";
+import { useDocsStore } from "@/lib/store/useDocStore";
+import { useDocReviewStore } from "@/lib/store/useDocReviewStore";
+import { formatDate } from "@/lib/utils";
 
 export default function ReviewTab() {
   const { generatedDocs } = useDocsStore();

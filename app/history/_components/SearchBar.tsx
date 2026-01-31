@@ -1,6 +1,6 @@
 "use client";
 
-import { Input } from "@/components/ui/input";
+import { Input } from "../../../components/ui/input";
 import { useState, useEffect } from "react";
 import { useDebounce } from "use-debounce";
 

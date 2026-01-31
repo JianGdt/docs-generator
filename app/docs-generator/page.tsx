@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { auth } from "../lib/auth";
+import { auth } from "../../lib/auth";
 import DocsGenerator from "./_client/DocsGenerator";
 
 export const metadata = {

@@ -1,5 +1,5 @@
 "use client";
-import StatCard from "@//components/StatsCard";
+import StatCard from "../../../components/StatsCard";
 import { StatItem } from "@//lib/@types/preview";
 import { formatDate } from "@//lib/utils";
 import { Clock, FileText } from "lucide-react";

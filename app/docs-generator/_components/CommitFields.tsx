@@ -6,10 +6,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from "../../../components/ui/form";
+import { Input } from "../../../components/ui/input";
 import { Control } from "react-hook-form";
-import { CommitFormValues } from "@/app/lib/schema/github";
+import { CommitFormValues } from "@/lib/schema/github";
 
 interface CommitFieldsProps {
   control: Control<CommitFormValues>;

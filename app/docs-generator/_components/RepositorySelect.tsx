@@ -6,16 +6,16 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from "../../../components/ui/form";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "../../../components/ui/select";
 import { Control } from "react-hook-form";
-import { CommitFormValues } from "@/app/lib/schema/github";
+import { CommitFormValues } from "@/lib/schema/github";
 import { Repository } from "@//lib/@types/github";
 
 interface RepositorySelectProps {

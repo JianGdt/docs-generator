@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardHeader, CardTitle } from "../../../components/ui/card";
+import { Button } from "../../../components/ui/button";
+import { Badge } from "../../../components/ui/badge";
 import { DocHistoryEntryClient } from "@//lib/@types/history";
 import { formatDateHistory } from "@//lib/utils";
 

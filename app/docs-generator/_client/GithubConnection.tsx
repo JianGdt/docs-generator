@@ -3,11 +3,11 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form } from "@/components/ui/form";
+import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card";
+import { Form } from "../../../components/ui/form";
 import { Github, CheckCircle, AlertCircle } from "lucide-react";
-import { CommitFormValues, commitSchema } from "@/app/lib/schema/github";
-import { getDefaultPath } from "@/app/lib/utils";
+import { CommitFormValues, commitSchema } from "@/lib/schema/github";
+import { getDefaultPath } from "@/lib/utils";
 import { RepositorySelect } from "../_components/RepositorySelect";
 import { CommitFields } from "../_components/CommitFields";
 import { PullRequestToggle } from "../_components/PullRequestToggle";
@@ -17,8 +17,8 @@ import { SubmitButton } from "../_components/SubmitButton";
 import { useGitHubRepositories } from "@//hooks/github/useGitHubRepo";
 import { useGitHubCommit } from "@//hooks/github/useGitHubCommit";
 import { GitHubIntegrationProps } from "@//lib/@types/github";
-import EmptyState from "@//components/EmptyState";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import EmptyState from "../../../components/EmptyState";
+import { Alert, AlertDescription } from "../../../components/ui/alert";
 
 export default function GitHubIntegration({
   documentContent,

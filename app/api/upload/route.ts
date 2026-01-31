@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/app/lib/auth";
-import { saveUploadedFile } from "@/app/lib/database";
-import { ALLOWED_EXTENSIONS, MAX_FILE_SIZE } from "@/app/lib/constants";
+import { auth } from "@/lib/auth";
+import { saveUploadedFile } from "@/lib/database";
+import { ALLOWED_EXTENSIONS, MAX_FILE_SIZE } from "@/lib/constants";
 
 export async function POST(req: NextRequest) {
   try {

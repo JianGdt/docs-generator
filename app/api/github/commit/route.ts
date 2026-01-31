@@ -1,5 +1,5 @@
-import { auth } from "@/app/lib/auth";
-import { GitHubService } from "@/app/lib/github";
+import { auth } from "@/lib/auth";
+import { GitHubService } from "@/lib/github";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {

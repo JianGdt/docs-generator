@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
-import { Toaster } from "./components/ui/sonner";
+import { Toaster } from "../components/ui/sonner";
 import { SessionProvider } from "./providers/SessionProvider";
-import BreadcumbLayout from "./components/layout/Breadcrumb";
+import BreadcumbLayout from "../components/layout/Breadcrumb";
 import { ThemeProvider } from "./providers/ThemeProvider";
 
 const inter = Geist({
