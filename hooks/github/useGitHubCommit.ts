@@ -1,4 +1,3 @@
-// hooks/useGitHubCommit.ts
 import { useState } from "react";
 import { CommitFormValues } from "@/lib/schema/github";
 import { Repository } from "@//lib/@types/github";

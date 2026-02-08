@@ -1,5 +1,6 @@
 import { email, z } from "zod";
 import { passwordRules } from "../validators";
+import { githubUrlSchema } from "./github";
 
 export const registerSchema = z
   .object({
@@ -9,7 +10,7 @@ export const registerSchema = z
       .max(20, "Username must be at most 20 characters")
       .regex(
         /^[a-zA-Z0-9_]+$/,
-        "Username must contain only letters, numbers, and underscores"
+        "Username must contain only letters, numbers, and underscores",
       ),
     email: z.string().email("Invalid email address"),
     password: z.string().min(6, "Password must be at least 6 characters"),
@@ -24,9 +25,6 @@ export const loginSchema = z.object({
   identifier: z.string().min(1, "Username or email is required"),
   password: z.string().min(1, "Password is required"),
 });
-
-export type LoginFormValues = z.infer<typeof loginSchema>;
-export type RegisterFormValues = z.infer<typeof registerSchema>;
 
 // AUTH signInSchema AND signUpSchema
 
@@ -49,5 +47,19 @@ export const signInSchema = z
   })
   .strip();
 
+export const generateRequestSchema = z
+  .object({
+    method: z.enum(["github", "code", "upload"]),
+    data: z.string().min(1, "Data is required."),
+    docType: z.enum(["readme", "api", "guide", "contributing"]),
+  })
+  .strict();
+
 export type SignInInput = z.infer<typeof signInSchema>;
 export type SignUpInput = z.infer<typeof signUpSchema>;
+
+export type GenerateRequestInput = z.infer<typeof generateRequestSchema>;
+export type GithubUrlInput = z.infer<typeof githubUrlSchema>;
+
+export type LoginFormValues = z.infer<typeof loginSchema>;
+export type RegisterFormValues = z.infer<typeof registerSchema>;

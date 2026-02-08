@@ -1,5 +1,11 @@
-import { z } from "zod";
+import z from "zod";
 import { githubUrlSchema } from "./schema/github";
+import { VALID_DOC_TYPES } from "./services/groq";
+import { DocType, RepoContext } from "./@types/common";
+
+export const validateGithubUrl = (url: string) => {
+  return githubUrlSchema.safeParse(url);
+};
 
 export const passwordRules = z
   .string()
@@ -9,20 +15,32 @@ export const passwordRules = z
   .regex(/[0-9]/, "Password must contain at least one number.")
   .regex(
     /[^A-Za-z0-9]/,
-    "Password must contain at least one special character."
+    "Password must contain at least one special character.",
   );
 
-export const generateRequestSchema = z
-  .object({
-    method: z.enum(["github", "code", "upload"]),
-    data: z.string().min(1, "Data is required."),
-    docType: z.enum(["readme", "api", "guide", "contributing"]),
-  })
-  .strict();
+export function validateDocType(docType: DocType): asserts docType is DocType {
+  if (!VALID_DOC_TYPES.includes(docType as any)) {
+    throw new Error(
+      `Invalid docType: ${docType}. Valid types are: ${VALID_DOC_TYPES.join(", ")}`,
+    );
+  }
+}
 
-export const validateGithubUrl = (url: string) => {
-  return githubUrlSchema.safeParse(url);
-};
+export function validateContextData(contextData: string | RepoContext): void {
+  if (!contextData) {
+    throw new Error("contextData cannot be empty");
+  }
 
-export type GithubUrlInput = z.infer<typeof githubUrlSchema>;
-export type GenerateRequestInput = z.infer<typeof generateRequestSchema>;
+  if (typeof contextData === "string" && contextData.trim().length === 0) {
+    throw new Error("contextData string cannot be empty or whitespace only");
+  }
+
+  if (typeof contextData === "object") {
+    if (!contextData.repoName || !contextData.owner) {
+      throw new Error("RepoContext must have repoName and owner");
+    }
+    if (!contextData.files || contextData.files.length === 0) {
+      throw new Error("RepoContext must have at least one file");
+    }
+  }
+}

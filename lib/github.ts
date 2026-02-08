@@ -326,7 +326,6 @@ async function fetchFile(
       const content = Buffer.from(response.data.content, "base64").toString(
         "utf-8",
       );
-      // Increase limit for package.json, limit others
       const maxLength = path === "package.json" ? 50000 : 5000;
       return {
         path,

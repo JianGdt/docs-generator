@@ -12,3 +12,5 @@ export {
   buildReviewerSystemPrompt,
   buildReviewPrompt,
 } from "./prompt";
+
+export { safeParseJSON } from "./jsonParser";

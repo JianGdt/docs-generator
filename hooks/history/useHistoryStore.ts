@@ -1,5 +1,6 @@
 import { HistoryStore } from "@//lib/@types/store";
 import { create } from "zustand";
+
 const initialState = {
   documents: [],
   pagination: {

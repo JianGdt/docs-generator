@@ -46,6 +46,8 @@ export default function HistoryClient({
     setCurrentPage,
   ]);
 
+  console.log(initialData,  " init")
+
   return (
     <div className="max-w-7xl mx-auto py-6 px-4 lg:px-8">
       <PageHeader onRefresh={handleRefresh} isRefreshing={isPending} />

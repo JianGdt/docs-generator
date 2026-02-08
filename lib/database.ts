@@ -16,7 +16,7 @@ import {
 } from "./models/models.types";
 import { connectDB } from "./mongoose";
 
-// ==================== TYPE DEFINITIONS ====================
+// ==================== TYPE DEFINITIONS FOR DATABASE ====================
 
 type UserCreateData = {
   username: string;

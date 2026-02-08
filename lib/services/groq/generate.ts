@@ -1,8 +1,9 @@
 import { getGroqClient } from "./client";
 import { GROQ_CONFIG } from "./config";
 import { DocType, RepoContext } from "../../@types/common";
-import { validateContextData, validateDocType, withRetry } from "../../utils";
+import { withRetry } from "../../utils";
 import { buildAnalysisPrompt, buildSystemPrompt } from "./prompt";
+import { validateContextData, validateDocType } from "@/lib/validators";
 
 export async function generateDocumentation(
   contextData: string | RepoContext,
