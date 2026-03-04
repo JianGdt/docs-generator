@@ -3,12 +3,17 @@ import { NextRequest, NextResponse } from "next/server";
 
 export default async function proxy(request: NextRequest) {
   const session = await auth();
+  const { pathname } = request.nextUrl;
 
-  const isLoginPage = request.nextUrl.pathname.startsWith("/login");
-  const isRegisterPage = request.nextUrl.pathname.startsWith("/register");
+  const isAuthPage =
+    pathname.startsWith("/login") || pathname.startsWith("/register");
 
-  if ((isLoginPage || isRegisterPage) && !session?.user) {
+  if (isAuthPage && session?.user) {
     return NextResponse.redirect(new URL("/", request.url));
+  }
+
+  if (!isAuthPage && !session?.user) {
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   return NextResponse.next();
@@ -16,6 +21,6 @@ export default async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

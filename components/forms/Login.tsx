@@ -48,8 +48,8 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
 
       if (result?.ok) {
         toast.success("Successfully logged in!");
-        router.push("/");
         router.refresh();
+        router.push("/");
       }
     } catch (err) {
       toast.error("Failed to log in. Please try again.");

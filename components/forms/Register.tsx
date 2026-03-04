@@ -70,8 +70,8 @@ export default function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
         router.push("/login");
       } else {
         toast.success("Account created successfully!");
-        router.push("/");
         router.refresh();
+        router.push("/");
       }
     } catch (error: any) {
       toast.error("Registration failed. Please try again.");
