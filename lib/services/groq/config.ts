@@ -1,5 +1,5 @@
 export const GROQ_CONFIG = {
-  model: "openai/gpt-oss-120b",
+  model: "llama-3.3-70b-versatile",
   temperature: 0.2,
   maxTokens: 4000,
 } as const;
